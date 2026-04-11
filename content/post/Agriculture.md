@@ -1,10 +1,6 @@
 ---
 subject: Economy
-tags:
-  - Economy
-  - Agriculture
-  - Evaluation
-  - edge
+description: "Characteristics and Trends of Indian Agriculture"
 title: "My First Test Article"
 date: 2026-04-10
 draft: false
