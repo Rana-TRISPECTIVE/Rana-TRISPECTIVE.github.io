@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://localhost:1313/about/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/agriculture/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/economy/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/edge/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/evaluation/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/agriculture/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/untitled-documentd/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/get-started/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/getting-started/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/guide/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/configuration/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/customize/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/hugo-built-in-global-configuration/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/settings/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/theme-custom-global-configuration/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/page-configuration/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/example-config-yaml/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/additional-info/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/tags/license/</loc>
+  </url>
+  
+</urlset>

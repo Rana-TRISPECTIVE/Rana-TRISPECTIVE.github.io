@@ -1,0 +1,383 @@
+/* =========================================
+   1. GLOBAL VARIABLES & OVERRIDES
+   ========================================= */
+:root {
+    --theme-mat: #000000 !important;
+    --theme-nav: #000000 !important;
+}
+
+body[data-theme="dark"], body, html, main, .main-content {
+    background-color: #000000 !important;
+    background-image: none !important; /* Kills the theme background instantly */
+    color: #e0e0e0 !important;
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+    font-family: "Times New Roman", Times, serif !important;
+}
+
+/* =========================================
+   2. NAVBAR & LOGO
+   ========================================= */
+.navbar-brand img {
+    max-height: 65px !important;
+    filter: drop-shadow(0 0 8px #b026ff);
+    transition: transform 0.4s ease, filter 0.4s ease;
+}
+.navbar-brand img:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 15px #d896ff);
+}
+
+/* =========================================
+   3. HOMEPAGE HERO SECTION
+   ========================================= */
+.trispective-hero {
+    min-height: 55vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    background-image: radial-gradient(circle at top center, #1a052b 0%, #000000 60%) !important;
+}
+
+.trispective-title {
+    font-size: clamp(3rem, 10vw, 6rem) !important; 
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    margin: 0;
+    text-shadow: 0 0 10px #fff, 0 0 20px #b026ff, 0 0 40px #b026ff, 0 0 80px #7d1fa5 !important;
+    opacity: 0; 
+    animation: cinematicReveal 1s ease-out forwards, smoothNeon 3s 1s infinite alternate ease-in-out;
+}
+
+.trispective-author {
+    font-size: clamp(1.2rem, 4vw, 2.5rem) !important;
+    color: #e0b0ff !important; 
+    font-weight: 600;
+    font-style: italic;
+    margin-top: 10px;
+    text-shadow: 0 0 15px rgba(176, 38, 255, 0.6) !important;
+    opacity: 0;
+    animation: cinematicReveal 1s 0.4s ease-out forwards;
+}
+
+/* =========================================
+   4. HOMEPAGE ARTICLE CARDS
+   ========================================= */
+.post-list-container {
+    padding: 40px 15px 80px 15px; 
+    background-color: #000000 !important;
+}
+
+.post-card {
+    margin: 0 auto 30px auto;
+    max-width: 750px;
+    border: 1px solid #2a1140; 
+    padding: 30px;
+    border-radius: 16px;
+    background: rgba(10, 10, 10, 0.8); 
+    backdrop-filter: blur(5px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.8s ease-out forwards;
+}
+
+.post-card:nth-child(1) { animation-delay: 0.6s; }
+.post-card:nth-child(2) { animation-delay: 0.8s; }
+.post-card:nth-child(3) { animation-delay: 1.0s; }
+
+.post-card:hover {
+    border-color: #b026ff;
+    box-shadow: 0 8px 30px rgba(176, 38, 255, 0.2);
+    transform: translateY(-8px) scale(1.01); 
+}
+
+.post-card h2 { margin-top: 0; margin-bottom: 15px; }
+.post-card h2 a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 2rem;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+.post-card:hover h2 a { color: #e0b0ff; text-shadow: 0 0 10px rgba(176, 38, 255, 0.5); }
+.post-summary { color: #b3b3b3; font-size: 1.15rem; line-height: 1.7; font-family: 'Lato', sans-serif; }
+
+/* =========================================
+   5. CUSTOM ARTICLE PAGE LAYOUT
+   ========================================= */
+.rana-article-wrapper {
+    max-width: 850px;
+    margin: 100px auto 0 auto; /* Ensures space below navbar */
+    padding: 40px 20px 80px 20px;
+    background-color: #000000 !important;
+}
+
+.rana-article-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #2a1140; 
+}
+
+.rana-article-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem) !important;
+    color: #ffffff !important;
+    margin-bottom: 15px;
+    text-shadow: 0 0 15px rgba(176, 38, 255, 0.4) !important; 
+}
+
+.rana-article-meta { color: #a0a0a0; font-size: 1.1rem; font-style: italic; }
+
+.rana-article-content {
+    color: #e0e0e0; 
+    font-size: 1.18rem;
+    line-height: 1.8;
+}
+
+.rana-article-content h1, .rana-article-content h2, .rana-article-content h3 {
+    color: #ffffff;
+    margin-top: 45px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #1a052b; 
+    padding-bottom: 10px;
+}
+
+.rana-article-content a {
+    color: #e0b0ff;
+    text-decoration: none;
+    border-bottom: 1px dashed #7d1fa5;
+    transition: all 0.3s ease;
+}
+.rana-article-content a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 10px #b026ff;
+    border-bottom-color: #ffffff;
+}
+
+/* =========================================
+   6. TABLE OF CONTENTS & OBSIDIAN HIGHLIGHTS
+   ========================================= */
+.toc-container, #TableOfContents {
+    background-color: #270138 !important;
+    padding: 25px !important;
+    border-radius: 12px !important;
+    border: 1px solid #4a0f7a !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+    margin-bottom: 40px !important;
+}
+
+#TableOfContents ul { list-style-type: none !important; padding-left: 20px !important; }
+#TableOfContents li { margin-bottom: 8px !important; }
+#TableOfContents a { color: #e0b0ff !important; text-decoration: none !important; transition: all 0.3s ease; }
+#TableOfContents a:hover { color: #ffffff !important; text-shadow: 0 0 8px #b026ff !important; }
+
+mark {
+    background-color: #4a0f7a !important;
+    color: #ffffff !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+}
+
+.rana-article-content pre, .rana-article-content code {
+    background-color: #12031a; 
+    color: #e0b0ff;
+    border-radius: 6px;
+    padding: 2px 6px;
+    border: 1px solid #2a1140;
+}
+
+/* =========================================
+   7. SCROLLBAR & KEYFRAMES
+   ========================================= */
+::-webkit-scrollbar { width: 10px !important; background-color: #000000 !important; }
+::-webkit-scrollbar-thumb { background-color: #270138 !important; border-radius: 10px !important; border: 2px solid #000000 !important; }
+::-webkit-scrollbar-thumb:hover { background-color: #7d1fa5 !important; }
+html { scrollbar-width: thin !important; scrollbar-color: #270138 #000000 !important; }
+
+@keyframes cinematicReveal {
+    0% { opacity: 0; transform: scale(0.95); filter: blur(8px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0px); }
+}
+
+@keyframes smoothNeon {
+    from { filter: brightness(100%); }
+    to { filter: brightness(125%); text-shadow: 0 0 15px #fff, 0 0 25px #d896ff, 0 0 50px #b026ff, 0 0 90px #7d1fa5 !important; }
+}
+
+@keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   8. ANDROID / MOBILE OPTIMIZATION
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* 1. Fix the Overflowing Hero Title */
+    .trispective-title {
+        font-size: clamp(2rem, 12vw, 3.5rem) !important; /* Smaller minimum size */
+        letter-spacing: 2px !important; /* Stops the letters from pushing off-screen */
+        line-height: 1.2 !important;
+    }
+
+    .trispective-author {
+        font-size: 1.2rem !important;
+    }
+
+    /* 2. Optimize Homepage Cards for Thumbs */
+    .post-list-container {
+        padding: 20px 10px 60px 10px !important; 
+    }
+
+    .post-card {
+        padding: 20px 15px !important; /* Less padding to give text more room */
+        margin-bottom: 20px !important;
+        border-radius: 12px !important;
+    }
+
+    .post-card h2 a {
+        font-size: 1.5rem !important; /* Slightly smaller post titles */
+    }
+
+    .post-summary {
+        font-size: 1rem !important;
+        line-height: 1.5;
+    }
+
+    /* 3. Optimize the Article Reading Experience */
+    .rana-article-wrapper {
+        margin-top: 70px !important; /* Less space needed under the mobile navbar */
+        padding: 20px 15px 50px 15px !important;
+    }
+
+    .rana-article-title {
+        font-size: clamp(1.8rem, 8vw, 2.5rem) !important;
+        margin-bottom: 10px !important;
+    }
+
+    .rana-article-meta {
+        font-size: 0.95rem !important;
+    }
+
+    .rana-article-content {
+        font-size: 1.05rem !important; /* Perfect reading size for high-res Android screens */
+        line-height: 1.6 !important;
+    }
+
+    /* 4. Compact the Table of Contents */
+    .toc-container, #TableOfContents {
+        padding: 15px !important;
+        margin-bottom: 30px !important;
+    }
+}
+
+
+/* =========================================
+   9. SMART NAVBAR & BACK TO TOP BUTTON
+   ========================================= */
+
+/* Target the fixed navbar directly instead of the parent header */
+.navbar.fixed-top {
+    transition: transform 0.4s cubic-bezier(0.3, 1, 0.3, 1) !important;
+}
+
+/* The class JavaScript will add to hide the navbar */
+.nav-hidden {
+    transform: translateY(-100%) !important;
+}
+
+
+/* The class JavaScript will add to hide the navbar */
+.nav-hidden {
+    transform: translateY(-100%) !important;
+}
+
+/* The Neon Back to Top Button */
+.rana-back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #7d1fa5, #b026ff);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(176, 38, 255, 0.4);
+    border: 2px solid #270138;
+    z-index: 1001;
+    
+    /* Hidden by default */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+/* The class JavaScript will add to show the button */
+.rana-back-to-top.show-btn {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.rana-back-to-top:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 6px 20px rgba(176, 38, 255, 0.8);
+}
+
+/* Mobile adjustments for the button */
+@media screen and (max-width: 768px) {
+    .rana-back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+}
+
+
+/* =========================================
+   10. CUSTOM TRISPECTIVE FOOTER
+   ========================================= */
+.rana-custom-footer {
+    background-color: #000000 !important;
+    border-top: 1px solid #2a1140; /* Dark purple border top pe */
+    padding: 40px 20px 60px 20px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.footer-socials a {
+    color: #e0b0ff; /* Light purple icon */
+    display: inline-block;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.footer-socials a:hover {
+    color: #b026ff; /* Neon hover effect */
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 10px #b026ff);
+}
+
+.footer-copyright {
+    color: #a0a0a0; /* Soft gray for copyright text */
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+}

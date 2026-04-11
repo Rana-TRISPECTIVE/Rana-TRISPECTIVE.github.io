@@ -1,0 +1,559 @@
+i am creating website hugo+ github for personal blog... very minimalistic.... clear-stylish and perfect animation
+i dont no codding but i am techi....
+
+half work is i completed.... i start this new chat.... so i give some info and just understand....
+
+1./home/rana/TRISPECTIVE/config.yaml :
+baseURL: "https://example.com/" # url address of the website | required
+title: "TRISPECTIVE" # title of the site; usually same as brand name | required
+copyright: "Copyright &#169; 2020 Softorage. All rights reserved." # should match 'brand -> name', and 'contentLicense' under params below; used in default rss template: https://gohugo.io/templates/rss/#configure-rss | optional
+languageCode: "en-us" # recommended | no default
+theme: "hugotheme-vibrantshadows"
+# googleAnalytics: "G-123456789-0" # Respecting your preference from 'privacy', and 'params' -> 'user_experience' below, if you set this value, Google Analytics code will be included. Google Analytics included only when serving the website on 'production' environment (i.e. website built with `hugo` command and not `hugo serve`)
+# disqusShortname: "yourdiscussshortname" # Respecting your preference from 'privacy', if you set this value, Disqus comments code will be included at the end of the blog posts. Disqus comments are shown only when serving the website on 'production' environment (i.e. website built with `hugo` command and not `hugo serve`)
+
+taxonomies:
+  tag: "tags"
+
+# Allow HTML in markdown to be rendered, for social platform list in configuration options
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  tableOfContents:
+    endLevel: 4
+    ordered: true
+    startLevel: 2
+
+# with this, Hugo notes some stats about website, which are then used by CSS processors
+build:
+  writeStats: true
+  
+# Here starts our customization
+params:
+  customCSS: ["css/custom.css"]
+  backgImage:
+    landingPage: "/images/hero.jpg"
+    post: "enable"
+  social: 
+    profiles: # social platforms you are present on. see supported ones here | highly recommended
+      facebook: "https://www.facebook.com/Softorage"
+      twitter: "https://twitter.com/Softorage"
+      github: "https://github.com/Softorage"
+      gitlab: "https://gitlab.com/Softorage/"
+      instagram: "https://www.instagram.com/softorage/"
+    share: ["facebook", "twitter", "linkedin", "telegram", "whatsapp", "reddit", "email"] # accepts array of values: "facebook", "twitter", "linkedin", "whatsapp", "reddit", "email". just type the name of those you want you articles to be able to be shared on
+  meta:
+    author: "Softorage" # website-wide author | required
+    footerMessage: "Vibrant Shadows by Softorage" # text shown in footer above footer links | optional
+    tagline: "TRISPECTIVE"
+    description: "By Rana"
+    contentLicense: "CC-BY-SA-3.0" # cc-by-3.0, etc or 'All right reserved.' should also be same as the one in copyright above
+    titleSeparator: " | " # used in website/blog title, to separate (say) page title from website/blog title | default: " | "
+    attribution: "enable" # attribute Hugo team for awesome software and Softorage for great theme | default: "enable"
+  brand:
+    name: "Vibrant Shadows" # brand name (Samy's blog), usually just one word that is name of the brand | required | no default
+   # logo_500px: "/assets/favicon/android-chrome-512x512.png" # path (preferably relative path) to brand's good resolution logo | required | no default
+    logo_32px: "/assets/favicon/my-logo.png" # Points to your new logo
+    color: "#7d1fa5" # color to be shown for brand name on navbar on scroll | required | no default
+    navbar: ["logo"] # accepts array of values: "logo", "name" | this configuration shows brand 'log' & brand 'name' on navbar | optional | default: ["logo", "name"]
+  theme: # optional
+    nav: "#212121" # navbar's background color | optional | default: "#ffffff"
+    antinav: "#cccccc" # a color in good contrast to nav | optional | default: "#000000"
+    mat: "#121212" # background color forcards (not of cards) | optional | default: "#f9f9f9"
+    clr1: "#7d1fa5" # color-1 of gradient | optional | default: "#7d1fa5"
+    clr2: "#6d19fc" # color-2 of gradient | optional | default: "#6d19fc"
+    borders: "rounded" # accepts value: rounded/square | what kind of borders do you like for elements, like buttons | default: "rounded"
+    gradientDirection:
+      background: "ltr" # accepts value: ltr/rtl | ltr: left to right; rtl: right to left | optional | default: "ltr"
+      text: "ltr" # accepts value: ltr/rtl | ltr: left to right; rtl: right to left | optional | default: "ltr"
+      button: "ltr" # accepts value: ltr/rtl | ltr: left to right; rtl: right to left | optional | default: "ltr"
+  position: # optional
+    social:
+      profiles: "footer" # accepts value: navbar/footer | may use 'navbar' if number of items in main menu and social profiles are minimal, otherwise 'footer' is recommended | default: "footer"
+      share: "top" # top/bottom | no default
+    navbarMenu: "right" # accepts value: right/left | decides the position of main menu on navbar | default: "right"
+    postMeta: # 
+      readingTime:
+        summary: "top" # values: top/bottom | optional | no default
+        content: "top" # values: top/bottom | optional | no default
+      #wordCount:
+        #summary: "top" # values: top/bottom | optional | no default
+        #content: "top" # values: top/bottom | optional | no default
+      author:
+        summary: "top" # values: top/bottom | optional | no default
+        content: "top" # values: top/bottom | optional | no default
+      lastUpdated:
+        summary: "top" # values: top/bottom | optional | no default
+        content: "top" # values: top/bottom | optional | no default
+      tags:
+        summary: "top" # values: top/bottom | optional | no default
+        content: "bottom" # values: top/bottom | optional | no default
+  font:
+    general:
+      family: "Lato" # Keep this as Lato for normal article text
+      #cdnLink: "" 
+    heading: 
+      list: ["h1"] 
+      family: "Times New Roman" # <--- CHANGED THIS
+      #cdnLink: "" 
+    description:
+      family: "Times New Roman" # <--- CHANGED THIS
+      #cdnLink: "" 
+    brand:
+      family: "Times New Roman" # <--- CHANGED THIS
+      #cdnLink: "" 
+    footer:
+      family: "Lato" 
+      #cdnLink: ""
+  faviconTags: | # just copy paste all the tags here (Hugo templating supported). Also, ensure that you have "purpose": "maskable" set for one icon in your site.webmanifest file (helps for pwa). Use https://realfavicongenerator.net, it's great
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ site.BaseURL }}/assets/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ site.BaseURL }}/assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ site.BaseURL }}/assets/favicon/favicon-16x16.png">
+    <link rel="manifest" href="{{ site.BaseURL }}/assets/favicon/site.webmanifest">
+    <link rel="mask-icon" href="{{ site.BaseURL }}/assets/favicon/safari-pinned-tab.svg" color="#7817c4">
+    <link rel="icon" href="{{ site.BaseURL }}/assets/favicon/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ site.BaseURL }}/assets/favicon/favicon.ico" type="image/x-icon">
+    <meta name="apple-mobile-web-app-title" content="Vibrant Shadows Theme">
+    <meta name="application-name" content="Vibrant Shadows Theme">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+  seo:
+    switch: "on" # accepts value: on/off | decide whether you want all the good seo meta tags | default: on
+    twitter:
+      card: "enable" # accepts value: enable/disable | good for seo | default: enable
+      handle: "Softorage" # twitter handle website-wide author, without @
+    facebook:
+      openGraph: "enable" # accepts value: enable/disable | good for seo | default: enable
+      #appID: "" # facebook App ID
+    jsonLD: "enable" # accepts value: enable/disable | good for seo | default: enable
+    speedMode: "disable" # accepts value: enable/disable | enabling "Speed Mode" would make the website/blog extremely fast and lightweight, providing a snappy experience to website/blog visitors. "Speed Mode" utilises *PostCSS* via *Hugo's Asset Pipeline*. note that, "Speed Mode" works in *production environment* only. since many Hugo users do not have Hugo's extended version, this option is disabled by default. | default: disable
+  cookieConsent: # we use OSANO Cookie Consent solution
+    switch: "off" # accepts: on/off | decide whether you want to show a cookie consent dialog to your users | default: "off"
+    type: "opt-in" # accepts: opt-in/opt-out/none | In opt-in, website doesn't employ cookies to user's computer unless user gives cosent to opt in. In opt-out, cookies are employed on user's computer and the user is given the choice to opt out of cookies. In none, cookies are employed on the user's computer and user is not given a choice in that regard. Refrain from using none, unless you have zero customers from EU or similar countries with privacy protecting laws. | no default
+    revokable: true # a button to revoke cookie consent appears when user hover in bottom area of the screen, regardless whether user's country requires revertable cookie consent | default: true
+    colors:
+      banner:
+        background: "#ffffff" # HEX | default: theme.nav
+        text: "#000000" # HEX | default: theme.antinav
+      button:
+        background: "#6d19fc" # HEX | default: theme.clr2
+        text: "#ffffff" # HEX | default: theme.nav
+    content: # change the links below to appropriate url addresses
+      message: | # no default
+        By continuing to use this website, you agree to our <a href='/legal/privacy-policy/'>Privacy Policy</a>, <a href='/legal/cookie-policy/'>Cookie Policy</a> and our <a href='/legal/terms-and-conditions/'>Terms and Conditions</a> for your use of this website.
+      dismiss: "Close" # text on the button that dismisses the popup/banner | default: "Close"
+      linkText: "Learn more" # this text appears after the message and is hyperlinked | default: "Learn more"
+      linkURL: "/legal/privacy-policy/" # url of location where user should be directed when they click "Learn more".
+      allow: "Allow" # text on the button that allows cookies | default: "Allow"
+      deny: "Decline" # text on the button that denies cookies | default: "Decline"
+      policy: "Cookie Consent" # text that appears on the button, when user's country requires revokable cookie consent | default: "Cookie Consent"
+  userExperience:
+    googleAnalytics: # customize your Google Analytics
+      script: 0 # accepts value: 0/1/2 | 0: Default script by Google via Hugo's internal template; 1: minimal-analytics by James Hill; 2: minimal-analytics-4 by Dariusz Więckiewicz | optional | default: 0
+      loading: "sync" # accepts value: sync/async | determines whether Google Analytics JavaScript file loads 'Synchronously' or 'Asynchronously' | optional | default: "sync"
+    postImages: # customize behaviour for your posts' images
+      thumbnail:
+        size: "200px" # accepts value: string | integer: size of post images when they appear as thumbnails; string: unit of size | default: "200px"
+        borders: "rounded" # accepts value: square, rounded, circle, pill | choose the border radius of posts' images when they appear as thumbnails | optional | default: "rounded"
+  mainSections: ["post"] # required, https://gohugo.io/functions/where/#mainsections
+  #customVerification:
+    #myWOT: "ba8579f668r8w3g62503" # content for meta tag to verify your website on 'Web Of Trust'
+
+
+
+
+2. /home/rana/TRISPECTIVE/static/css/custom.css
+/* 1. THE LOGO - Bigger and Glowy */
+.navbar-brand img {
+    max-height: 65px !important;
+    filter: drop-shadow(0 0 5px #b026ff);
+    transition: all 0.4s ease;
+}
+.navbar-brand img:hover {
+    transform: scale(1.2) rotate(3deg);
+}
+
+/* 2. TRISPECTIVE - The Neon Masterpiece */
+.tagline {
+    font-size: 8rem !important; 
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 8px !important;
+    line-height: 1.1 !important;
+    text-shadow: 
+        0 0 10px #fff,
+        0 0 20px #b026ff,
+        0 0 40px #b026ff,
+        0 0 80px #7d1fa5,
+        0 0 120px #7d1fa5 !important;
+    animation: neonPulse 2s infinite alternate;
+}
+
+/* 3. BY RANA - Elegant Subtitle */
+.description {
+    font-size: 3rem !important;
+    color: #e0b0ff !important;
+    font-weight: 600 !important;
+    font-style: italic !important;
+    margin-top: 20px !important;
+    text-shadow: 0 0 15px rgba(176, 38, 255, 0.6) !important;
+}
+
+@keyframes neonPulse {
+    from { filter: brightness(100%) contrast(100%); }
+    to { filter: brightness(120%) contrast(110%); }
+}
+
+.hero {
+    background-color: #000000 !important;
+}
+
+/* =========================================
+   ARTICLE PAGE CUSTOMIZATION (BULLETPROOF)
+   ========================================= */
+
+/* 1. Aggressive AMOLED Black Background for EVERYTHING */
+body, html, main, .main-content, article, .post-content, .card, .content, .container, .bg-white, .bg-light, .post {
+    background-color: #000000 !important;
+    background: #000000 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Keep headings bright so they are readable */
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+}
+
+/* 2. Table of Contents (Very Dark Purple) */
+#TableOfContents, .toc {
+    background-color: #270138 !important;
+    padding: 20px !important;
+    border-radius: 12px !important;
+    border: 1px solid #6d19fc !important; 
+    box-shadow: 0 0 15px rgba(39, 1, 56, 0.5) !important;
+    margin-bottom: 30px !important;
+}
+
+#TableOfContents a, .toc a {
+    color: #e0b0ff !important; 
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+}
+
+#TableOfContents a:hover, .toc a:hover {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px #b026ff !important;
+}
+
+/* =========================================
+   SCROLLBAR CUSTOMIZATION (FIXED)
+   ========================================= */
+
+::-webkit-scrollbar {
+    width: 12px !important;
+    background-color: #000000 !important; 
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #270138 !important; 
+    border-radius: 10px !important;
+    border: 2px solid #000000 !important; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #7d1fa5 !important; 
+}
+
+/* For Firefox browsers */
+html {
+    scrollbar-width: thin !important;
+    scrollbar-color: #270138 #000000 !important;
+}
+
+/* =========================================
+   HOMEPAGE HERO & ARTICLE LAYOUT
+   ========================================= */
+
+/* 1. MOBILE RESPONSIVE HERO */
+.trispective-hero {
+    background-color: #000000 !important;
+    background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/images/hero.jpg');
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 60vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+/* 2. RESPONSIVE NEON TITLE */
+.trispective-title {
+    font-size: clamp(2.5rem, 10vw, 5.5rem) !important; 
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    font-family: "Times New Roman", Times, serif !important; 
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    margin: 0;
+    text-shadow: 
+        0 0 10px #fff,
+        0 0 20px #b026ff,
+        0 0 40px #b026ff,
+        0 0 80px #7d1fa5 !important;
+    animation: smoothNeon 4s infinite alternate ease-in-out;
+}
+
+.trispective-author {
+    font-size: clamp(1.2rem, 4vw, 2rem) !important;
+    color: #ffffff !important; 
+    font-weight: 600;
+    font-style: italic;
+    font-family: "Times New Roman", Times, serif !important;
+    margin-top: 5px;
+    text-shadow: 
+        0 0 10px #fff,
+        0 0 20px #b026ff,
+        0 0 40px #b026ff,
+        0 0 80px #7d1fa5 !important;
+    animation: smoothNeon 4s infinite alternate ease-in-out;
+}
+
+@keyframes smoothNeon {
+    from { filter: brightness(100%); }
+    to { filter: brightness(130%); }
+}
+
+/* 3. CLEAN ARTICLE LIST WITH SMOOTH ANIMATION */
+.post-list-container {
+    background-color: #000000 !important;
+    padding: 60px 15px; 
+}
+
+/* Base state: Hidden and slightly lowered */
+.post-card {
+    margin: 0 auto 30px auto;
+    max-width: 700px;
+    border: 1px solid #222; 
+    padding: 25px;
+    border-radius: 12px;
+    background: rgba(10, 10, 10, 0.6); 
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Active state: Triggered by scrolling */
+.post-card.show-card {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Hover Effect: Glows and lifts up */
+.post-card:hover {
+    border-color: #b026ff;
+    box-shadow: 0 10px 25px rgba(176, 38, 255, 0.2);
+    transform: translateY(-5px); 
+}
+
+.post-card h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.post-card h2 a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.8rem;
+    font-family: "Times New Roman", Times, serif !important; 
+    transition: color 0.3s ease;
+}
+
+.post-card:hover h2 a {
+    color: #b026ff; 
+}
+
+.post-summary {
+    color: #aaaaaa;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+
+
+3. /home/rana/TRISPECTIVE/layouts/partials/hero.html
+<style>
+/* THE POWER STYLE - This forces the neon purple look */
+.hero-wrapper {
+    background-image: url('/images/hero.jpg') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 50px;
+}
+
+.custom-neon-title {
+    font-size: clamp(4rem, 10vw, 9rem) !important; /* Massive & Responsive */
+    color: #fff !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    /* The Neon Purple Glow */
+    text-shadow: 
+        0 0 10px #fff,
+        0 0 20px #b026ff,
+        0 0 40px #b026ff,
+        0 0 80px #7d1fa5,
+        0 0 120px #7d1fa5 !important;
+    animation: smoothPulse 3s infinite alternate;
+}
+
+.custom-sub-title {
+    font-size: 3rem !important;
+    color: #e0b0ff !important; /* Light Purple/Lavender */
+    font-weight: 600 !important;
+    margin-top: 10px !important;
+    text-shadow: 0 0 10px rgba(176, 38, 255, 0.5) !important;
+}
+
+@keyframes smoothPulse {
+    from { text-shadow: 0 0 10px #fff, 0 0 20px #b026ff, 0 0 40px #b026ff; }
+    to { text-shadow: 0 0 15px #fff, 0 0 30px #d896ff, 0 0 60px #b026ff, 0 0 100px #7d1fa5; }
+}
+</style>
+
+<section class="hero-wrapper">
+    <h1 class="custom-neon-title">TRISPECTIVE</h1>
+    <p class="custom-sub-title">By Rana</p>
+</section>
+
+
+
+
+
+4./home/rana/TRISPECTIVE/layouts/index.html
+{{ define "main" }}
+<style>
+/* 1. MOBILE RESPONSIVE HERO */
+.trispective-hero {
+    background-color: #000000 !important;
+    background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/images/hero.jpg');
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 60vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+/* 2. RESPONSIVE NEON TITLE WITH CINEMATIC REVEAL */
+.trispective-title {
+    font-size: clamp(2.5rem, 10vw, 5.5rem) !important; 
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    font-family: "Times New Roman", Times, serif !important; 
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    margin: 0;
+    text-shadow: 
+        0 0 10px #fff,
+        0 0 20px #b026ff,
+        0 0 40px #b026ff,
+        0 0 80px #7d1fa5 !important;
+        
+    /* Start completely invisible to hide the glitch */
+    opacity: 0; 
+    /* Fade in over 1 second, then start pulsing forever */
+    animation: cinematicReveal 1s ease-out forwards, smoothNeon 4s 1s infinite alternate ease-in-out;
+}
+
+.trispective-author {
+    font-size: clamp(1.2rem, 4vw, 2rem) !important;
+    color: #ffffff !important; 
+    font-weight: 600;
+    font-style: italic;
+    font-family: "Times New Roman", Times, serif !important;
+    margin-top: 5px;
+    text-shadow: 
+        0 0 10px #fff,
+        0 0 20px #b026ff,
+        0 0 40px #b026ff,
+        0 0 80px #7d1fa5 !important;
+        
+    /* Start invisible */
+    opacity: 0;
+    /* Fade in slightly after the main title for a cool staggered effect */
+    animation: cinematicReveal 1s 0.3s ease-out forwards, smoothNeon 4s 1.3s infinite alternate ease-in-out;
+}
+
+/* --- THE ANIMATIONS --- */
+
+/* This hides the ugly flash by keeping text blurred and invisible for a moment */
+@keyframes cinematicReveal {
+    0% { opacity: 0; transform: scale(0.95); filter: blur(5px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0px); }
+}
+
+@keyframes smoothNeon {
+    from { filter: brightness(100%); }
+    to { filter: brightness(130%); }
+}
+
+/* 3. BASIC ARTICLE LIST (Safe & Clean) */
+.post-list-container {
+    background-color: #000000 !important;
+    padding: 60px 15px; 
+}
+.post-card {
+    margin: 0 auto 30px auto;
+    max-width: 700px;
+    border: 1px solid #333; 
+    padding: 25px;
+    border-radius: 12px;
+    background: #0a0a0a; 
+}
+.post-card h2 a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.8rem;
+}
+.post-summary {
+    color: #aaaaaa;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+</style>
+
+<div class="trispective-hero">
+    <h1 class="trispective-title">TRISPECTIVE</h1>
+    <p class="trispective-author">By Rana</p>
+</div>
+
+<div class="post-list-container">
+    {{ range (where .Site.RegularPages "Section" "post") }}
+        <div class="post-card">
+            <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+            <div class="post-summary">{{ .Summary | truncate 150 }}</div>
+        </div>
+    {{ end }}
+</div>
+{{ end }}
+
+
+
+5. sceenshot of website : 

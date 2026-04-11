@@ -1,0 +1,6 @@
+[submodule "HugoTheme-VibrantShadows"]
+	path = HugoTheme-VibrantShadows
+	url = https://github.com/Softorage/HugoTheme-VibrantShadows.git
+[submodule "themes/hugotheme-vibrantshadows"]
+	path = themes/hugotheme-vibrantshadows
+	url = https://github.com/Softorage/HugoTheme-VibrantShadows.git

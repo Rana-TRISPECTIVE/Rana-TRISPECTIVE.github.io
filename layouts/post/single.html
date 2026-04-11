@@ -1,0 +1,74 @@
+{{ define "main" }}
+
+<link rel="stylesheet" href="/css/custom.css">
+
+<div class="rana-article-wrapper">
+    <header class="rana-article-header">
+        <h1 class="rana-article-title">{{ .Title }}</h1>
+        <div class="rana-article-meta">
+            By {{ .Params.author | default .Site.Params.meta.author }} &nbsp; | &nbsp; 
+            {{ .Date.Format "January 2, 2006" }} &nbsp; | &nbsp; 
+            {{ .ReadingTime }} min read
+        </div>
+    </header>
+
+    {{ if and (gt .WordCount 400) (ne .Params.toc false) }}
+    <div class="toc-container" style="margin-bottom: 40px;">
+        <h2 style="color: #e0b0ff; margin-bottom: 15px; margin-top: 0; font-family: 'Times New Roman', Times, serif;">Contents</h2>
+        {{ .TableOfContents }}
+    </div>
+    {{ end }}
+
+    <article class="rana-article-content">
+        {{ .Content }}
+    </article>
+</div>
+
+<div id="ranaBackToTop" class="rana-back-to-top">
+    &#8593;
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let lastScrollTop = 0;
+    
+    // Grabs the main theme navbar and our new button
+    const navbar = document.querySelector(".navbar.fixed-top"); 
+    const backToTopBtn = document.getElementById("ranaBackToTop");
+
+    window.addEventListener("scroll", function() {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        // 1. SMART NAVBAR LOGIC
+        if (navbar) {
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                // User is scrolling down: Hide Navbar
+                navbar.classList.add("nav-hidden");
+            } else {
+                // User is scrolling up: Show Navbar
+                navbar.classList.remove("nav-hidden");
+            }
+        }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Prevents mobile bouncing glitches
+
+        // 2. BACK TO TOP BUTTON LOGIC
+        if (scrollTop > 400) {
+            // Show button after scrolling down 400px
+            backToTopBtn.classList.add("show-btn");
+        } else {
+            // Hide button if near the top
+            backToTopBtn.classList.remove("show-btn");
+        }
+    });
+
+    // 3. CLICK TO SMOOTH SCROLL LOGIC
+    backToTopBtn.addEventListener("click", function() {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
+});
+</script>
+
+{{ end }}

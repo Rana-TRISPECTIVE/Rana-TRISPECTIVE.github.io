@@ -1,0 +1,28 @@
+i am creating website hugo+ github for personal blog... very minimalistic.... clear-stylish and perfect animation
+i dont no codding but i am techi....
+
+half work is i completed.... i start this new chat.... so i give some info and just understand....
+
+1./home/rana/TRISPECTIVE/config.yaml :
+
+
+
+
+2. /home/rana/TRISPECTIVE/static/css/custom.css
+
+
+
+
+3. /home/rana/TRISPECTIVE/layouts/partials/hero.html
+
+
+
+
+
+
+4./home/rana/TRISPECTIVE/layouts/index.html
+
+
+
+
+5. sceenshot of website : 

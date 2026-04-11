@@ -1,0 +1,143 @@
+baseURL: "https://example.com/" # url address of the website | required
+title: "TRISPECTIVE" # title of the site; usually same as brand name | required
+copyright: "Copyright &#169; 2020 Softorage. All rights reserved." # should match 'brand -> name', and 'contentLicense' under params below
+languageCode: "en-us" # recommended | no default
+theme: "hugotheme-vibrantshadows"
+
+taxonomies:
+  tag: "tags"
+
+# Allow HTML in markdown to be rendered, AND enable Obsidian ==highlights==
+markup:
+  goldmark:
+    extensions:
+      mark: true
+    renderer:
+      unsafe: true
+  tableOfContents:
+    endLevel: 4
+    ordered: true
+    startLevel: 2
+
+# with this, Hugo notes some stats about website, which are then used by CSS processors
+build:
+  writeStats: true
+  
+# Here starts our customization
+params:
+  customCSS: ["css/custom.css"]
+  backgImage:
+    landingPage: "/images/hero.jpg"
+    post: "enable"
+  social: 
+    profiles: 
+      facebook: "https://www.facebook.com/Softorage"
+      twitter: "https://twitter.com/Softorage"
+      github: "https://github.com/Softorage"
+      gitlab: "https://gitlab.com/Softorage/"
+      instagram: "https://www.instagram.com/softorage/"
+    share: ["facebook", "twitter", "linkedin", "telegram", "whatsapp", "reddit", "email"]
+  meta:
+    author: "Softorage" # website-wide author | required
+    footerMessage: "Vibrant Shadows by Softorage" # text shown in footer above footer links | optional
+    tagline: "TRISPECTIVE"
+    description: "By Rana"
+    contentLicense: "CC-BY-SA-3.0" 
+    titleSeparator: " | " 
+    attribution: "enable" 
+  brand:
+    name: "Vibrant Shadows" 
+    logo_32px: "/assets/favicon/my-logo.png" # Points to your new logo
+    color: "#000000" # changed to black
+    navbar: ["logo"] 
+  theme: # optional
+    nav: "#000000" # changed to black
+    antinav: "#cccccc" 
+    mat: "#000000" # changed to black
+    clr1: "#000000" # changed to black
+    clr2: "#000000" # changed to black
+    borders: "rounded"  
+    gradientDirection:
+      background: "ltr" 
+      text: "ltr" 
+      button: "ltr" 
+  position: # optional
+    social:
+      profiles: "footer" 
+      share: "top" 
+    navbarMenu: "right" 
+    postMeta: # 
+      readingTime:
+        summary: "top" 
+        content: "top" 
+      author:
+        summary: "top" 
+        content: "top" 
+      lastUpdated:
+        summary: "top" 
+        content: "top" 
+      tags:
+        summary: "top" 
+        content: "bottom" 
+  font:
+    general:
+      family: "Lato" 
+    heading: 
+      list: ["h1"] 
+      family: "Times New Roman" 
+    description:
+      family: "Times New Roman" 
+    brand:
+      family: "Times New Roman" 
+    footer:
+      family: "Lato" 
+  faviconTags: | 
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ site.BaseURL }}/assets/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ site.BaseURL }}/assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ site.BaseURL }}/assets/favicon/favicon-16x16.png">
+    <link rel="manifest" href="{{ site.BaseURL }}/assets/favicon/site.webmanifest">
+    <link rel="mask-icon" href="{{ site.BaseURL }}/assets/favicon/safari-pinned-tab.svg" color="#7817c4">
+    <link rel="icon" href="{{ site.BaseURL }}/assets/favicon/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ site.BaseURL }}/assets/favicon/favicon.ico" type="image/x-icon">
+    <meta name="apple-mobile-web-app-title" content="Vibrant Shadows Theme">
+    <meta name="application-name" content="Vibrant Shadows Theme">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+  seo:
+    switch: "on" 
+    twitter:
+      card: "enable" 
+      handle: "Softorage" 
+    facebook:
+      openGraph: "enable" 
+    jsonLD: "enable" 
+    speedMode: "disable" 
+  cookieConsent: 
+    switch: "off" 
+    type: "opt-in" 
+    revokable: true 
+    colors:
+      banner:
+        background: "#ffffff" 
+        text: "#000000" 
+      button:
+        background: "#6d19fc" 
+        text: "#ffffff" 
+    content: 
+      message: | 
+        By continuing to use this website, you agree to our <a href='/legal/privacy-policy/'>Privacy Policy</a>, <a href='/legal/cookie-policy/'>Cookie Policy</a> and our <a href='/legal/terms-and-conditions/'>Terms and Conditions</a> for your use of this website.
+      dismiss: "Close" 
+      linkText: "Learn more" 
+      linkURL: "/legal/privacy-policy/" 
+      allow: "Allow" 
+      deny: "Decline" 
+      policy: "Cookie Consent" 
+  userExperience:
+    googleAnalytics: 
+      script: 0 
+      loading: "sync" 
+    postImages: 
+      thumbnail:
+        size: "200px" 
+        borders: "rounded" 
+  mainSections: ["post"]
