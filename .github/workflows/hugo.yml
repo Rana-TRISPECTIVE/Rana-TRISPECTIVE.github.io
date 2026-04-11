@@ -27,12 +27,11 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: '0.125.0' # Naya version use kar rahe hain
+          hugo-version: '0.119.0' # Yeh version aapki theme ke liye perfect hai
           extended: true
 
-      - name: Fix problematic JS comments (The Fix)
+      - name: Fix problematic JS comments
         run: |
-          # Yeh command theme ke andar ki kharab comments ko dhoond kar theek kar degi
           find . -name "main.js" -path "*/assets/js/*" -exec sed -i 's/\/\*!/\/\*/g' {} +
 
       - name: Build with Hugo
