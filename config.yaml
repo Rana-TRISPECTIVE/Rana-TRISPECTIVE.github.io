@@ -25,6 +25,9 @@ build:
   
 # Here starts our customization
 params:
+  favicon: "favicon.png"
+  favicon32: "favicon-32x32.png"
+  favicon16: "favicon-16x16.png"
   customCSS: ["css/custom.css"]
   backgImage:
     landingPage: "/images/hero.jpg"
