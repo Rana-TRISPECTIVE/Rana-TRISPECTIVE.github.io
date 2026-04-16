@@ -43,9 +43,9 @@
 
 
 <meta name="title" content="About | TRISPECTIVE" />
-<meta name="description" content="Why This Blog? (Write your reasons here&hellip;)
-My Goal (Write about your exam preparation, perspectives, etc&hellip;)
-The Approach (Detail your strategy here&hellip;)"> 
+<meta name="description" content="TRISPECTIVE Hello! I’m Rana, and this is my digital diary, an extension of my thoughts and evolving understanding. Why the name &#34;TRISPECTIVE&#34;? “TRISPECTIVE” stands for The Third Perspective.
+Most things in the world are seen in duality, two sides, two extremes. Religion and Science are often treated as opposing forces. But I believe truth often exists in the pattern between them, a perspective we usually ignore.
+Blogging in the Era of AI I use AI as a strategic partner, not a writer."> 
 
 
 <link rel="canonical" href="http://localhost:1313/about/" />
@@ -87,7 +87,7 @@ The Approach (Detail your strategy here&hellip;)">
           "name": "About",
           "author": {
             "@type": "Person",
-            "name": "Softorage"
+            "name": "Rana"
           },
           
           "description": "By Rana",
@@ -101,7 +101,7 @@ The Approach (Detail your strategy here&hellip;)">
             
               "https://gitlab.com/Softorage/",  
             
-              "https://www.instagram.com/softorage/",  
+              "https://www.instagram.com/about_.rrr",  
             
               "https://twitter.com/Softorage"
             ]
@@ -174,18 +174,227 @@ The Approach (Detail your strategy here&hellip;)">
   
 </div>
 <div class="container bg-nav py-3">
-  <h2 id="why-this-blog">Why This Blog?</h2>
-<p>(Write your reasons here&hellip;)</p>
-<h2 id="my-goal">My Goal</h2>
-<p>(Write about your exam preparation, perspectives, etc&hellip;)</p>
-<h2 id="the-approach">The Approach</h2>
-<p>(Detail your strategy here&hellip;)</p>
+  <style>
+/* 1. AMOLED Background Fix (Pure Black for the entire page) */
+body {
+    background-color: #000000 !important;
+}
+
+/* 2. Custom Purple Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #050505;
+}
+::-webkit-scrollbar-thumb {
+    background: #7b2cbf;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #9d4edd;
+}
+
+/* 3. Hide Default Footer and Bottom Icons */
+footer, .footer, #footer, .site-footer, .social-icons {
+    display: none !important;
+}
+
+:root {
+    --deep-purple: #240046;
+    --vibrant-purple: #7b2cbf;
+    --accent-cyan: #00f5d4;
+    --text-main: #e0e1dd;
+    --glass-bg: rgba(123, 44, 191, 0.05);
+    --glass-border: rgba(123, 44, 191, 0.2);
+}
+
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(30px); filter: blur(5px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Container set to transparent so it blends perfectly with the black body */
+.about-page-container {
+    background-color: transparent; 
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-weight: 900;
+    background: linear-gradient(to right, #9d4edd, var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+    margin-bottom: 40px;
+    animation: slideUpFade 0.8s ease-out forwards;
+}
+
+.premium-section {
+    background: var(--glass-bg);
+    border-left: 4px solid var(--vibrant-purple);
+    border-radius: 0 15px 15px 0;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(5px);
+    border-top: 1px solid var(--glass-border);
+    border-right: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    animation: slideUpFade 1s ease-out both;
+}
+
+.premium-section h2 {
+    color: var(--vibrant-purple);
+    font-size: 1.8rem;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.premium-section h2::before {
+    content: "◈";
+    font-size: 1.2rem;
+    color: var(--accent-cyan);
+}
+
+.highlight-purple { color: #c77dff; font-weight: 700; }
+.highlight-cyan { color: var(--accent-cyan); font-weight: 600; font-style: italic; }
+
+/* Clean Topic Grid (Fields only, no descriptions) */
+.concept-grid { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
+    margin-top: 20px; 
+    list-style: none;
+    padding: 0;
+}
+.concept-grid li {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    transition: 0.3s;
+    letter-spacing: 1px;
+}
+.concept-grid li:hover { 
+    background: var(--vibrant-purple); 
+    border-color: var(--accent-cyan); 
+    transform: translateY(-3px); 
+}
+
+/* Minimal Connect Section */
+.connect-section {
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 50px;
+    animation: slideUpFade 1.2s ease-out both;
+}
+.connect-text {
+    font-size: 1.15rem;
+    margin-bottom: 25px;
+    color: var(--text-main);
+}
+.dark-insta-icon {
+    display: inline-block;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+.dark-insta-icon:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(123, 44, 191, 0.8));
+}
+</style>
+<div class="about-page-container">
+<h1 class="hero-title">TRISPECTIVE</h1>
+<p style="text-align: center; font-size: 1.3rem; opacity: 0.9; margin-bottom: 50px;">
+    Hello! I’m <span class="highlight-purple">Rana</span>, and this is my digital diary, an extension of my thoughts and evolving understanding.
+</p>
+<div class="premium-section" style="animation-delay: 0.2s;">
+    <h2>Why the name "TRISPECTIVE"?</h2>
+    <p>“TRISPECTIVE” stands for <strong>The Third Perspective</strong>.</p>
+    <p>Most things in the world are seen in duality, two sides, two extremes. Religion and Science are often treated as opposing forces. But I believe truth often exists in the <span class="highlight-cyan">pattern between them</span>, a perspective we usually ignore.</p>
+</div>
+<div class="premium-section" style="animation-delay: 0.4s;">
+    <h2>Blogging in the Era of AI</h2>
+    <p>I use AI as a <span class="highlight-purple">strategic partner</span>, not a writer. It handles the <strong>“body”</strong> (structure, grammar), but the <strong>“soul”</strong> (core ideas, the third perspective) comes entirely from me.</p>
+    <p>This blog is as much for my growth as it is for yours.</p>
+</div>
+<div class="premium-section" style="animation-delay: 0.6s;">
+    <h2>What you’ll find here</h2>
+    <p>This website is not limited to one subject. Instead, it brings together a unique mix of ideas from different fields, such as:</p>
+    <ul class="concept-grid">
+        <li>Philosophy</li>
+        <li>Religion</li>
+        <li>Science</li>
+        <li>Society</li>
+    </ul>
+</div>
+<div class="premium-section" style="animation-delay: 0.8s;">
+    <h2>My Perspective</h2>
+    <p>Everything here reflects my <span class="highlight-cyan">current exploration</span>. It is not absolute truth. You are free to disagree, and your feedback is a vital part of my development.</p>
+</div>
+<div class="premium-section" style="animation-delay: 1s; border-left-color: var(--accent-cyan);">
+    <h2>The Real Purpose</h2>
+    <p>This is a <strong>personal project</strong>. I write when curiosity strikes. Consistency? None. It depends entirely on my mood and discovery.</p>
+</div>
+<div class="premium-section" style="animation-delay: 1.1s;">
+    <h2>Guest Thoughts</h2>
+    <p>If you have ideas but no platform, <span class="highlight-purple">TRISPECTIVE welcomes you</span>. I'm open to publishing your work here, free of cost.</p>
+</div>
+<div class="connect-section">
+    <p class="connect-text">If you’d like to connect, discuss ideas, or share feedback, feel free to reach out on Instagram:</p>
+    <a href="https://instagram.com/about_.rrr" class="dark-insta-icon" target="_blank" rel="noopener noreferrer">
+        <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="var(--vibrant-purple)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+    </a>
+</div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let lastScrollTop = 0;
+    // Selecting common header tags. Vibrantshadows usually uses <header> or a .navbar class
+    const header = document.querySelector('header') || document.querySelector('.navbar'); 
+    
+    if (header) {
+        // Ensure header is positioned so transform works
+        header.style.position = 'sticky';
+        header.style.top = '0';
+        header.style.zIndex = '1000';
+        header.style.transition = 'transform 0.3s ease-in-out';
+
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                // Scrolling down
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                // Scrolling up
+                header.style.transform = 'translateY(0)';
+            }
+            lastScrollTop = scrollTop;
+        });
+    }
+});
+</script>
 
 </div>
 
     </div><footer class="rana-custom-footer">
     <div class="footer-socials">
-        <a href="#" target="_blank" aria-label="Instagram">
+        <a href="https://www.instagram.com/about_.rrr" target="_blank" aria-label="Instagram">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
             </svg>

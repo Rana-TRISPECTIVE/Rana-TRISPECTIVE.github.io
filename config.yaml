@@ -35,10 +35,10 @@ params:
       twitter: "https://twitter.com/Softorage"
       github: "https://github.com/Softorage"
       gitlab: "https://gitlab.com/Softorage/"
-      instagram: "https://www.instagram.com/softorage/"
+      instagram: "https://www.instagram.com/about_.rrr"
     share: ["facebook", "twitter", "linkedin", "telegram", "whatsapp", "reddit", "email"]
   meta:
-    author: "Softorage" # website-wide author | required
+    author: "Rana" # website-wide author | required
     footerMessage: "Vibrant Shadows by Softorage" # text shown in footer above footer links | optional
     tagline: "TRISPECTIVE"
     description: "By Rana"
