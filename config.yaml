@@ -144,3 +144,6 @@ params:
         size: "200px" 
         borders: "rounded" 
   mainSections: ["post"]
+services:
+  googleAnalytics:
+    id: "G-SE1VGNYWGD"
