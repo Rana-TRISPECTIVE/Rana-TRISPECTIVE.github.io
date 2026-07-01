@@ -381,3 +381,42 @@ html { scrollbar-width: thin !important; scrollbar-color: #270138 #000000 !impor
     font-size: 0.95rem;
     letter-spacing: 1px;
 }
+
+
+
+
+/* Stronger rule to hide the duplicate parent name */
+.dropdown-menu > a:first-of-type {
+    display: none !important;
+}
+
+
+/* =========================================
+   11. BRUTE FORCE FOOTER CENTERING
+   ========================================= */
+body > footer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    padding-bottom: 30px !important;
+}
+
+body > footer .container,
+body > footer .row,
+body > footer ul, 
+body > footer .social {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+}
+
+body > footer .social a {
+    margin: 0 10px 15px 10px !important;
+    display: inline-block !important;
+}

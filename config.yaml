@@ -147,3 +147,11 @@ params:
 services:
   googleAnalytics:
     id: "G-SE1VGNYWGD"
+
+
+menu:
+  main:
+    - identifier: tools
+      name: Tools
+      url: /tools/
+      weight: 50

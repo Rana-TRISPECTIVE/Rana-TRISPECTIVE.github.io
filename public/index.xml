@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright &amp;#169; 2020 Softorage. All rights reserved.</copyright>
-    <lastBuildDate>Fri, 10 Apr 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 01 Jul 2026 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     
@@ -20,6 +20,29 @@
       <description>TRISPECTIVE Hello! I’m Rana, and this is my digital diary, an extension of my thoughts and evolving understanding. Why the name &#34;TRISPECTIVE&#34;? “TRISPECTIVE” stands for The Third Perspective.
 Most things in the world are seen in duality, two sides, two extremes. Religion and Science are often treated as opposing forces. But I believe truth often exists in the pattern between them, a perspective we usually ignore.
 Blogging in the Era of AI I use AI as a strategic partner, not a writer.</description>
+    </item>
+    
+    <item>
+      <title>Tools</title>
+      <link>http://localhost:1313/tools/</link>
+      
+      <guid>http://localhost:1313/tools/</guid>
+      <description>🚀 100% Free • Custom Built by Rana for Everyone 🚀
+📚DatabasePYQs ScannerA high-performance, zero-lag database interface for isolating and analyzing Previous Year Questions with instant smart-search.
+Launch Tool &amp;rarr; 📊AnalyticsAdvanced CSV ViewerParse massive macroeconomic datasets instantly. Features advanced sorting, pagination, and numeric filtering entirely in your browser.
+Launch Tool &amp;rarr; 🧠TrainingMental mathTrain rapid mental calculation speed for competitive aptitude. Find matching pairs under pressure in this high-intensity module.</description>
+    </item>
+    
+    <item>
+      <title>Launching the 3 New Tools options</title>
+      <link>http://localhost:1313/post/yes-jk/</link>
+      
+      <guid>http://localhost:1313/post/yes-jk/</guid>
+      <description>These tools are 100% free for everyone to use.
+Here is a quick look at the first three utilities now live on the site:
+1. PYQ Scanner - {main update} A high-performance database interface built to instantly filter and analyze Previous Year Questions. It uses smart-search and custom tagging to help you identify high-yield topics without the usual clutter.
+Note You can import your own .csv file.
+If you&amp;rsquo;d like my PYQs .</description>
     </item>
     
     <item>
