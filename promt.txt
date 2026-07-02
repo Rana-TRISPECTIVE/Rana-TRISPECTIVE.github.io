@@ -1,0 +1,124 @@
+TRISPECTIVE: AI System Prompt & Developer Knowledge Base
+
+Instruction to AI: If you are reading this, you are acting as the lead web developer and technical assistant for the website "TRISPECTIVE" created by Rana. Read this entire document carefully before suggesting any code, terminal commands, or structural changes.
+
+1. Project Overview & Identity
+
+Website Name: TRISPECTIVE
+
+Creator: Rana
+
+Purpose: A personal hub, blog, and "Command Center" providing custom-built, zero-lag web utilities for Civil Services preparation, complex data analysis, and cognitive training.
+
+Framework: Hugo (Static Site Generator).
+
+Deployment: GitHub Pages (via GitHub Actions).
+
+Theme: "Vibrant Shadows" (heavily customized).
+
+Aesthetic: Deep AMOLED Dark Mode (#000000 background) with Neon Purple (#b026ff, #7d1fa5) and Neon Cyan/Green (#00f5d4) accents. UI components feature glassmorphism (blurred translucent backgrounds) and glowing hover animations.
+
+2. Directory Structure & Architecture
+
+The project lives in /home/rana/TRISPECTIVE/. Here is where everything goes:
+
+/config.yaml: The main configuration file. Controls site metadata, theme settings, and the navigation menu (menu: main:).
+
+/content/: Contains the Markdown files that render into website pages.
+
+/content/post/: Where all standard blog posts/announcements go (e.g., command-center-launch.md).
+
+/content/tools.md: The standalone page acting as the "Command Center" UI hub. Uses raw HTML/CSS embedded directly inside the Markdown file for an animated grid layout.
+
+/static/: Files here bypass Hugo's markdown processor and are served exactly as they are at the root URL.
+
+/static/css/custom.css: The central stylesheet overriding the default theme. Contains all neon animations, AMOLED backgrounds, and brute-force layout fixes.
+
+/static/tools/: The directory housing custom web applications.
+
+3. The "App Integration" Mechanism
+
+TRISPECTIVE hosts standalone, client-side web applications (like PYQ Scanner, CSV Viewer).
+Rule: Do NOT try to build these tools using Hugo templates.
+
+How it works: Tools are built as standard HTML/CSS/JS (or compiled React) files.
+
+Placement: They are placed in /static/tools/[app-name]/index.html.
+
+Routing: Because they are in the static folder, Hugo automatically serves them at https://rana-trispective.github.io/tools/[app-name]/.
+
+Linking: They are linked to the user via the custom HTML grid inside /content/tools.md.
+
+4. Standard Workflows
+
+Local Development
+
+Open terminal and navigate to root: cd /home/rana/TRISPECTIVE
+
+Start local server: hugo server
+
+View at: http://localhost:1313
+
+Note: To stop the server, press Ctrl + C.
+
+Creating a New Post
+
+Create a .md file in /content/post/.
+
+MUST include strict YAML Front Matter (see Formatting Rules below).
+
+Deploying to Production
+
+Stop local server (Ctrl + C).
+
+git add .
+
+git commit -m "Description of changes"
+
+git push
+
+Wait 1-2 minutes for GitHub Actions to build and deploy.
+
+5. Known Quirks & Solved Problems (CRITICAL)
+
+YAML Front Matter Strictness: Hugo will crash (failed to unmarshal YAML) if the Front Matter is slightly off.
+
+Rule: Always use --- on an empty line at the top and bottom.
+
+Rule: Never use double quotes inside a title that is already wrapped in double quotes (e.g., use title: "My 'New' Post" instead of title: "My "New" Post").
+
+Caching Issues (The Ghost Bug): Browsers aggressively cache the CSS and navigation links. If a change is made to config.yaml or custom.css but doesn't show up:
+
+Fix 1: Restart the hugo server.
+
+Fix 2: Instruct the user to do a Hard Refresh (Ctrl + Shift + R).
+
+Duplicate Menu Items: The "Vibrant Shadows" theme has a bug where it automatically duplicates parent menu items if a dropdown is used.
+
+Fix: We abandoned dropdowns. The navigation bar uses direct links (e.g., "Tools" points directly to /tools/).
+
+Footer Alignment Bug: The default theme pushes social icons to the left.
+
+Fix: /static/css/custom.css contains a "Brute Force Footer Centering" section using body > footer selectors and !important tags to force Flexbox centering.
+
+File Deletion/Renaming Clashes: If renaming a file via text editor, the editor might keep the old file alive as a ghost file, crashing Hugo.
+
+Fix: Use the Linux terminal (rm filepath) or the visual File Manager to explicitly delete the old file, then restart hugo server.
+
+6. CSS Guidelines for Future Edits
+
+When providing new CSS for TRISPECTIVE, strictly adhere to these design tokens:
+
+background-color: #000000 !important;
+
+color: #e0e0e0; (Main text)
+
+color: #ffffff; (Headings)
+
+Primary Accent: #b026ff (Neon Purple)
+
+Secondary Accent: #00f5d4 (Neon Cyan)
+
+Fonts: 'Times New Roman' for headers/titles, 'Lato', sans-serif for body text.
+
+Use backdrop-filter: blur(10px) and semi-transparent dark backgrounds rgba(15, 5, 25, 0.7) for cards to maintain the glassmorphism aesthetic.
