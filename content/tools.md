@@ -26,7 +26,14 @@ author: "Rana"
 </style>
 <div class="free-banner"><p class="free-text">🚀 100% Free • Custom Built by Rana for Everyone 🚀</p></div>
 <div class="tools-list">
+
 <div class="tool-card"><div class="tool-icon">📚</div><div class="tool-content"><div class="badge">Database</div><h3 class="tool-title">PYQs Scanner</h3><p class="tool-desc">A high-performance, zero-lag database interface for isolating and analyzing Previous Year Questions with instant smart-search.</p><a href="/tools/pyq-scanner/" class="tool-btn">Launch Tool &rarr;</a></div></div>
+
 <div class="tool-card"><div class="tool-icon">📊</div><div class="tool-content"><div class="badge">Analytics</div><h3 class="tool-title">Advanced CSV Viewer</h3><p class="tool-desc">Parse massive macroeconomic datasets instantly. Features advanced sorting, pagination, and numeric filtering entirely in your browser.</p><a href="/tools/csv-viewer/" class="tool-btn">Launch Tool &rarr;</a></div></div>
+
 <div class="tool-card"><div class="tool-icon">🧠</div><div class="tool-content"><div class="badge" style="background: #00f5d4; color: #000;">Training</div><h3 class="tool-title">Mental math</h3><p class="tool-desc">Train rapid mental calculation speed for competitive aptitude. Find matching pairs under pressure in this high-intensity module.</p><a href="/tools/mental-math/" class="tool-btn">Launch Tool &rarr;</a></div></div>
+
+<!-- NEW TOOL CARD ADDED BY RANA FOR STUDY TRACKER -->
+<div class="tool-card"><div class="tool-icon">🎯</div><div class="tool-content"><div class="badge" style="background: #b026ff; color: #fff;">Productivity</div><h3 class="tool-title">Study & Revision Tracker</h3><p class="tool-desc">An AMOLED dark mode study tracker with Firebase Cloud Sync. Map out your competitive exam syllabus, log active session timelines, and utilize spaced repetition metrics securely.</p><a href="/tools/stutracker/" class="tool-btn">Launch Tool &rarr;</a></div></div>
+
 </div>
