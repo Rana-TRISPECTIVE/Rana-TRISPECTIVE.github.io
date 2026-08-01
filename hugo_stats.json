@@ -27,6 +27,7 @@
       "ol",
       "p",
       "path",
+      "pre",
       "rect",
       "script",
       "span",
@@ -75,6 +76,7 @@
       "free-text",
       "h4",
       "hero-title",
+      "highlight",
       "highlight-cyan",
       "highlight-purple",
       "lead",
@@ -134,6 +136,9 @@
       "trispective-title"
     ],
     "ids": [
+      "-features",
+      "-how-to-use-it",
+      "-the-code",
       "1--pyq-scanner---main-update",
       "2-advanced-csv-viewer",
       "3-mental-math",
@@ -158,6 +163,8 @@
       "kutark-7-the-pandavas-ate-meat-in-the-forest",
       "kutark-8-lord-rama-ate-meat-in-exile",
       "kutark-9-sita-mata-offered-meat-and-wine-to-goddess-ganga",
+      "method-1-the-hacker-way-direct-paste",
+      "method-2-the-set-it-and-forget-it-way-tampermonkey",
       "navbarSupportedContent",
       "ranaBackToTop"
     ]

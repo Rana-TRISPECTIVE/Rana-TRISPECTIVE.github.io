@@ -11,9 +11,9 @@
     <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Launching the 3 New Tools options</title>
-      <link>http://localhost:1313/post/yes-jk/</link>
+      <link>http://localhost:1313/post/tool-info/</link>
       <pubDate>Tue, 30 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/post/yes-jk/</guid>
+      <guid>http://localhost:1313/post/tool-info/</guid>
       <description>These tools are 100% free for everyone to use.&#xA;Here is a quick look at the first three utilities now live on the site:&#xA;1. PYQ Scanner - {main update} A high-performance database interface built to instantly filter and analyze Previous Year Questions. It uses smart-search and custom tagging to help you identify high-yield topics without the usual clutter.&#xA;Note You can import your own .csv file.&#xA;If you&amp;rsquo;d like my PYQs .</description>
     </item>
     <item>
@@ -22,6 +22,13 @@
       <pubDate>Fri, 10 Apr 2026 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/post/debunking-the-myth-a-rational-analysis-of-meat-consumption-in-hinduism/</guid>
       <description>Note For this first/trial article, AI was used heavily to polish the translation and structure. That said, the core knowledge is mine and represents a level of insight that AI simply cannot match. Recently, a massive controversy erupted on the internet when YouTuber Dhruv Rathee uploaded a video claiming that Hinduism inherently permits, and even encourages, meat consumption—including beef. Relying on a mix of cherry-picked verses, mistranslations by foreign authors, and AI-generated images, the video painted a heavily distorted picture of Sanatan Dharma.</description>
+    </item>
+    <item>
+      <title>Jailbreaking View Only PDFs: Google Drive Hack</title>
+      <link>http://localhost:1313/post/gdrive-pdf-downloader/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/post/gdrive-pdf-downloader/</guid>
+      <description>&amp;ldquo;Extractor by Rana&amp;rdquo; is a lightweight browser script that bypasses Google Drive&amp;rsquo;s highly secure &amp;ldquo;view-only&amp;rdquo; file restrictions.&#xA;✨ Features PDF Extraction: Text to .md file: I included the Markdown (.md) option instead of .txt because it is much easier for both humans and AI to understand. Scanned PDFs: Click &amp;ldquo;Extract as image&amp;rdquo; to process the file. It will open a new window displaying all the images, which you can easily save by pressing Ctrl + P.</description>
     </item>
   </channel>
 </rss>

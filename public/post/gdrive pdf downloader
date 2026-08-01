@@ -1,0 +1,49 @@
+Here is the cleaned-up and properly structured Markdown file, ready for your Hugo website. I added the standard Hugo "front matter" at the top (the part between the `---` lines) so you can easily manage the title and date.
+
+```markdown
+---
+title: "Jailbreaking View-Only PDFs: The Ultimate Google Drive Hack"
+date: 2026-08-02
+draft: false
+---
+
+**"Extractor by Rana"** is a lightweight browser script that bypasses Google Drive's highly secure "view-only" file restrictions.
+
+## ✨ Features
+
+* **PDF Extraction:**
+  * **Text to .md file:** I included the Markdown (`.md`) option instead of `.txt` because it is much easier for both humans and AI to understand.
+  * **Scanned PDFs:** Click "Extract as image" to process the file. It will open a new window displaying all the images, which you can easily save by pressing `Ctrl + P`.
+* **Custom Page Export:** Loads only specific pages so that everything doesn't load at once, keeping your hardware running smoothly without overload.
+* **User-Friendly Interface:** Includes resizing, minimize options, and a dark AMOLED purple theme.
+* **Special Note:** While not exactly a feature, this script was built with immense hard work by successfully bypassing Google's high security.
+
+<!-- Add your image path below -->
+![Extractor by Rana UI](/path/to/your/image.jpg)
+
+## 🛠️ How to Use It
+
+You don't need to be a programmer to use this. You just need the code and a couple of seconds. Choose the method that suits your vibe:
+
+### Method 1: The "Hacker" Way (Direct Paste)
+*Best if you are on a school/library computer or don't want to install extensions.*
+
+1. Open your locked PDF in Google Drive.
+2. Press `F12` on your keyboard (or `Ctrl + Shift + I`) to open Developer Tools.
+3. Click on the **Console** tab at the top.
+4. Paste the entire Extractor by Rana code where the cursor is blinking and hit `Enter`.
+5. **Boom.** The sleek purple control panel will instantly appear in the bottom-right corner of your screen. You can close the Developer Tools and start extracting!
+
+### Method 2: The "Set It and Forget It" Way (Tampermonkey)
+*Using the Tampermonkey Chrome Extension for custom scripts.*
+
+If you don't know how to add a new script, [watch this quick tutorial](https://youtu.be/7LWOBkKhbGk?si=wj7ZYLKfWgbw7Dx8). You just have to paste the code below into a new Tampermonkey script.
+
+## 💻 The Code
+
+```javascript
+// Paste your JavaScript code here
+
+```
+
+

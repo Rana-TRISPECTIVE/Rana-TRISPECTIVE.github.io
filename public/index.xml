@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright &amp;#169; 2020 Softorage. All rights reserved.</copyright>
-    <lastBuildDate>Wed, 01 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Aug 2026 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     
@@ -23,6 +23,15 @@ Blogging in the Era of AI I use AI as a strategic partner, not a writer.</descri
     </item>
     
     <item>
+      <title>Jailbreaking View Only PDFs: Google Drive Hack</title>
+      <link>http://localhost:1313/post/gdrive-pdf-downloader/</link>
+      
+      <guid>http://localhost:1313/post/gdrive-pdf-downloader/</guid>
+      <description>&amp;ldquo;Extractor by Rana&amp;rdquo; is a lightweight browser script that bypasses Google Drive&amp;rsquo;s highly secure &amp;ldquo;view-only&amp;rdquo; file restrictions.
+✨ Features PDF Extraction: Text to .md file: I included the Markdown (.md) option instead of .txt because it is much easier for both humans and AI to understand. Scanned PDFs: Click &amp;ldquo;Extract as image&amp;rdquo; to process the file. It will open a new window displaying all the images, which you can easily save by pressing Ctrl + P.</description>
+    </item>
+    
+    <item>
       <title>Tools</title>
       <link>http://localhost:1313/tools/</link>
       
@@ -35,9 +44,9 @@ Launch Tool &amp;rarr; 🧠TrainingMental mathTrain rapid mental calculation spe
     
     <item>
       <title>Launching the 3 New Tools options</title>
-      <link>http://localhost:1313/post/yes-jk/</link>
+      <link>http://localhost:1313/post/tool-info/</link>
       
-      <guid>http://localhost:1313/post/yes-jk/</guid>
+      <guid>http://localhost:1313/post/tool-info/</guid>
       <description>These tools are 100% free for everyone to use.
 Here is a quick look at the first three utilities now live on the site:
 1. PYQ Scanner - {main update} A high-performance database interface built to instantly filter and analyze Previous Year Questions. It uses smart-search and custom tagging to help you identify high-yield topics without the usual clutter.
