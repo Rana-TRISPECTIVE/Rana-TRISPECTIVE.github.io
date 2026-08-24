@@ -7,15 +7,7 @@
   </url>
   
   <url>
-    <loc>http://localhost:1313/tools/</loc>
-  </url>
-  
-  <url>
-    <loc>http://localhost:1313/</loc>
-  </url>
-  
-  <url>
-    <loc>http://localhost:1313/post/tool-info/</loc>
+    <loc>http://localhost:1313/post/gdrive-pdf-downloader/</loc>
   </url>
   
   <url>
@@ -23,11 +15,19 @@
   </url>
   
   <url>
-    <loc>http://localhost:1313/post/debunking-the-myth-a-rational-analysis-of-meat-consumption-in-hinduism/</loc>
+    <loc>http://localhost:1313/</loc>
   </url>
   
   <url>
-    <loc>http://localhost:1313/post/gdrive-pdf-downloader/</loc>
+    <loc>http://localhost:1313/tools/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/tool-info/</loc>
+  </url>
+  
+  <url>
+    <loc>http://localhost:1313/post/debunking-the-myth-a-rational-analysis-of-meat-consumption-in-hinduism/</loc>
   </url>
   
   <url>

@@ -1,360 +1,870 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Neon Number Match</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Math Matrix - Premium Brain Training</title>
     
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+                    colors: {
+                        cyber: {
+                            bg: '#070112',
+                            purple: '#9333ea',
+                            magenta: '#d946ef',
+                            green: '#10b981',
+                            red: '#f43f5e',
+                            yellow: '#fbbf24',
+                            glass: 'rgba(18, 4, 40, 0.75)'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-purple': '0 0 20px rgba(147,51,234,0.6), 0 0 40px rgba(147,51,234,0.3)',
+                        'neon-magenta': '0 0 20px rgba(217,70,239,0.6), 0 0 40px rgba(217,70,239,0.3)',
+                        'neon-green': '0 0 20px rgba(16,185,129,0.6), 0 0 40px rgba(16,185,129,0.3)',
+                        'neon-red': '0 0 20px rgba(244,63,94,0.6), 0 0 40px rgba(244,63,94,0.3)',
+                        'glass': 'inset 0 0 25px rgba(255,255,255,0.03), 0 10px 40px rgba(0,0,0,0.6)'
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* --- नियॉन थीम और कस्टम स्टाइल्स --- */
-        :root {
-            --bg-color: #000000;
-            --neon-purple: #9333ea; /* purple-600 */
-            --neon-green: #10b981;  /* emerald-500 */
-            --text-color: #e5e7eb; /* gray-200 */
-            --tile-bg: #1f2937;    /* gray-800 */
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            overflow: hidden;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .neon-text-purple {
-            color: var(--neon-purple);
-            text-shadow: 0 0 5px var(--neon-purple), 0 0 10px var(--neon-purple);
-        }
-
-        .neon-text-green {
-            color: var(--neon-green);
-            text-shadow: 0 0 5px var(--neon-green), 0 0 10px var(--neon-green);
-        }
-        
-        .neon-border {
-            border: 2px solid var(--neon-purple);
-            box-shadow: 0 0 10px var(--neon-purple), inset 0 0 10px var(--neon-purple);
-        }
-
-        .neon-button {
-            background-color: transparent;
-            border: 2px solid var(--neon-purple);
-            color: var(--neon-purple);
-            text-shadow: 0 0 2px var(--neon-purple);
-            transition: all 0.3s ease;
-            box-shadow: 0 0 5px var(--neon-purple), inset 0 0 5px var(--neon-purple);
-        }
-
-        .neon-button:hover, .neon-button:focus {
-            background-color: var(--neon-purple);
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            background-color: #070112;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(147, 51, 234, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(217, 70, 239, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
             color: white;
-            box-shadow: 0 0 20px var(--neon-purple), 0 0 30px var(--neon-purple);
+            touch-action: manipulation;
+            user-select: none;
         }
+
+        .bg-animated {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            background: 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: move-bg 25s linear infinite;
+        }
+
+        .glass-panel {
+            background: rgba(18, 4, 40, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(147, 51, 234, 0.25);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-tile {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            border: 2px solid rgba(147, 51, 234, 0.25);
+            background: linear-gradient(145deg, rgba(35,12,65,0.85), rgba(15,3,35,0.95));
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 0 15px rgba(147, 51, 234, 0.08), 0 4px 10px rgba(0,0,0,0.35);
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-tile:hover:not(.matched):not(.locked) {
+            border-color: rgba(217, 70, 239, 0.9);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(217, 70, 239, 0.35), inset 0 0 15px rgba(217, 70, 239, 0.25);
+        }
+
+        .game-tile.focused {
+            border-color: #fbbf24;
+            transform: scale(1.04);
+            box-shadow: 0 0 20px rgba(251,191,36,0.7), inset 0 0 15px rgba(251,191,36,0.4);
+            z-index: 5;
+        }
+
+        .game-tile.selected {
+            transform: scale(1.06);
+            border-color: #d946ef;
+            background: rgba(217, 70, 239, 0.35);
+            box-shadow: 0 0 25px #d946ef, inset 0 0 20px #d946ef;
+            color: #fff;
+            text-shadow: 0 0 10px #fff;
+            z-index: 10;
+        }
+
+        .game-tile.matched {
+            animation: tile-match-advanced 0.5s forwards;
+            pointer-events: none;
+            border-color: #10b981;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.25);
+            box-shadow: 0 0 30px #10b981, inset 0 0 20px #10b981;
+        }
+
+        .game-tile.shake {
+            animation: shake-advanced 0.4s ease-in-out;
+            border-color: #f43f5e;
+            color: #f43f5e;
+            background: rgba(244, 63, 94, 0.25);
+            box-shadow: 0 0 25px #f43f5e, inset 0 0 20px #f43f5e;
+            z-index: 10;
+        }
+
+        .game-tile.appear {
+            animation: tile-appear 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            transform: scale(0.3);
+        }
+
+        @keyframes move-bg { 0% { background-position: 0 0; } 100% { background-position: -50px 50px; } }
+        @keyframes tile-appear { to { opacity: 1; transform: scale(1); } }
         
-        /* --- गेम की टाइल्स का स्टाइल --- */
-        .tile {
-            background-color: var(--tile-bg);
-            border: 1px solid #4b5563; /* gray-600 */
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            animation: tile-appear 0.5s ease backwards;
-            will-change: transform;
+        @keyframes tile-match-advanced {
+            0% { transform: scale(1.05); filter: brightness(1.6); opacity: 1; }
+            40% { transform: scale(1.2); filter: brightness(2.2); opacity: 1; }
+            100% { transform: scale(0) rotate(15deg); opacity: 0; visibility: hidden; display: none; }
         }
 
-        .tile.selected {
-            transform: scale(1.1);
-            background-color: var(--neon-purple);
-            border-color: var(--neon-purple);
-            box-shadow: 0 0 15px var(--neon-purple);
-        }
-        
-        /* --- एनिमेशन्स --- */
-        .tile.matched {
-            animation: tile-match 0.5s ease forwards;
-        }
-
-        .tile.shake {
-            animation: shake 0.5s ease;
-        }
-
-        #score-value.pop {
-            animation: pop-score 0.4s ease;
-        }
-
-        @keyframes tile-appear {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        
-        @keyframes tile-match {
-            from { transform: scale(1.1) rotate(0deg); opacity: 1; }
-            to { transform: scale(0) rotate(360deg); opacity: 0; }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0) scale(1.1); }
-            20%, 60% { transform: translateX(-6px) scale(1.1); }
-            40%, 80% { transform: translateX(6px) scale(1.1); }
+        @keyframes shake-advanced {
+            0%, 100% { transform: translateX(0) scale(1.05); }
+            20% { transform: translateX(-8px) rotate(-2deg) scale(1.05); }
+            40% { transform: translateX(8px) rotate(2deg) scale(1.05); }
+            60% { transform: translateX(-5px) rotate(-1deg) scale(1.05); }
+            80% { transform: translateX(5px) rotate(1deg) scale(1.05); }
         }
 
         @keyframes pop-score {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.4); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); color: #10b981; text-shadow: 0 0 20px #10b981; }
+            100% { transform: scale(1); }
         }
 
-        /* स्क्रीन ट्रांजीशन के लिए */
-        .screen {
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        .screen.hidden {
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-            position: absolute;
+        @keyframes beat {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(147,51,234,0.9)); }
+            15% { transform: scale(1.25); filter: drop-shadow(0 0 15px rgba(217,70,239,1)); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.25); filter: drop-shadow(0 0 15px rgba(217,70,239,1)); }
         }
 
+        .pop-text { animation: pop-score 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .heart-beat { animation: beat 1.2s ease-in-out infinite; }
+        .streak-glow { text-shadow: 0 0 15px #fbbf24, 0 0 30px #fbbf24; }
+
+        .overlay-screen {
+            backdrop-filter: blur(15px);
+            background-color: rgba(7, 1, 18, 0.92);
+        }
+
+        #timer-bar { transition: width 1s linear, background-color 0.5s; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-2">
+<body class="font-poppins h-screen h-[100dvh] w-screen flex items-center justify-center p-2 sm:p-3 overflow-hidden">
 
-    <div class="w-full max-w-sm mx-auto">
-        <!-- मोड चुनने की स्क्रीन -->
-        <div id="mode-selection-screen" class="screen flex flex-col items-center justify-center space-y-6 p-4">
-            <h1 class="text-4xl font-bold neon-text-purple mb-6">Select Mode</h1>
-            <button data-difficulty="beginner" class="mode-btn neon-button w-full py-3 text-xl font-bold rounded-lg">Beginner</button>
-            <button data-difficulty="middle" class="mode-btn neon-button w-full py-3 text-xl font-bold rounded-lg">Middle</button>
-            <button data-difficulty="hard" class="mode-btn neon-button w-full py-3 text-xl font-bold rounded-lg">Hard</button>
+    <div class="bg-animated"></div>
+
+    <!-- Menu Screen -->
+    <div id="menu-screen" class="w-full max-w-xl flex flex-col items-center text-center space-y-5 transition-opacity duration-500 z-10 px-4 my-auto">
+        
+        <!-- Sound Toggle -->
+        <div class="w-full flex justify-end">
+            <button onclick="toggleSound()" id="sound-toggle-btn" class="glass-panel px-3.5 py-2 rounded-xl text-cyber-purple hover:text-white border-cyber-purple/40 hover:border-cyber-magenta hover:shadow-neon-purple transition-all flex items-center gap-2 text-xs font-bold">
+                <span id="sound-icon">🔊</span> <span id="sound-text">Sound: ON</span>
+            </button>
         </div>
 
-        <!-- गेम की मुख्य स्क्रीन -->
-        <div id="game-screen" class="screen hidden flex-col w-full h-full">
-            <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl shadow-2xl p-4 neon-border flex flex-col h-full">
-                <!-- हेडर और जानकारी -->
-                <header class="flex justify-between items-center mb-4">
-                     <button id="back-btn" class="text-gray-400 hover:text-white transition">&larr; Change Mode</button>
-                    <div>
-                        <span class="text-sm text-gray-400">LEVEL</span>
-                        <p id="level" class="text-2xl font-bold text-center">1</p>
-                    </div>
-                </header>
+        <div class="space-y-2 relative">
+            <div class="absolute -inset-6 bg-gradient-to-r from-cyber-purple to-cyber-magenta blur-3xl opacity-25 rounded-full"></div>
+            <p class="text-cyber-magenta text-xs font-extrabold tracking-[0.3em] uppercase drop-shadow">Premium Math Brain Training</p>
+            <h1 class="relative text-3xl sm:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyber-purple via-cyber-magenta to-teal-400 drop-shadow-[0_0_25px_rgba(217,70,239,0.5)]">
+                NEON MATH MATRIX
+            </h1>
+        </div>
 
-                <!-- स्कोर और टारगेट -->
-                <div class="text-center mb-4 p-3 bg-black/30 rounded-lg">
-                    <p class="text-sm text-gray-400">SCORE</p>
-                    <p id="score" class="text-4xl font-bold neon-text-green transition-all duration-300">
-                        <span id="score-value">0</span>
-                    </p>
-                    <p class="mt-3 text-lg">Find numbers that sum to <strong id="target-sum-text" class="text-2xl neon-text-purple">100</strong></p>
-                </div>
-                
-                <!-- गेम ग्रिड -->
-                <div id="game-container" class="relative flex-grow">
-                    <div id="game-grid" class="grid grid-cols-5 gap-2 w-full mx-auto">
-                        <!-- Tiles will be generated here by JavaScript -->
-                    </div>
-                    <!-- लेवल पूरा होने पर मैसेज -->
-                    <div id="win-message" class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 pointer-events-none rounded-lg">
-                        <h2 class="text-3xl font-bold neon-text-green">Level Complete!</h2>
-                    </div>
-                </div>
+        <div class="flex flex-col w-full max-w-sm space-y-3">
+            <button onclick="startGame('beginner')" class="group relative px-6 py-3.5 glass-panel border-cyber-purple text-cyber-purple text-base font-black rounded-xl uppercase tracking-wider hover:bg-gradient-to-r hover:from-cyber-purple hover:to-cyber-magenta hover:text-white hover:border-transparent hover:shadow-neon-magenta transition-all duration-300">
+                Beginner Matrix
+                <span class="block text-[10px] font-semibold opacity-80 mt-0.5 text-gray-400 group-hover:text-white">Target Sum: 20 - 100</span>
+            </button>
+            <button onclick="startGame('middle')" class="group relative px-6 py-3.5 glass-panel border-cyber-green text-cyber-green text-base font-black rounded-xl uppercase tracking-wider hover:bg-gradient-to-r hover:from-cyber-green hover:to-teal-500 hover:text-white hover:border-transparent hover:shadow-neon-green transition-all duration-300">
+                Middle Matrix
+                <span class="block text-[10px] font-semibold opacity-80 mt-0.5 text-gray-400 group-hover:text-white">Target Sum: 110 - 1000</span>
+            </button>
+            <button onclick="startGame('hard')" class="group relative px-6 py-3.5 glass-panel border-cyber-red text-cyber-red text-base font-black rounded-xl uppercase tracking-wider hover:bg-gradient-to-r hover:from-cyber-red hover:to-orange-500 hover:text-white hover:border-transparent hover:shadow-neon-red transition-all duration-300">
+                Hard Matrix
+                <span class="block text-[10px] font-semibold opacity-80 mt-0.5 text-gray-400 group-hover:text-white">Target Sum: 1010 - 10000</span>
+            </button>
+        </div>
 
-                <!-- रीस्टार्ट बटन -->
-                <div class="mt-4">
-                    <button id="restart-btn" class="neon-button w-full py-3 text-lg font-semibold rounded-lg">Restart Level</button>
-                </div>
+        <!-- Keyboard Hints -->
+        <div class="glass-panel p-2.5 rounded-xl flex flex-wrap justify-center gap-3 text-xs text-gray-300 border border-gray-700/50 shadow-lg">
+            <div class="flex items-center gap-1.5">
+                <span class="px-1.5 py-0.5 bg-gray-900 rounded border border-gray-700 font-mono text-white text-[10px]">⬆⬇⬅➡</span> <span class="font-semibold text-[11px] tracking-wider">NAVIGATE</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="px-1.5 py-0.5 bg-gray-900 rounded border border-gray-700 font-mono text-white text-[10px]">SPACE</span> <span class="font-semibold text-[11px] tracking-wider">SELECT / UNSELECT</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="px-1.5 py-0.5 bg-gray-900 rounded border border-gray-700 font-mono text-white text-[10px]">R</span> <span class="font-semibold text-[11px] tracking-wider">RESTART</span>
             </div>
         </div>
     </div>
 
-    <script>
-        // --- DOM एलिमेंट्स ---
-        const modeScreen = document.getElementById('mode-selection-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const modeButtons = document.querySelectorAll('.mode-btn');
-        const backBtn = document.getElementById('back-btn');
-
-        const gameGrid = document.getElementById('game-grid');
-        const scoreValueEl = document.getElementById('score-value');
-        const levelEl = document.getElementById('level');
-        const restartBtn = document.getElementById('restart-btn');
-        const targetSumText = document.getElementById('target-sum-text');
-        const winMessage = document.getElementById('win-message');
+    <!-- Game Screen -->
+    <div id="game-screen" class="hidden w-full max-w-6xl h-full max-h-[100dvh] flex flex-col md:flex-row gap-2.5 sm:gap-3.5 z-10 relative p-1 sm:p-2 my-auto overflow-hidden">
         
-        // --- गेम की सेटिंग्स ---
-        const GRID_SIZE = 20; // 5x4 ग्रिड
-        let difficultySettings = {
-            beginner: { minSum: 2, maxSum: 10, multiplier: 10 },    // 20 to 100
-            middle: { minSum: 11, maxSum: 100, multiplier: 10 },   // 110 to 1000
-            hard: { minSum: 101, maxSum: 1000, multiplier: 10 } // 1010 to 10000
-        };
-        
-        // --- गेम की स्थिति (State) ---
-        let score = 0;
-        let level = 1;
-        let currentDifficulty = 'beginner';
-        let targetSum = 100;
-        let firstSelection = null;
-        let lockBoard = false;
-
-        // --- गेम का मुख्य लॉजिक ---
-
-        function showScreen(screenToShow) {
-            modeScreen.classList.add('hidden');
-            gameScreen.classList.add('hidden');
-            screenToShow.classList.remove('hidden');
-        }
-
-        function startGame(difficulty) {
-            currentDifficulty = difficulty;
-            score = 0;
-            level = 1;
-            showScreen(gameScreen);
-            generateLevel();
-        }
-
-        function generateLevel() {
-            gameGrid.innerHTML = '';
-            firstSelection = null;
-            lockBoard = false;
-            winMessage.classList.add('opacity-0', 'pointer-events-none');
-            
-            targetSum = generateTargetSum(currentDifficulty);
-            const numbers = generateNumbers(targetSum, GRID_SIZE);
-            const shuffledNumbers = shuffleArray(numbers);
-            
-            shuffledNumbers.forEach((num, index) => {
-                const tile = document.createElement('div');
-                tile.classList.add('tile', 'flex', 'items-center', 'justify-center', 'text-lg', 'font-bold', 'rounded-md', 'cursor-pointer', 'aspect-square');
-                tile.dataset.value = num;
-                tile.textContent = num;
-                tile.style.animationDelay = `${index * 0.02}s`;
-                tile.addEventListener('click', onTileClick);
-                gameGrid.appendChild(tile);
-            });
-            updateDisplay();
-        }
-        
-        function generateTargetSum(difficulty) {
-            const settings = difficultySettings[difficulty];
-            const baseSum = Math.floor(Math.random() * (settings.maxSum - settings.minSum + 1)) + settings.minSum;
-            return baseSum * settings.multiplier;
-        }
-
-        function generateNumbers(sum, count) {
-            const pairs = [];
-            const usedNumbers = new Set();
-
-            while (pairs.length < count / 2) {
-                const num1 = Math.floor(Math.random() * (sum - 1)) + 1;
-                const num2 = sum - num1;
+        <!-- LEFT SIDE: 5x4 Grid Container (Selection Matrix) -->
+        <div class="flex-1 h-full min-h-0 flex flex-col justify-center order-2 md:order-1 relative">
+            <div id="game-grid" class="grid grid-cols-5 grid-rows-4 gap-1.5 sm:gap-2.5 p-2 sm:p-3 glass-panel rounded-2xl border-gray-700/50 shadow-2xl relative h-full w-full min-h-0">
+                <!-- 20 Tiles dynamically injected -->
                 
+                <!-- Level Clear Overlay -->
+                <div id="level-clear-overlay" class="hidden overlay-screen absolute inset-0 rounded-2xl flex flex-col items-center justify-center z-50 transition-opacity p-4">
+                    <h3 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-cyber-green to-teal-400 drop-shadow-[0_0_20px_rgba(16,185,129,0.8)] mb-2 animate-bounce text-center">MATRIX CLEARED!</h3>
+                    <p id="level-bonus" class="text-cyber-yellow font-bold text-xs sm:text-base tracking-wide mb-4 bg-black/60 px-5 py-2 rounded-full border border-cyber-yellow/40 text-center"></p>
+                    <p class="text-xs text-white font-semibold tracking-[0.25em] uppercase opacity-80 animate-pulse">Initializing Next Matrix...</p>
+                </div>
+
+                <!-- Game Over Overlay -->
+                <div id="game-over-overlay" class="hidden overlay-screen absolute inset-0 rounded-2xl flex flex-col items-center justify-center z-50 p-4">
+                    <h3 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-cyber-red to-orange-500 drop-shadow-[0_0_20px_rgba(244,63,94,0.8)] mb-2 text-center">SYSTEM OVERLOAD</h3>
+                    <p id="game-over-reason" class="text-gray-300 text-xs sm:text-sm font-semibold uppercase tracking-widest mb-5">Out of Lives</p>
+                    <button onclick="restartGame()" class="group px-6 py-3 bg-gradient-to-r from-cyber-red to-orange-600 text-white text-sm sm:text-base font-black rounded-xl hover:shadow-neon-red transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                        RETRY MATRIX <span class="text-[10px] bg-black/30 px-1.5 py-0.5 rounded font-mono font-normal">Space</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Info Sidebar & Controls (Desktop) / Top Bar (Mobile) -->
+        <div class="w-full md:w-72 lg:w-80 h-auto md:h-full flex flex-col justify-between gap-2 sm:gap-3 glass-panel p-2.5 sm:p-4 rounded-2xl border-gray-700/50 order-1 md:order-2 shrink-0 overflow-y-auto md:overflow-visible">
+            
+            <!-- Header Controls Bar -->
+            <div class="flex justify-between items-center gap-2">
+                <button onclick="backToMenu()" class="group text-xs text-gray-300 hover:text-white px-2.5 py-1.5 glass-panel rounded-xl hover:border-cyber-purple hover:bg-cyber-purple/20 hover:shadow-neon-purple transition-all flex items-center gap-1">
+                    <span class="text-sm">←</span> <span class="font-bold tracking-wider uppercase text-[10px] sm:text-xs">Menu</span>
+                </button>
+
+                <button onclick="toggleSound()" class="px-2.5 py-1.5 glass-panel rounded-xl text-cyber-purple hover:text-white border-cyber-purple/30 text-xs font-bold transition-all">
+                    <span id="game-sound-icon">🔊</span>
+                </button>
+
+                <button onclick="restartGame()" class="group text-xs text-gray-300 hover:text-white px-2.5 py-1.5 glass-panel rounded-xl hover:border-cyber-yellow hover:bg-cyber-yellow/20 hover:shadow-neon-yellow transition-all flex items-center gap-1">
+                    <span class="font-bold tracking-wider uppercase text-[10px] sm:text-xs">Restart</span> <span class="text-sm">↻</span>
+                </button>
+            </div>
+
+            <!-- Level & Timer Section -->
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[10px] text-cyber-magenta font-black tracking-[0.2em] uppercase">Matrix Level</span>
+                    <span id="level-display" class="text-sm font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">1</span>
+                </div>
+
+                <!-- Timer Progress Bar -->
+                <div class="w-full bg-gray-900/90 rounded-full h-3 overflow-hidden relative border border-gray-700/80 shadow-inner">
+                    <div id="timer-bar" class="h-full bg-gradient-to-r from-cyber-purple via-cyber-magenta to-cyber-red w-full"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-[9px] font-black text-white drop-shadow z-10 uppercase tracking-widest">
+                        <span id="timer-text">60s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prominent Target Sum Panel -->
+            <div class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center border-l-4 border-r-4 border-cyber-magenta bg-gradient-to-b from-purple-950/30 to-black/40 shadow-[inset_0_0_20px_rgba(217,70,239,0.15)] relative">
+                <p class="text-gray-300 font-extrabold uppercase tracking-[0.2em] text-[10px]">TARGET SUM</p>
+                <h2 id="target-display" class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-pink-200 to-cyber-magenta drop-shadow-[0_0_15px_rgba(217,70,239,0.9)] my-0.5">
+                    0
+                </h2>
+                <p class="text-[9px] text-gray-400 font-medium tracking-wide">Select 2 tiles that add up to Target</p>
+            </div>
+
+            <!-- Stats Grid (Score, Combo, Lives) -->
+            <div class="grid grid-cols-3 md:grid-cols-1 gap-2">
+                <!-- Score -->
+                <div class="glass-panel p-2 rounded-xl flex md:flex-row flex-col justify-between items-center px-3 border-b-2 md:border-b-0 md:border-l-4 border-cyber-green">
+                    <p class="text-gray-400 font-bold uppercase tracking-wider text-[9px]">Score</p>
+                    <h2 id="score-display" class="text-base sm:text-xl font-black text-cyber-green drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]">
+                        0
+                    </h2>
+                </div>
+
+                <!-- Combo Multiplier -->
+                <div class="glass-panel p-2 rounded-xl flex md:flex-row flex-col justify-between items-center px-3 border-b-2 md:border-b-0 md:border-l-4 border-cyber-yellow">
+                    <p class="text-gray-400 font-bold uppercase tracking-wider text-[9px]">Combo</p>
+                    <h2 id="streak-display" class="text-base sm:text-lg font-black text-cyber-yellow drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]">
+                        x1
+                    </h2>
+                </div>
+
+                <!-- Purple Hearts / Lives -->
+                <div class="glass-panel p-2 rounded-xl flex md:flex-row flex-col justify-between items-center px-3 border-b-2 md:border-b-0 md:border-l-4 border-cyber-purple">
+                    <p class="text-gray-400 font-bold uppercase tracking-wider text-[9px]">Lives</p>
+                    <div id="lives-display" class="flex gap-1 text-sm sm:text-base">
+                        <span class="heart-beat">💜</span>
+                        <span class="heart-beat">💜</span>
+                        <span class="heart-beat">💜</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keyboard Instructions Footer -->
+            <div class="hidden md:flex flex-col gap-1 p-2 bg-black/40 rounded-xl border border-gray-800 text-[10px] text-gray-400">
+                <div class="flex justify-between items-center">
+                    <span>Navigate Grid:</span>
+                    <span class="font-mono text-white bg-gray-900 px-1 py-0.5 rounded border border-gray-700">⬆⬇⬅➡</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Select / Unselect:</span>
+                    <span class="font-mono text-white bg-gray-900 px-1 py-0.5 rounded border border-gray-700">Space</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Restart / Menu:</span>
+                    <span class="font-mono text-white bg-gray-900 px-1 py-0.5 rounded border border-gray-700">R / Esc</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Web Audio Synthesizer for Minimal Premium Sound Effects ---
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playTone(frequency, type, duration, gainValue = 0.05) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = frequency;
+                
+                gain.gain.setValueAtTime(gainValue, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {
+                console.log('Audio playback notice:', e);
+            }
+        }
+
+        function playSelectSound() { playTone(659.25, 'sine', 0.05, 0.03); } 
+        function playMatchSound() { 
+            // Hacker-style high-tech dopamine chirp sequence
+            playTone(1046.50, 'sawtooth', 0.06, 0.04); 
+            setTimeout(() => playTone(1318.51, 'square', 0.06, 0.04), 35); 
+            setTimeout(() => playTone(1567.98, 'sawtooth', 0.08, 0.04), 70); 
+            setTimeout(() => playTone(2093.00, 'triangle', 0.12, 0.05), 105); 
+        }
+        function playErrorSound() { playTone(140, 'sawtooth', 0.15, 0.05); }
+        function playWinSound() {
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                setTimeout(() => playTone(freq, 'triangle', 0.15, 0.07), i * 80);
+            });
+        }
+        function playGameOverSound() {
+            [300, 240, 190, 140].forEach((freq, i) => {
+                setTimeout(() => playTone(freq, 'sawtooth', 0.18, 0.07), i * 90);
+            });
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            const gameIcon = document.getElementById('game-sound-icon');
+            const text = document.getElementById('sound-text');
+            if (soundEnabled) {
+                if (icon) icon.innerText = '🔊';
+                if (gameIcon) gameIcon.innerText = '🔊';
+                if (text) text.innerText = 'Sound: ON';
+                playSelectSound();
+            } else {
+                if (icon) icon.innerText = '🔇';
+                if (gameIcon) gameIcon.innerText = '🔇';
+                if (text) text.innerText = 'Sound: OFF';
+            }
+        }
+
+        // --- Game State Variables ---
+        let currentMode = '';
+        let currentLevel = 1;
+        let score = 0;
+        let targetSum = 0;
+        
+        let firstSelection = null;
+        let secondSelection = null;
+        let lockBoard = false;
+        let matchedPairs = 0;
+
+        const MAX_LIVES = 3;
+        let lives = MAX_LIVES;
+        let streak = 1;
+        
+        let timerInterval = null;
+        const MAX_TIME = 60;
+        let timeLeft = MAX_TIME;
+
+        let focusIndex = -1; 
+        let gridTiles = []; 
+        const COLUMNS = 5; 
+        const ROWS = 4;    
+
+        // DOM Elements
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const gridElement = document.getElementById('game-grid');
+        const targetDisplay = document.getElementById('target-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const levelDisplay = document.getElementById('level-display');
+        const streakDisplay = document.getElementById('streak-display');
+        const livesDisplay = document.getElementById('lives-display');
+        
+        const timerBar = document.getElementById('timer-bar');
+        const timerText = document.getElementById('timer-text');
+        
+        const levelClearOverlay = document.getElementById('level-clear-overlay');
+        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const levelBonusText = document.getElementById('level-bonus');
+        const gameOverReason = document.getElementById('game-over-reason');
+
+        function startGame(mode) {
+            currentMode = mode;
+            currentLevel = 1;
+            score = 0;
+            updateScore(0);
+            
+            menuScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            initLevel();
+        }
+
+        function backToMenu() {
+            clearInterval(timerInterval);
+            gameScreen.classList.add('hidden');
+            menuScreen.classList.remove('hidden');
+            focusIndex = -1;
+        }
+
+        function restartGame() {
+            lives = MAX_LIVES;
+            streak = 1;
+            updateLivesUI();
+            updateStreakUI();
+            
+            score = 0;
+            updateScore(0);
+            
+            gameOverOverlay.classList.add('hidden');
+            initLevel();
+        }
+
+        function generateTargetSum() {
+            let minSum, maxSum;
+            switch(currentMode) {
+                case 'beginner': minSum = 2; maxSum = 10; break;
+                case 'middle': minSum = 11; maxSum = 100; break;
+                case 'hard': minSum = 101; maxSum = 1000; break;
+            }
+            return (Math.floor(Math.random() * (maxSum - minSum + 1)) + minSum) * 10;
+        }
+
+        function generateNumbers(target) {
+            let pairs = [];
+            let usedNumbers = new Set();
+            let attempts = 0;
+
+            while (pairs.length < 20) {
+                attempts++;
+                let num1 = Math.floor(Math.random() * (target - 1)) + 1;
+                let num2 = target - num1;
+
                 if (num1 !== num2 && !usedNumbers.has(num1) && !usedNumbers.has(num2)) {
-                    pairs.push([num1, num2]);
+                    pairs.push(num1, num2);
                     usedNumbers.add(num1);
                     usedNumbers.add(num2);
+                } else if (attempts > 500) {
+                    if (num1 !== num2) {
+                        pairs.push(num1, num2);
+                        attempts = 0; 
+                    }
                 }
             }
-            return pairs.flat();
-        }
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
+            for (let i = pairs.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+                [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
             }
-            return array;
+            return pairs;
         }
 
-        function onTileClick(event) {
-            const clickedTile = event.target;
-            if (lockBoard || clickedTile === firstSelection || clickedTile.classList.contains('matched')) return;
+        function initLevel() {
+            clearInterval(timerInterval);
             
-            clickedTile.classList.add('selected');
+            firstSelection = null;
+            secondSelection = null;
+            lockBoard = false;
+            matchedPairs = 0;
+            focusIndex = -1;
+            gridTiles = [];
+            
+            lives = MAX_LIVES;
+            updateLivesUI();
+            updateStreakUI();
+
+            levelClearOverlay.classList.add('hidden');
+            gameOverOverlay.classList.add('hidden');
+            
+            levelDisplay.innerText = currentLevel;
+            targetSum = generateTargetSum();
+            targetDisplay.innerText = targetSum;
+
+            timeLeft = MAX_TIME;
+            updateTimerUI();
+            timerInterval = setInterval(handleTimer, 1000);
+
+            const tiles = generateNumbers(targetSum);
+            renderGrid(tiles);
+        }
+
+        function handleTimer() {
+            if(lockBoard && !firstSelection && !secondSelection) return; 
+            
+            timeLeft--;
+            updateTimerUI();
+
+            if(timeLeft <= 0) {
+                lives--;
+                updateLivesUI();
+                playErrorSound();
+                
+                if(lives <= 0) {
+                    clearInterval(timerInterval);
+                    playGameOverSound();
+                    triggerGameOver("System Time Expired!");
+                } else {
+                    timeLeft = 25; // Rescue time
+                    updateTimerUI();
+                    document.body.style.boxShadow = "inset 0 0 60px rgba(244,63,94,0.7)";
+                    setTimeout(() => document.body.style.boxShadow = "", 400);
+                }
+            }
+        }
+
+        function updateTimerUI() {
+            const percentage = (timeLeft / MAX_TIME) * 100;
+            timerBar.style.width = `${Math.min(100, Math.max(0, percentage))}%`;
+            timerText.innerText = `${timeLeft}s`;
+            
+            if(percentage > 50) {
+                timerBar.className = "h-full bg-gradient-to-r from-cyber-purple via-cyber-magenta to-teal-400 w-full transition-all duration-1000";
+            } else if(percentage > 20) {
+                timerBar.className = "h-full bg-gradient-to-r from-cyber-yellow to-orange-500 w-full transition-all duration-1000";
+            } else {
+                timerBar.className = "h-full bg-gradient-to-r from-cyber-red to-red-800 w-full transition-all duration-1000 animate-pulse";
+            }
+        }
+
+        function renderGrid(tiles) {
+            gridElement.innerHTML = '';
+            gridElement.appendChild(levelClearOverlay);
+            gridElement.appendChild(gameOverOverlay);
+
+            tiles.forEach((number, index) => {
+                const tile = document.createElement('div');
+                tile.className = `game-tile appear text-base sm:text-2xl font-black select-none`;
+                tile.dataset.value = number;
+                tile.dataset.index = index;
+                
+                if(number >= 1000) {
+                    tile.classList.add('text-xs', 'sm:text-lg');
+                } else if(number >= 100) {
+                    tile.classList.add('text-sm', 'sm:text-xl');
+                }
+
+                tile.innerText = number;
+                tile.style.animationDelay = `${index * 0.015}s`;
+                
+                tile.addEventListener('click', () => handleTileClick(tile));
+                
+                gridElement.appendChild(tile);
+                gridTiles.push(tile);
+            });
+        }
+
+        function handleTileClick(tile) {
+            if (lockBoard) return;
+            if (tile.classList.contains('matched')) return; 
+
+            // Deselect logic: If clicking/pressing space on the already selected first tile, unselect it
+            if (tile === firstSelection) {
+                playSelectSound();
+                tile.classList.remove('selected');
+                firstSelection = null;
+                return;
+            }
+
+            playSelectSound();
+            const idx = parseInt(tile.dataset.index);
+            updateFocusVisuals(idx);
+            focusIndex = idx;
 
             if (!firstSelection) {
-                firstSelection = clickedTile;
-            } else {
-                lockBoard = true;
-                checkForMatch(clickedTile);
+                firstSelection = tile;
+                tile.classList.add('selected');
+                return;
             }
+
+            secondSelection = tile;
+            tile.classList.add('selected');
+            lockBoard = true; 
+
+            checkMatch();
         }
 
-        function checkForMatch(secondTile) {
+        function checkMatch() {
             const val1 = parseInt(firstSelection.dataset.value);
-            const val2 = parseInt(secondTile.dataset.value);
+            const val2 = parseInt(secondSelection.dataset.value);
+            const sum = val1 + val2;
 
-            if (val1 + val2 === targetSum) {
-                // सही जोड़ी
-                score += 10;
+            if (sum === targetSum) {
+                playMatchSound();
+                const pointsEarned = 10 * streak;
+                score += pointsEarned;
+                updateScore(score);
+                
+                timeLeft = Math.min(MAX_TIME, timeLeft + 3);
+                updateTimerUI();
+                
                 firstSelection.classList.remove('selected');
-                secondTile.classList.remove('selected');
+                secondSelection.classList.remove('selected');
                 firstSelection.classList.add('matched');
-                secondTile.classList.add('matched');
+                secondSelection.classList.add('matched');
                 
-                updateDisplay(true); // स्कोर पॉप एनिमेशन के साथ अपडेट करें
+                streak++;
+                updateStreakUI();
                 
-                if (document.querySelectorAll('.tile:not(.matched)').length === 0) {
-                   setTimeout(() => {
-                        winMessage.classList.remove('opacity-0', 'pointer-events-none');
-                        setTimeout(nextLevel, 1500);
-                   }, 500);
+                matchedPairs++;
+                
+                if (matchedPairs === 10) {
+                    clearInterval(timerInterval);
+                    playWinSound();
+                    setTimeout(levelUp, 800);
                 }
-                setTimeout(resetSelection, 200);
-            } else {
-                // गलत जोड़ी
-                firstSelection.classList.add('shake');
-                secondTile.classList.add('shake');
                 
                 setTimeout(() => {
-                    firstSelection.classList.remove('selected', 'shake');
-                    secondTile.classList.remove('selected', 'shake');
-                    resetSelection();
-                }, 500);
-            }
-        }
+                    if(matchedPairs !== 10) resetSelection();
+                }, 80);
 
-        function nextLevel() {
-            level++;
-            generateLevel();
+            } else {
+                playErrorSound();
+                firstSelection.classList.add('shake');
+                secondSelection.classList.add('shake');
+                
+                streak = 1;
+                updateStreakUI();
+                
+                lives--;
+                updateLivesUI();
+
+                setTimeout(() => {
+                    firstSelection.classList.remove('shake', 'selected');
+                    secondSelection.classList.remove('shake', 'selected');
+                    resetSelection();
+                    
+                    if (lives <= 0) {
+                        playGameOverSound();
+                        triggerGameOver("Out of Lives!");
+                    }
+                }, 450);
+            }
         }
 
         function resetSelection() {
             firstSelection = null;
+            secondSelection = null;
             lockBoard = false;
         }
 
-        function updateDisplay(popScore = false) {
-            scoreValueEl.textContent = score;
-            if(popScore) {
-                scoreValueEl.classList.add('pop');
-                scoreValueEl.addEventListener('animationend', () => scoreValueEl.classList.remove('pop'), { once: true });
-            }
-            levelEl.textContent = level;
-            targetSumText.textContent = targetSum;
+        function updateScore(newScore) {
+            scoreDisplay.innerText = newScore;
+            scoreDisplay.classList.remove('pop-text');
+            void scoreDisplay.offsetWidth;
+            scoreDisplay.classList.add('pop-text');
         }
 
-        // --- इवेंट लिस्टनर्स ---
-        modeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                startGame(button.dataset.difficulty);
-            });
+        function updateStreakUI() {
+            streakDisplay.innerText = `x${streak}`;
+            streakDisplay.classList.remove('pop-text', 'text-cyber-yellow', 'streak-glow', 'text-white', 'scale-110');
+            
+            if (streak > 1) {
+                streakDisplay.classList.add('pop-text', 'streak-glow', 'text-cyber-yellow', 'scale-110');
+            } else {
+                streakDisplay.classList.add('text-white');
+            }
+        }
+
+        function updateLivesUI() {
+            let html = '';
+            for(let i=0; i<MAX_LIVES; i++) {
+                if(i < lives) {
+                    html += `<span class="heart-beat drop-shadow-[0_0_10px_rgba(147,51,234,0.9)]">💜</span>`;
+                } else {
+                    html += `<span class="text-gray-800 opacity-40 grayscale blur-[1px]">🖤</span>`;
+                }
+            }
+            livesDisplay.innerHTML = html;
+        }
+
+        function triggerGameOver(reasonText = "Out of Lives!") {
+            lockBoard = true;
+            clearInterval(timerInterval);
+            gameOverReason.innerText = reasonText;
+            gameOverOverlay.classList.remove('hidden');
+        }
+
+        function levelUp() {
+            const lifeBonus = lives * 40;
+            const timeBonus = timeLeft * 4;
+            const totalBonus = lifeBonus + timeBonus;
+            
+            score += totalBonus;
+            updateScore(score);
+            
+            levelBonusText.innerHTML = `Life Bonus: +${lifeBonus}<br>Time Bonus: +${timeBonus}`;
+            levelClearOverlay.classList.remove('hidden');
+            
+            setTimeout(() => {
+                currentLevel++;
+                initLevel();
+            }, 2200); 
+        }
+
+        function updateFocusVisuals(newIdx) {
+            if (focusIndex >= 0 && focusIndex < gridTiles.length) {
+                gridTiles[focusIndex].classList.remove('focused');
+            }
+            if (newIdx >= 0 && newIdx < gridTiles.length) {
+                gridTiles[newIdx].classList.add('focused');
+            }
+        }
+
+        function moveFocus(direction) {
+            if (focusIndex === -1) {
+                let startIdx = gridTiles.findIndex(t => !t.classList.contains('matched'));
+                if (startIdx !== -1) {
+                    focusIndex = startIdx;
+                    updateFocusVisuals(startIdx);
+                }
+                return;
+            }
+
+            let curr = focusIndex;
+            let found = false;
+            let safetyLimit = 25; 
+            
+            while (!found && safetyLimit > 0) {
+                safetyLimit--;
+                
+                if (direction === 'UP') {
+                    curr -= COLUMNS;
+                    if (curr < 0) break;
+                } 
+                else if (direction === 'DOWN') {
+                    curr += COLUMNS;
+                    if (curr >= gridTiles.length) break;
+                } 
+                else if (direction === 'LEFT') {
+                    if (curr % COLUMNS === 0) break;
+                    curr -= 1;
+                } 
+                else if (direction === 'RIGHT') {
+                    if (curr % COLUMNS === COLUMNS - 1) break;
+                    curr += 1;
+                }
+
+                if (curr >= 0 && curr < gridTiles.length) {
+                    if (!gridTiles[curr].classList.contains('matched')) {
+                        found = true;
+                        updateFocusVisuals(curr);
+                        focusIndex = curr;
+                        break;
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (gameScreen.classList.contains('hidden')) return;
+
+            if (e.key.toLowerCase() === 'r') {
+                restartGame();
+                return;
+            }
+            if (e.key === 'Backspace' || e.key === 'Escape') {
+                backToMenu();
+                return;
+            }
+
+            if (!gameOverOverlay.classList.contains('hidden') && e.key === ' ') {
+                restartGame();
+                e.preventDefault();
+                return;
+            }
+
+            if (lockBoard || !levelClearOverlay.classList.contains('hidden') || !gameOverOverlay.classList.contains('hidden')) return;
+
+            if (e.key === 'ArrowUp') { moveFocus('UP'); e.preventDefault(); }
+            else if (e.key === 'ArrowDown') { moveFocus('DOWN'); e.preventDefault(); }
+            else if (e.key === 'ArrowLeft') { moveFocus('LEFT'); e.preventDefault(); }
+            else if (e.key === 'ArrowRight') { moveFocus('RIGHT'); e.preventDefault(); }
+            
+            else if (e.key === ' ' || e.key === 'Enter') {
+                if (focusIndex >= 0 && focusIndex < gridTiles.length) {
+                    const targetTile = gridTiles[focusIndex];
+                    if (!targetTile.classList.contains('matched')) {
+                        handleTileClick(targetTile);
+                    }
+                }
+                e.preventDefault();
+            }
         });
-
-        backBtn.addEventListener('click', () => {
-            showScreen(modeScreen);
-        });
-
-        restartBtn.addEventListener('click', generateLevel);
-
-        // --- इनिशियलाइज़ेशन ---
-        showScreen(modeScreen);
-
     </script>
 </body>
 </html>

@@ -7,8 +7,15 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright &amp;#169; 2020 Softorage. All rights reserved.</copyright>
-    <lastBuildDate>Tue, 30 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Aug 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jailbreaking View Only PDFs: Google Drive Hack</title>
+      <link>http://localhost:1313/post/gdrive-pdf-downloader/</link>
+      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/post/gdrive-pdf-downloader/</guid>
+      <description>&amp;ldquo;Extractor by Rana&amp;rdquo; is a lightweight browser script that bypasses Google Drive&amp;rsquo;s highly secure &amp;ldquo;view-only&amp;rdquo; file restrictions.&#xA;✨ Features PDF Extraction: Text to .md file: I included the Markdown (.md) option instead of .txt because it is much easier for both humans and AI to understand. Scanned PDFs: Click &amp;ldquo;Extract as image&amp;rdquo; to process the file. It will open a new window displaying all the images, which you can easily save by pressing Ctrl + P.</description>
+    </item>
     <item>
       <title>Launching the 3 New Tools options</title>
       <link>http://localhost:1313/post/tool-info/</link>
@@ -22,13 +29,6 @@
       <pubDate>Fri, 10 Apr 2026 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/post/debunking-the-myth-a-rational-analysis-of-meat-consumption-in-hinduism/</guid>
       <description>Note For this first/trial article, AI was used heavily to polish the translation and structure. That said, the core knowledge is mine and represents a level of insight that AI simply cannot match. Recently, a massive controversy erupted on the internet when YouTuber Dhruv Rathee uploaded a video claiming that Hinduism inherently permits, and even encourages, meat consumption—including beef. Relying on a mix of cherry-picked verses, mistranslations by foreign authors, and AI-generated images, the video painted a heavily distorted picture of Sanatan Dharma.</description>
-    </item>
-    <item>
-      <title>Jailbreaking View Only PDFs: Google Drive Hack</title>
-      <link>http://localhost:1313/post/gdrive-pdf-downloader/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/post/gdrive-pdf-downloader/</guid>
-      <description>&amp;ldquo;Extractor by Rana&amp;rdquo; is a lightweight browser script that bypasses Google Drive&amp;rsquo;s highly secure &amp;ldquo;view-only&amp;rdquo; file restrictions.&#xA;✨ Features PDF Extraction: Text to .md file: I included the Markdown (.md) option instead of .txt because it is much easier for both humans and AI to understand. Scanned PDFs: Click &amp;ldquo;Extract as image&amp;rdquo; to process the file. It will open a new window displaying all the images, which you can easily save by pressing Ctrl + P.</description>
     </item>
   </channel>
 </rss>
