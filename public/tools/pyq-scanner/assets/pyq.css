@@ -1,0 +1,1902 @@
+/**
+ * PYQs Pro - AMOLED Design System & Namespaced Styles
+ * Prefix: pyq-* (100% Hugo isolated)
+ */
+
+:root {
+  --pyq-bg: #000000;
+  --pyq-surface-0: #040108;
+  --pyq-surface-1: #0a0414;
+  --pyq-surface-2: #140826;
+  --pyq-surface-3: #1f0d38;
+  --pyq-border-subtle: #2d134d;
+  --pyq-border-active: #6b21a8;
+  --pyq-border-glow: #a855f7;
+
+  --pyq-purple-primary: #9333ea;
+  --pyq-purple-vibrant: #a855f7;
+  --pyq-purple-glow: rgba(168, 85, 247, 0.28);
+  --pyq-purple-deep: #240d42;
+
+  --pyq-text-white: #faf5ff;
+  --pyq-text-muted: #c4b5fd;
+  --pyq-text-dim: #8b7ca6;
+
+  --pyq-rose-bg: #4c0519;
+  --pyq-rose-border: #e11d48;
+  --pyq-rose-text: #fda4af;
+
+  --pyq-amber-bg: #451a03;
+  --pyq-amber-border: #d97706;
+  --pyq-amber-text: #fcd34d;
+
+  --pyq-cyan-bg: #082f49;
+  --pyq-cyan-border: #0284c7;
+  --pyq-cyan-text: #7dd3fc;
+
+  --pyq-emerald-bg: #022c22;
+  --pyq-emerald-border: #059669;
+  --pyq-emerald-text: #6ee7b7;
+
+  --pyq-radius-sm: 4px;
+  --pyq-radius-md: 8px;
+  --pyq-radius-lg: 12px;
+  --pyq-radius-full: 9999px;
+
+  --pyq-font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --pyq-font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+/* Reset inside app container */
+.pyq-app-container {
+  all: initial;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--pyq-bg);
+  color: var(--pyq-text-white);
+  font-family: var(--pyq-font-sans);
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+.pyq-app-container *,
+.pyq-app-container *::before,
+.pyq-app-container *::after {
+  box-sizing: inherit;
+  font-family: inherit;
+}
+
+/* Scrollbars */
+.pyq-app-container ::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.pyq-app-container ::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: #000000;
+}
+.pyq-app-container ::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-full);
+}
+.pyq-app-container ::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--pyq-border-active);
+}
+
+/* --- HEADER & ACTION TOOLBAR --- */
+.pyq-top-navbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 20px;
+  background-color: var(--pyq-surface-1);
+  border-bottom: 1px solid var(--pyq-border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+@media (min-width: 900px) {
+  .pyq-top-navbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+}
+
+.pyq-brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pyq-brand-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.45));
+  transition: transform 0.2s ease;
+}
+.pyq-brand-icon-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.pyq-logo-svg {
+  display: block;
+}
+
+.pyq-brand-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.pyq-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pyq-app-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pyq-title-pro {
+  background: linear-gradient(135deg, #c084fc 0%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.pyq-author-badge {
+  font-size: 9.5px;
+  color: #f3e8ff;
+  font-weight: 800;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.45) 0%, rgba(88, 28, 135, 0.3) 100%);
+  border: 1px solid rgba(192, 132, 252, 0.55);
+  padding: 2px 7px;
+  border-radius: var(--pyq-radius-full);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+}
+
+.pyq-counter-badge {
+  font-size: 11px;
+  color: var(--pyq-text-muted);
+  font-family: var(--pyq-font-mono);
+  font-weight: 500;
+}
+
+/* Actions Toolbar */
+.pyq-actions-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* Smart Search Box */
+.pyq-search-box {
+  position: relative;
+  min-width: 220px;
+  flex: 1;
+  max-width: 360px;
+}
+
+.pyq-search-input {
+  width: 100%;
+  background-color: #0b0314;
+  border: 1px solid rgba(147, 51, 234, 0.35);
+  border-radius: var(--pyq-radius-md);
+  color: #f5edff;
+  font-size: 12px;
+  padding: 6px 28px 6px 30px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.pyq-search-input:focus {
+  border-color: #c084fc;
+  background-color: #120524;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);
+}
+
+.pyq-search-icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--pyq-text-dim);
+  pointer-events: none;
+}
+
+.pyq-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--pyq-text-dim);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pyq-search-clear:hover {
+  color: #ffffff;
+}
+
+/* Buttons */
+.pyq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--pyq-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.pyq-btn-primary {
+  background: linear-gradient(135deg, #7e22ce 0%, #581c87 100%);
+  border: 1px solid #a855f7;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.35);
+}
+.pyq-btn-primary:hover {
+  background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+  border-color: #c084fc;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.5);
+}
+
+.pyq-btn-secondary {
+  background: linear-gradient(180deg, #1c0c33 0%, #110424 100%);
+  border: 1px solid rgba(168, 85, 247, 0.32);
+  color: #f3e8ff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+.pyq-btn-secondary:hover {
+  background: linear-gradient(180deg, #2c124f 0%, #1a0836 100%);
+  border-color: rgba(192, 132, 252, 0.65);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.38);
+}
+
+.pyq-btn-ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--pyq-text-muted);
+}
+.pyq-btn-ghost:hover {
+  background-color: var(--pyq-surface-2);
+  color: #ffffff;
+}
+
+.pyq-btn-danger {
+  background-color: var(--pyq-rose-bg);
+  border-color: var(--pyq-rose-border);
+  color: var(--pyq-rose-text);
+}
+.pyq-btn-danger:hover {
+  background-color: #630822;
+}
+
+.pyq-btn-active {
+  background: linear-gradient(135deg, #6b21a8 0%, #3b0764 100%) !important;
+  border-color: #c084fc !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.55) !important;
+}
+
+.pyq-btn-sm {
+  padding: 5px 10px;
+  font-size: 11px;
+}
+.pyq-btn-xs {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+.pyq-btn-lg {
+  padding: 9px 18px;
+  font-size: 14px;
+}
+
+/* Select Inputs */
+.pyq-select,
+.pyq-input,
+.pyq-textarea {
+  background-color: #000000;
+  border: 1px solid var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-md);
+  color: #ffffff;
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pyq-select:focus,
+.pyq-input:focus,
+.pyq-textarea:focus {
+  border-color: var(--pyq-purple-primary);
+}
+
+/* --- FILTER DRAWER --- */
+.pyq-filter-drawer {
+  background: linear-gradient(180deg, #100520 0%, #080212 100%);
+  border-bottom: 1px solid rgba(147, 51, 234, 0.32);
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: pyqFadeDown 0.15s ease-out;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+.pyq-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pyq-drawer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pyq-drawer-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f3e8ff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pyq-conjunction-wrapper {
+  display: inline-flex;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: var(--pyq-radius-sm);
+  background-color: #0b0316;
+  overflow: hidden;
+}
+
+.pyq-conj-btn {
+  padding: 3px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  background: none;
+  border: none;
+  color: #9488b0;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pyq-conj-btn.pyq-conj-active {
+  background: linear-gradient(135deg, #7e22ce 0%, #4c1d95 100%);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.35);
+}
+
+.pyq-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pyq-rule-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background-color: #0d041c;
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  border-radius: var(--pyq-radius-md);
+  padding: 6px 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.pyq-rule-prefix {
+  width: 46px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #c084fc;
+  text-transform: uppercase;
+  font-family: var(--pyq-font-mono);
+}
+
+.pyq-rule-del-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--pyq-text-dim);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.pyq-rule-del-btn:hover {
+  color: var(--pyq-rose-text);
+}
+
+.pyq-no-rules-hint {
+  font-size: 11px;
+  color: var(--pyq-text-dim);
+  padding: 10px 0;
+}
+
+/* --- VIRTUALIZED TABLE GRID SYSTEM --- */
+.pyq-grid-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #000000;
+  position: relative;
+}
+
+.pyq-table-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background-color: #000000;
+  position: relative;
+  overflow: hidden;
+}
+
+.pyq-table-scroll-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+  background-color: #000000;
+}
+
+.pyq-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+/* Table Header (Firmly sticky at top 0 of the table scroll container) */
+.pyq-thead {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  background: linear-gradient(180deg, #140728 0%, #0a0316 100%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.pyq-th {
+  background: transparent;
+  border-bottom: 1px solid rgba(147, 51, 234, 0.28);
+  border-right: 1px solid rgba(147, 51, 234, 0.16);
+  color: #d8b4fe;
+  font-weight: 600;
+  padding: 0;
+  height: 40px;
+  position: relative;
+  text-align: left;
+  user-select: none;
+}
+
+.pyq-th-add-col {
+  width: 80px;
+  text-align: center;
+  padding: 0 6px;
+}
+
+.pyq-btn-add-col {
+  background: rgba(147, 51, 234, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #e9d5ff;
+  font-weight: 700;
+  border-radius: var(--pyq-radius-sm);
+  padding: 3px 8px;
+  transition: all 0.15s ease;
+}
+.pyq-btn-add-col:hover {
+  background: rgba(147, 51, 234, 0.45);
+  border-color: #c084fc;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+}
+
+.pyq-th-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 10px;
+  overflow: hidden;
+}
+
+.pyq-th-title {
+  flex: 1;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pyq-th-title:hover {
+  color: #ffffff;
+}
+
+.pyq-th-index {
+  width: 56px;
+  text-align: center;
+}
+
+.pyq-th-sorted {
+  color: var(--pyq-purple-primary);
+  background-color: rgba(139, 92, 246, 0.05);
+}
+
+.pyq-resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color 0.15s;
+}
+.pyq-resize-handle:hover,
+.pyq-resize-handle:active {
+  background-color: var(--pyq-purple-primary);
+}
+
+.pyq-col-menu-btn {
+  background: none;
+  border: none;
+  color: var(--pyq-text-dim);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--pyq-radius-sm);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.pyq-th:hover .pyq-col-menu-btn {
+  opacity: 1;
+}
+.pyq-col-menu-btn:hover {
+  background-color: var(--pyq-surface-2);
+  color: #ffffff;
+}
+
+.pyq-col-type-badge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background-color: var(--pyq-text-dim);
+}
+.pyq-badge-text { background-color: var(--pyq-purple-primary); }
+.pyq-badge-number { background-color: var(--pyq-cyan-border); }
+.pyq-badge-select { background-color: var(--pyq-amber-border); }
+.pyq-badge-markdown { background-color: #6366f1; }
+.pyq-badge-checkbox { background-color: var(--pyq-emerald-border); }
+
+/* Table Rows & Cells */
+.pyq-row {
+  border-bottom: 1px solid rgba(147, 51, 234, 0.12);
+  transition: background-color 0.12s ease;
+}
+.pyq-row:hover {
+  background-color: rgba(147, 51, 234, 0.09);
+}
+.pyq-row-bookmarked {
+  background-color: rgba(147, 51, 234, 0.06);
+}
+
+.pyq-td {
+  padding: 0;
+  border-right: 1px solid rgba(147, 51, 234, 0.09);
+  vertical-align: top;
+  overflow: hidden;
+}
+
+.pyq-td-index {
+  width: 56px;
+  text-align: center;
+}
+
+.pyq-index-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 4px;
+}
+
+.pyq-row-number {
+  font-size: 11px;
+  color: #9d8ec2;
+  font-family: var(--pyq-font-mono);
+  font-weight: 600;
+}
+.pyq-row:hover .pyq-row-number {
+  color: #d8b4fe;
+}
+
+.pyq-star-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #6b5b88;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: transform 0.15s, color 0.15s;
+}
+.pyq-star-btn:hover {
+  color: #facc15;
+  transform: scale(1.15);
+}
+.pyq-star-active {
+  color: #facc15 !important;
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.5);
+}
+
+.pyq-td-row-actions {
+  width: 80px;
+}
+
+.pyq-row-actions-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.pyq-row:hover .pyq-row-actions-wrapper {
+  opacity: 1;
+}
+
+.pyq-row-action-btn {
+  background: none;
+  border: none;
+  color: var(--pyq-text-dim);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--pyq-radius-sm);
+  font-size: 12px;
+}
+.pyq-row-action-btn:hover {
+  background-color: var(--pyq-surface-2);
+  color: #ffffff;
+}
+.pyq-action-delete:hover {
+  background-color: var(--pyq-rose-bg);
+  color: var(--pyq-rose-text);
+}
+
+/* Individual Cell Types */
+.pyq-cell {
+  min-height: 48px;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 10px;
+  position: relative;
+}
+
+.pyq-cell-empty {
+  color: var(--pyq-text-dim);
+  font-style: italic;
+  font-size: 11px;
+}
+
+.pyq-cell-text-display {
+  width: 100%;
+  font-size: 12px;
+  color: #e2e8f0;
+  line-height: 1.5;
+  word-break: break-word;
+  cursor: text;
+}
+
+.pyq-cell-input {
+  width: 100%;
+  border-radius: var(--pyq-radius-sm);
+  font-size: 12px;
+}
+
+/* Checkbox Cell */
+.pyq-cell-checkbox {
+  align-items: center;
+  justify-content: center;
+}
+
+.pyq-checkbox-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--pyq-radius-sm);
+  border: 1px solid var(--pyq-border-subtle);
+  background-color: #000000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+.pyq-checkbox-btn:hover {
+  border-color: var(--pyq-purple-primary);
+}
+.pyq-checkbox-checked {
+  background-color: var(--pyq-purple-primary);
+  border-color: var(--pyq-purple-vibrant);
+}
+
+/* Select Tags Cell */
+.pyq-select-pill-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.pyq-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--pyq-radius-full);
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.pyq-pill-clear-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.6;
+}
+.pyq-pill-clear-btn:hover {
+  opacity: 1;
+}
+
+.pyq-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 60;
+  background-color: var(--pyq-surface-2);
+  border: 1px solid var(--pyq-border-active);
+  border-radius: var(--pyq-radius-md);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+  min-width: 180px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pyq-dropdown-search {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.pyq-dropdown-options {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pyq-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: var(--pyq-radius-sm);
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--pyq-text-white);
+}
+.pyq-dropdown-item:hover {
+  background-color: var(--pyq-surface-3);
+}
+.pyq-item-active {
+  background-color: var(--pyq-purple-deep);
+}
+.pyq-item-italic {
+  font-style: italic;
+  color: var(--pyq-text-dim);
+}
+.pyq-dropdown-create {
+  color: var(--pyq-purple-primary);
+  font-weight: 600;
+  border-top: 1px solid var(--pyq-border-subtle);
+  margin-top: 2px;
+  padding-top: 6px;
+}
+
+/* Markdown Cell */
+.pyq-md-cell-display {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pyq-md-content {
+  flex: 1;
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.pyq-md-cell-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.pyq-cell:hover .pyq-md-cell-toolbar {
+  opacity: 1;
+}
+
+.pyq-cell-icon-btn {
+  background: none;
+  border: none;
+  color: var(--pyq-text-dim);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--pyq-radius-sm);
+  font-size: 11px;
+}
+.pyq-cell-icon-btn:hover {
+  background-color: var(--pyq-surface-2);
+  color: #ffffff;
+}
+
+/* Markdown content typography */
+.pyq-md-p { margin: 0 0 4px 0; }
+.pyq-md-p:last-child { margin-bottom: 0; }
+.pyq-md-h1, .pyq-md-h2, .pyq-md-h3 {
+  color: #ffffff;
+  font-weight: 700;
+  margin: 4px 0 2px 0;
+}
+.pyq-md-inline-code {
+  background-color: var(--pyq-surface-3);
+  color: var(--pyq-purple-primary);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--pyq-font-mono);
+  font-size: 11px;
+  border: 1px solid var(--pyq-border-subtle);
+}
+.pyq-md-code-block {
+  background-color: #000000;
+  border: 1px solid var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-sm);
+  padding: 6px 8px;
+  margin: 4px 0;
+  overflow-x: auto;
+}
+.pyq-md-code-block code {
+  font-family: var(--pyq-font-mono);
+  font-size: 11px;
+  color: #a5b4fc;
+}
+.pyq-md-quote {
+  border-left: 2px solid var(--pyq-purple-primary);
+  padding-left: 8px;
+  margin: 4px 0;
+  color: var(--pyq-text-muted);
+  font-style: italic;
+}
+.pyq-md-ul, .pyq-md-ol {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+.pyq-md-li, .pyq-md-li-num {
+  margin-bottom: 2px;
+}
+.pyq-md-link {
+  color: var(--pyq-purple-primary);
+  text-decoration: underline;
+}
+
+.pyq-cell-textarea {
+  width: 100%;
+  min-height: 80px;
+  font-family: var(--pyq-font-mono);
+  font-size: 11px;
+  resize: vertical;
+}
+.pyq-editor-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  justify-content: flex-end;
+}
+
+/* Empty State */
+.pyq-empty-cell {
+  padding: 60px 20px;
+  text-align: center;
+}
+.pyq-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.pyq-empty-icon {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+.pyq-empty-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+.pyq-empty-hint {
+  font-size: 12px;
+  color: var(--pyq-text-dim);
+  margin: 0;
+}
+
+/* Footer status bar (Always permanently visible at bottom of table viewport) */
+.pyq-table-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  background: linear-gradient(90deg, #0d041c 0%, #17062e 50%, #0d041c 100%);
+  border-top: 1px solid rgba(168, 85, 247, 0.32);
+  font-size: 11px;
+  color: #c4b5fd;
+  z-index: 10;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.65);
+}
+
+.pyq-counter-highlight {
+  color: #c084fc;
+  font-weight: 700;
+}
+
+.pyq-counter-label {
+  color: #c4b5fd;
+}
+
+.pyq-counter-total {
+  color: #9d8ec2;
+  margin-left: 4px;
+}
+
+.pyq-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pyq-limit-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #c4b5fd;
+}
+
+.pyq-limit-label {
+  color: #9d8ec2;
+  font-weight: 500;
+}
+
+.pyq-limit-select {
+  padding: 4px 8px;
+  font-size: 11px;
+  background-color: #120626;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #f3e8ff;
+  border-radius: var(--pyq-radius-sm);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pyq-limit-select:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.35);
+}
+
+/* --- MODAL DIALOGS --- */
+.pyq-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: pyqFadeIn 0.15s ease-out;
+}
+
+.pyq-modal-card {
+  background-color: var(--pyq-surface-1);
+  border: 1px solid var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9), 0 0 30px var(--pyq-purple-glow);
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pyq-modal-io {
+  max-width: 680px;
+}
+
+.pyq-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--pyq-border-subtle);
+}
+
+.pyq-modal-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.pyq-modal-close-btn {
+  background: none;
+  border: none;
+  color: var(--pyq-text-dim);
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0;
+  line-height: 1;
+}
+.pyq-modal-close-btn:hover {
+  color: #ffffff;
+}
+
+.pyq-modal-form {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pyq-form-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pyq-text-muted);
+  text-transform: uppercase;
+}
+
+.pyq-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--pyq-border-subtle);
+  background-color: var(--pyq-surface-0);
+}
+
+.pyq-modal-confirm {
+  padding: 20px;
+}
+.pyq-modal-desc {
+  font-size: 12px;
+  color: var(--pyq-text-muted);
+  line-height: 1.6;
+  margin: 10px 0 16px 0;
+}
+
+/* Modal Tabs */
+.pyq-modal-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.pyq-tab-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pyq-text-dim);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--pyq-radius-md);
+  transition: all 0.15s;
+}
+.pyq-tab-btn.pyq-tab-active {
+  background-color: var(--pyq-purple-deep);
+  color: var(--pyq-purple-primary);
+  border: 1px solid var(--pyq-border-active);
+}
+
+.pyq-io-content {
+  padding: 18px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Dropzone */
+.pyq-file-dropzone {
+  border: 2px dashed var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-lg);
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  background-color: var(--pyq-surface-0);
+}
+.pyq-file-dropzone:hover,
+.pyq-dropzone-active {
+  border-color: var(--pyq-purple-primary);
+  background-color: var(--pyq-purple-deep);
+}
+
+.pyq-dropzone-icon {
+  font-size: 32px;
+}
+.pyq-dropzone-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+.pyq-dropzone-subtitle {
+  margin: 0;
+  font-size: 11px;
+  color: var(--pyq-text-dim);
+}
+
+/* Mode radios */
+.pyq-import-mode-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.pyq-radio-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: var(--pyq-surface-0);
+  border: 1px solid var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-md);
+  cursor: pointer;
+}
+.pyq-radio-label:hover {
+  border-color: var(--pyq-border-active);
+}
+
+.pyq-radio-text strong {
+  display: block;
+  font-size: 12px;
+  color: #ffffff;
+}
+.pyq-radio-text p {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: var(--pyq-text-dim);
+}
+
+.pyq-import-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--pyq-surface-2);
+  border: 1px solid var(--pyq-border-subtle);
+  padding: 8px 12px;
+  border-radius: var(--pyq-radius-md);
+  font-size: 12px;
+}
+.pyq-status-badge {
+  background-color: var(--pyq-purple-primary);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: var(--pyq-radius-sm);
+}
+
+/* Visual Column Mapper Grid */
+.pyq-column-mapper {
+  margin-top: 14px;
+}
+.pyq-mapper-header-notice {
+  margin-bottom: 8px;
+}
+.pyq-mapper-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+.pyq-mapper-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: var(--pyq-text-dim);
+}
+
+.pyq-mapper-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.pyq-mapper-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #000000;
+  border: 1px solid var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-md);
+  padding: 6px 10px;
+}
+
+.pyq-mapper-source {
+  flex: 1;
+  overflow: hidden;
+}
+.pyq-mapper-label-source {
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.pyq-mapper-arrow {
+  color: var(--pyq-purple-primary);
+  font-size: 14px;
+}
+
+.pyq-mapper-target {
+  flex: 1.3;
+}
+.pyq-mapper-select {
+  width: 100%;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+/* Export Cards */
+.pyq-export-format-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+@media (min-width: 600px) {
+  .pyq-export-format-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.pyq-export-card {
+  background-color: var(--pyq-surface-0);
+  border: 1px solid var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+.pyq-export-card:hover {
+  border-color: var(--pyq-purple-primary);
+  background-color: var(--pyq-purple-deep);
+  transform: translateY(-2px);
+}
+
+.pyq-card-icon {
+  font-size: 28px;
+}
+.pyq-card-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+.pyq-card-desc {
+  margin: 0;
+  font-size: 11px;
+  color: var(--pyq-text-dim);
+  line-height: 1.4;
+}
+
+.pyq-export-notice {
+  background-color: var(--pyq-surface-0);
+  border: 1px solid var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-md);
+  padding: 10px 14px;
+}
+.pyq-export-notice strong {
+  display: block;
+  font-size: 12px;
+  color: var(--pyq-purple-primary);
+}
+.pyq-export-notice p {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: var(--pyq-text-muted);
+}
+
+/* --- IMMERSIVE DARK PURPLE STUDY TIMER --- */
+.pyq-immersive-timer {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(circle at 50% 45%, #1d0938 0%, #0d0419 60%, #05010a 100%);
+  background-color: #05010a;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  box-sizing: border-box;
+  animation: pyqFadeIn 0.2s ease-out;
+}
+
+.pyq-immersive-timer.pyq-timer-ringing {
+  animation: pyqTimerAlarmGlow 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes pyqTimerAlarmGlow {
+  0% {
+    background: radial-gradient(circle at 50% 45%, #4c0519 0%, #1e0510 60%, #05010a 100%);
+  }
+  100% {
+    background: radial-gradient(circle at 50% 45%, #881337 0%, #2e0818 60%, #09020f 100%);
+  }
+}
+
+.pyq-timer-topbar {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pyq-timer-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pyq-timer-glyph {
+  font-size: 20px;
+  color: #c084fc;
+}
+
+.pyq-timer-heading {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e9d5ff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pyq-timer-preset-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a855f7;
+  background: rgba(147, 51, 234, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  padding: 2px 10px;
+  border-radius: 9999px;
+}
+
+.pyq-timer-exit-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #d8b4fe;
+  font-size: 24px;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.pyq-timer-exit-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  transform: scale(1.05);
+}
+
+/* Alarm Banner */
+.pyq-timer-alarm-banner {
+  background-color: rgba(225, 29, 72, 0.2);
+  border: 1px solid rgba(225, 29, 72, 0.5);
+  border-radius: 12px;
+  padding: 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
+}
+.pyq-alarm-text {
+  font-size: 13px;
+  color: #fda4af;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pyq-btn-stop-alarm {
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 9999px;
+  background-color: #e11d48;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  animation: pyqBounce 0.5s infinite alternate;
+}
+
+/* Central Ultra-Bold Typography Display */
+.pyq-timer-center-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto 0;
+  text-align: center;
+}
+
+.pyq-timer-mega-clock {
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(5.5rem, 18vw, 13.5rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #faf5ff;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 50px rgba(168, 85, 247, 0.55), 0 0 100px rgba(139, 92, 246, 0.25);
+  user-select: none;
+}
+
+.pyq-timer-substatus {
+  font-size: 14px;
+  font-weight: 600;
+  color: #c084fc;
+  margin-top: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* Floating Bottom Controls */
+.pyq-timer-bottom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(26, 11, 46, 0.75);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  padding: 10px 24px;
+  border-radius: 9999px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(147, 51, 234, 0.2);
+}
+
+.pyq-timer-btn-main {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 12px 34px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pyq-btn-start {
+  background: linear-gradient(135deg, #a855f7, #7e22ce);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+.pyq-btn-start:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 28px rgba(168, 85, 247, 0.6);
+}
+.pyq-btn-pause {
+  background: #3b1660;
+  color: #f3e8ff;
+  border: 1px solid #9333ea;
+}
+.pyq-btn-pause:hover {
+  background: #4c1d80;
+  color: #ffffff;
+}
+
+.pyq-timer-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e9d5ff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 11px 22px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pyq-timer-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.pyq-timer-settings-btn {
+  background: rgba(147, 51, 234, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: #d8b4fe;
+  font-size: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.pyq-timer-settings-btn:hover {
+  background: rgba(147, 51, 234, 0.35);
+  color: #ffffff;
+  transform: rotate(30deg);
+}
+
+/* Settings Popover Card */
+.pyq-timer-settings-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: pyqFadeIn 0.15s ease-out;
+}
+
+.pyq-timer-settings-card {
+  background: #0f051d;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.9), 0 0 30px rgba(147, 51, 234, 0.3);
+  overflow: hidden;
+}
+
+.pyq-timer-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #180830;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.pyq-settings-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #f3e8ff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pyq-settings-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pyq-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pyq-settings-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c084fc;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pyq-settings-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.pyq-preset-card-btn {
+  background: #190933;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: all 0.15s;
+}
+.pyq-preset-card-btn:hover,
+.pyq-preset-card-btn.pyq-preset-active {
+  background: #2b0e56;
+  border-color: #a855f7;
+}
+.pyq-preset-card-btn strong {
+  font-size: 12px;
+  color: #ffffff;
+}
+.pyq-preset-card-btn span {
+  font-size: 10px;
+  color: #c084fc;
+}
+
+.pyq-settings-custom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pyq-input-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #16082c;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #c084fc;
+}
+
+.pyq-settings-num-input {
+  width: 44px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: monospace;
+  text-align: center;
+  outline: none;
+}
+
+.pyq-sound-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #16082c;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.pyq-sound-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #e9d5ff;
+  cursor: pointer;
+}
+
+/* --- DISTRACTION-FREE STUDY FOCUS MODE (फोकस मोड) --- */
+.pyq-btn-focus-mode {
+  border-color: rgba(168, 85, 247, 0.4);
+}
+.pyq-btn-focus-mode:hover {
+  background-color: var(--pyq-purple-deep);
+  border-color: var(--pyq-purple-primary);
+}
+
+.pyq-btn-icon-only {
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pyq-exit-focus-btn {
+  display: none;
+}
+
+/* Focus Mode State: Clean, uncluttered screen focusing 100% on Search and Questions */
+.pyq-focus-mode .pyq-brand-section {
+  display: none !important;
+}
+
+.pyq-focus-mode .pyq-actions-toolbar > button:not(.pyq-exit-focus-btn):not(.pyq-btn-focus-mode) {
+  /* Keep only exit button */
+  display: none !important;
+}
+
+.pyq-focus-mode .pyq-btn-focus-mode {
+  display: none !important;
+}
+
+.pyq-focus-mode #pyq-filter-container {
+  display: none !important;
+}
+
+.pyq-focus-mode .pyq-exit-focus-btn {
+  display: inline-flex !important;
+}
+
+.pyq-focus-mode .pyq-top-navbar {
+  padding: 8px 16px;
+  background-color: #04010a;
+  border-bottom: 1px solid rgba(147, 51, 234, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+}
+
+.pyq-focus-mode .pyq-search-box {
+  flex: 1;
+  max-width: 100%;
+}
+
+/* --- TOAST NOTIFICATIONS --- */
+.pyq-toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.pyq-toast {
+  pointer-events: auto;
+  background-color: var(--pyq-surface-2);
+  border: 1px solid var(--pyq-border-subtle);
+  border-radius: var(--pyq-radius-md);
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+  animation: pyqSlideInLeft 0.2s ease-out;
+}
+
+.pyq-toast-success {
+  border-color: var(--pyq-purple-primary);
+  background-color: var(--pyq-purple-deep);
+  color: #e2e8f0;
+}
+
+.pyq-toast-error {
+  border-color: var(--pyq-rose-border);
+  background-color: var(--pyq-rose-bg);
+  color: var(--pyq-rose-text);
+}
+
+.pyq-toast-info {
+  border-color: var(--pyq-cyan-border);
+  background-color: var(--pyq-cyan-bg);
+  color: var(--pyq-cyan-text);
+}
+
+/* Keyframes */
+@keyframes pyqFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pyqFadeDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pyqScaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pyqSlideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pyqPulseAlarm {
+  from { box-shadow: 0 0 20px rgba(225, 29, 72, 0.3); }
+  to { box-shadow: 0 0 50px rgba(225, 29, 72, 0.7); }
+}
+
+@keyframes pyqBounce {
+  from { transform: scale(0.98); }
+  to { transform: scale(1.02); }
+}

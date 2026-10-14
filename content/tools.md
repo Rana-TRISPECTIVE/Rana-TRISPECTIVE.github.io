@@ -29,7 +29,10 @@ author: "Rana"
 
 <div class="tool-card"><div class="tool-icon">🎯</div><div class="tool-content"><div class="badge" style="background: #b026ff; color: #fff;">Main Tool</div><h3 class="tool-title">Study & Revision Tracker</h3><p class="tool-desc">An AMOLED dark mode study tracker with Firebase Cloud Sync. Map out your competitive exam syllabus, log active session timelines, and utilize spaced repetition metrics securely.</p><a href="/tools/stutracker/" class="tool-btn">Launch Tool &rarr;</a></div></div>
 
-<div class="tool-card"><div class="tool-icon">🧠</div><div class="tool-content"><div class="badge" style="background: #00f5d4; color: #000;">Training</div><h3 class="tool-title">Mental math</h3><p class="tool-desc">Train rapid mental calculation speed for competitive aptitude. Find matching pairs under pressure in this high-intensity module.</p><a href="/tools/mental-math/" class="tool-btn">Launch Tool &rarr;</a></div></div>
+<div class="tool-card"><div class="tool-icon">⏳</div><div class="tool-content"><div class="badge" style="background: #00f5d4; color: #000;">study</div><h3 class="tool-title">POMODORO Timer</h3><p class="tool-desc">Andvanced POMODORO study timer with option like focus music-live radio,custom timer setting etc.</p><a href="/tools/Timer/" class="tool-btn">Launch Tool &rarr;</a></div></div>
+
+
+<div class="tool-card"><div class="tool-icon">🧠</div><div class="tool-content"><div class="badge" style="background: #00f5d4; color: #000;">practice</div><h3 class="tool-title">Mental math</h3><p class="tool-desc">Train rapid mental calculation speed for competitive aptitude. Find matching pairs under pressure in this high-intensity module.</p><a href="/tools/mental-math/" class="tool-btn">Launch Tool &rarr;</a></div></div>
 
 <div class="tool-card"><div class="tool-icon">📚</div><div class="tool-content"><div class="badge">Database</div><h3 class="tool-title">PYQs Scanner</h3><p class="tool-desc">A high-performance, zero-lag database interface for isolating and analyzing Previous Year Questions with instant smart-search.</p><a href="/tools/pyq-scanner/" class="tool-btn">Launch Tool &rarr;</a></div></div>
 
