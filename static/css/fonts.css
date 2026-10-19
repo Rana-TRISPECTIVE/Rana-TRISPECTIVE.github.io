@@ -1,0 +1,115 @@
+/* ==========================================================================
+   TRISPECTIVE FONTS — 100% SELF-HOSTED (ZERO GOOGLE REQUESTS)
+   Site-wide loaded via layouts/partials/header.html
+   ========================================================================== */
+
+/* ---------- 1. @FONT-FACE DECLARATIONS ---------- */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/bricolage-variable.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/lexend-variable.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cinzel-regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/cinzel-bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Rosaline';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/rosaline-regular.ttf') format('truetype');
+}
+
+/* ---------- 2. FONT VARIABLES ---------- */
+:root {
+  --font-display: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: 'Lexend', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-wordmark: 'Cinzel Decorative', 'Bricolage Grotesque', serif;
+  --font-signature: 'Rosaline', 'Bricolage Grotesque', cursive;
+}
+
+/* ---------- 3. SITE-WIDE BASE (specificity se custom.css ke !important par jeet) ---------- */
+html body,
+html body[data-theme="dark"],
+html main,
+html .main-content {
+  font-family: var(--font-display) !important;
+}
+html h1, html h2, html h3, html h4, html h5, html h6 {
+  font-family: var(--font-display) !important;
+}
+/* Navbar (Dynamic Island) */
+html .trispective-brand-text,
+html .trispective-nav-link {
+  font-family: var(--font-display) !important;
+}
+/* Footer */
+html .rana-custom-footer,
+html .footer-copyright,
+html body > footer p {
+  font-family: var(--font-display) !important;
+}
+/* Tools & About containers (md inline styles ko override) */
+html .tools-container,
+html .tools-stage,
+html .tools-root,
+html .about-editorial-wrap,
+html .about-canvas-wrap {
+  font-family: var(--font-display) !important;
+}
+
+/* ---------- 4. LEXEND: SIRF ARTICLE PROSE + ABOUT CHHOTA TEXT ---------- */
+html .rana-article-content,
+html .rana-article-content p,
+html .rana-article-content li,
+html .rana-article-content blockquote {
+  font-family: var(--font-body) !important;
+}
+html .rana-article-content h2,
+html .rana-article-content h3,
+html .rana-article-content h4 {
+  font-family: var(--font-display) !important;
+}
+html .about-editorial-wrap p,
+html .editorial-block p,
+html .panel-p,
+html .hero-byline,
+html .intro-lead {
+  font-family: var(--font-body) !important;
+}
+
+/* ---------- 5. HOME: CINZEL WORDMARK + ROSALINE SIGNATURE ---------- */
+html .brand-name {
+  font-family: var(--font-wordmark) !important;
+  font-weight: 700 !important;
+  font-size: clamp(2.6rem, 7.2vw, 5.8rem) !important;
+  letter-spacing: 0.015em !important;
+  line-height: 1.08 !important;
+}
+html .by-rana-text {
+  font-family: var(--font-signature) !important;
+  text-transform: none !important;
+  letter-spacing: 0.05em !important;
+  font-size: 1.05rem !important;
+  font-weight: 400 !important;
+}

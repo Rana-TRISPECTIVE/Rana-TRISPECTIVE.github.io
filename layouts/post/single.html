@@ -1,73 +1,925 @@
 {{ define "main" }}
 
+<!-- Unique Modern Editorial Fonts: Bricolage Grotesque (Headings) + Lexend (Prose) + JetBrains Mono (Code) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/custom.css">
 
-<div class="rana-article-wrapper">
-    <header class="rana-article-header">
-        <h1 class="rana-article-title">{{ .Title }}</h1>
-        <div class="rana-article-meta">
-            By {{ .Params.author | default .Site.Params.meta.author }} &nbsp; | &nbsp; 
-            {{ .Date.Format "January 2, 2006" }} &nbsp; | &nbsp; 
-            {{ .ReadingTime }} min read
-        </div>
-    </header>
+{{ $proseWords := .Content | replaceRE "(?s)<div class=\"highlight\">.*?</div>" "" | replaceRE "(?s)<pre.*?>.*?</pre>" "" | replaceRE "(?s)<code.*?>.*?</code>" "" | plainify | countwords }}
+{{ $readMins := div (add $proseWords 199) 200 }}
 
-    {{ if and (gt .WordCount 400) (ne .Params.toc false) }}
-    <div class="toc-container" style="margin-bottom: 40px;">
-        <h2 style="color: #e0b0ff; margin-bottom: 15px; margin-top: 0; font-family: 'Times New Roman', Times, serif;">Contents</h2>
-        {{ .TableOfContents }}
+<style>
+/* ==========================================================================
+   TRISPECTIVE EDITORIAL READING EXPERIENCE (APPLE x JAPANESE ZEN)
+   Soft Dark Obsidian Canvas | Distinct Typography | Colorful Code Syntax
+   ========================================================================== */
+:root {
+  --read-bg-canvas: #0d0b14;
+  --read-bg-surface: #141122;
+  --read-bg-elevated: #1c1730;
+
+  --read-purple: #a855f7;
+  --read-purple-soft: #d8b4fe;
+  --read-purple-border: rgba(168, 85, 247, 0.24);
+  --read-purple-tint: rgba(168, 85, 247, 0.09);
+
+  --read-emerald: #10b981;
+  --read-emerald-bright: #34d399;
+  --read-emerald-border: rgba(16, 185, 129, 0.3);
+  --read-emerald-tint: rgba(16, 185, 129, 0.11);
+
+  --read-text-main: #dad7e5;
+  --read-text-bright: #ffffff;
+  --read-text-muted: #94a3b8;
+  --read-text-faint: #64748b;
+
+  --font-display: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-editorial-body: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --ease-butter: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. EYE-FRIENDLY AMBIENT BACKGROUND & SCROLLBAR */
+body, html, main, .main-content {
+  background-color: var(--read-bg-canvas) !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.13) 0%, transparent 52%),
+    radial-gradient(circle at 90% 30%, rgba(16, 185, 129, 0.05) 0%, transparent 42%) !important;
+  background-attachment: fixed !important;
+  color: var(--read-text-main) !important;
+  font-family: var(--font-editorial-body) !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: var(--read-bg-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--read-purple), var(--read-emerald));
+  border-radius: 9999px;
+  border: 2px solid var(--read-bg-canvas);
+}
+
+/* 2. HARDWARE-ACCELERATED READING PROGRESS BAR */
+.rana-progress-track {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.03);
+  z-index: 100000;
+  pointer-events: none;
+}
+
+.rana-progress-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--read-purple), var(--read-emerald-bright));
+  transform-origin: 0% 50%;
+  transform: scaleX(0);
+  transition: transform 0.08s linear;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+/* 3. ARTICLE CONTAINER */
+.rana-editorial-shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 52px 24px 100px 24px;
+  animation: gentleReveal 0.55s var(--ease-butter) forwards;
+}
+
+@keyframes gentleReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. ARTICLE HEADER & METADATA */
+.rana-post-header {
+  margin-bottom: 38px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--read-purple-border);
+}
+
+.rana-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-code) !important;
+  font-size: 0.78rem;
+  color: var(--read-text-muted) !important;
+  text-decoration: none !important;
+  padding: 5px 13px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 22px;
+  transition: all 0.25s var(--ease-butter);
+}
+
+.rana-breadcrumb:hover {
+  color: var(--read-emerald-bright) !important;
+  border-color: var(--read-emerald-border);
+  background: var(--read-emerald-tint);
+  transform: translateX(-3px);
+}
+
+.rana-category-kicker {
+  display: inline-block;
+  font-family: var(--font-code) !important;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--read-purple-soft);
+  margin-bottom: 10px;
+}
+
+/* Distinct Stylish Title Font (Bricolage Grotesque) */
+.rana-editorial-shell .rana-post-title {
+  font-family: var(--font-display) !important;
+  font-size: clamp(2.1rem, 5.2vw, 3.25rem) !important;
+  font-weight: 800 !important;
+  line-height: 1.16 !important;
+  letter-spacing: -0.025em !important;
+  color: var(--read-text-bright) !important;
+  margin: 0 0 18px 0 !important;
+}
+
+.rana-post-subtitle {
+  font-family: var(--font-editorial-body) !important;
+  font-size: 1.12rem !important;
+  line-height: 1.65 !important;
+  color: var(--read-text-muted) !important;
+  margin: 0 0 24px 0 !important;
+  font-weight: 300 !important;
+}
+
+/* Metadata Chips */
+.rana-meta-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-code) !important;
+  font-size: 0.82rem;
+  color: var(--read-text-muted);
+}
+
+.rana-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 13px;
+  border-radius: 8px;
+  background: var(--read-bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.rana-meta-chip.emerald-chip {
+  background: var(--read-emerald-tint);
+  border-color: var(--read-emerald-border);
+  color: var(--read-emerald-bright);
+  font-weight: 500;
+}
+
+.rana-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--read-emerald-bright);
+  box-shadow: 0 0 8px var(--read-emerald);
+}
+
+/* Frontmatter Tags */
+.rana-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.rana-tag-pill {
+  font-family: var(--font-code) !important;
+  font-size: 0.76rem;
+  color: var(--read-purple-soft) !important;
+  background: var(--read-purple-tint);
+  border: 1px solid var(--read-purple-border);
+  padding: 4px 11px;
+  border-radius: 9999px;
+  text-decoration: none !important;
+  transition: all 0.2s var(--ease-butter);
+}
+
+.rana-tag-pill:hover {
+  color: var(--read-text-bright) !important;
+  background: rgba(168, 85, 247, 0.22);
+  border-color: var(--read-purple);
+  transform: translateY(-1px);
+}
+
+.rana-cover-frame {
+  margin: 28px 0 0 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--read-purple-border);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6);
+}
+
+.rana-cover-frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* 5. CLEAN TABLE OF CONTENTS (NO 'JUMP TO SECTION' CLUTTER) */
+.rana-toc-box {
+  background: var(--read-bg-surface);
+  border: 1px solid var(--read-purple-border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 0 0 42px 0;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.rana-toc-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--read-purple), var(--read-emerald), transparent);
+}
+
+.rana-toc-box summary {
+  font-family: var(--font-display) !important;
+  font-size: 1.08rem !important;
+  font-weight: 700 !important;
+  color: var(--read-text-bright) !important;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.rana-toc-box summary::-webkit-details-marker {
+  display: none;
+}
+
+.rana-toc-chevron {
+  font-size: 0.9rem;
+  color: var(--read-purple-soft);
+  transition: transform 0.25s ease;
+}
+
+.rana-toc-box[open] .rana-toc-chevron {
+  transform: rotate(180deg);
+}
+
+.rana-toc-inner {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#TableOfContents {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-family: var(--font-editorial-body) !important;
+}
+
+#TableOfContents ul, #TableOfContents ol {
+  list-style: none !important;
+  padding-left: 16px !important;
+  margin: 6px 0 !important;
+}
+
+#TableOfContents > ul, #TableOfContents > ol {
+  padding-left: 0 !important;
+}
+
+#TableOfContents li {
+  margin: 8px 0 !important;
+  line-height: 1.48;
+  font-family: var(--font-editorial-body) !important;
+}
+
+#TableOfContents a {
+  font-family: var(--font-editorial-body) !important;
+  color: var(--read-text-muted) !important;
+  font-size: 0.92rem !important;
+  font-weight: 400 !important;
+  text-decoration: none !important;
+  display: inline-block;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+#TableOfContents a:hover {
+  color: var(--read-emerald-bright) !important;
+  transform: translateX(4px);
+}
+
+/* 6. DISTINCTIVE EDITORIAL PROSE TYPOGRAPHY (LEXEND + BRICOLAGE) */
+.rana-prose-body,
+.rana-prose-body p,
+.rana-prose-body li,
+.rana-prose-body dd,
+.rana-prose-body dt,
+.rana-prose-body blockquote {
+  font-family: var(--font-editorial-body) !important;
+  font-size: 1.08rem !important;
+  font-weight: 350 !important;
+  line-height: 1.88 !important;
+  color: var(--read-text-main) !important;
+  letter-spacing: 0.005em !important;
+  overflow-wrap: break-word;
+}
+
+.rana-prose-body p {
+  margin: 0 0 1.65em 0 !important;
+}
+
+.rana-prose-body h1,
+.rana-prose-body h2,
+.rana-prose-body h3,
+.rana-prose-body h4,
+.rana-prose-body h5,
+.rana-prose-body h6 {
+  font-family: var(--font-display) !important;
+  color: var(--read-text-bright) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.28 !important;
+  scroll-margin-top: 90px;
+}
+
+.rana-prose-body h2 {
+  font-size: 1.82rem !important;
+  margin: 2.3em 0 0.75em 0 !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid var(--read-purple-border) !important;
+}
+
+.rana-prose-body h3 {
+  font-size: 1.42rem !important;
+  margin: 1.9em 0 0.65em 0 !important;
+  color: #f3e8ff !important;
+}
+
+.rana-prose-body h4 {
+  font-size: 1.18rem !important;
+  margin: 1.5em 0 0.5em 0 !important;
+  color: var(--read-emerald-bright) !important;
+}
+
+.rana-prose-body strong, .rana-prose-body b {
+  color: var(--read-text-bright) !important;
+  font-weight: 600 !important;
+}
+
+.rana-prose-body a {
+  color: var(--read-emerald-bright) !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(16, 185, 129, 0.4) !important;
+  text-underline-offset: 4px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease;
+}
+
+.rana-prose-body a:hover {
+  color: var(--read-purple-soft) !important;
+  text-decoration-color: var(--read-purple) !important;
+}
+
+.rana-prose-body ul, .rana-prose-body ol {
+  margin: 0 0 1.65em 0 !important;
+  padding-left: 1.5em !important;
+}
+
+.rana-prose-body li {
+  margin-bottom: 0.55em !important;
+}
+
+.rana-prose-body li::marker {
+  color: var(--read-purple-soft) !important;
+  font-weight: 600;
+}
+
+/* Obsidian ==Highlight== Mark */
+.rana-prose-body mark {
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.22), rgba(16, 185, 129, 0.16)) !important;
+  color: var(--read-text-bright) !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(168, 85, 247, 0.38) !important;
+  font-weight: 500 !important;
+}
+
+.rana-prose-body blockquote {
+  margin: 2em 0 !important;
+  padding: 18px 24px !important;
+  background: var(--read-bg-surface) !important;
+  border-left: 3px solid var(--read-purple) !important;
+  border-radius: 0 14px 14px 0 !important;
+  color: var(--read-text-muted) !important;
+  font-style: italic !important;
+}
+
+.rana-prose-body hr {
+  border: none !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, var(--read-purple-border), var(--read-emerald-border), transparent) !important;
+  margin: 3em 0 !important;
+}
+
+/* 7. IMAGES & ATTACHMENTS */
+.rana-prose-body img,
+.rana-prose-body video,
+.rana-prose-body iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 2em auto;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.65);
+}
+
+/* 8. RESPONSIVE GLASSMORPHIC TABLES */
+.rana-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  margin: 2.2em 0;
+  border-radius: 14px;
+  border: 1px solid var(--read-purple-border);
+  background: var(--read-bg-surface);
+  box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.5);
+  -webkit-overflow-scrolling: touch;
+}
+
+.rana-prose-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-editorial-body) !important;
+  font-size: 0.94rem !important;
+  text-align: left;
+  margin: 0;
+}
+
+.rana-prose-body thead {
+  background: rgba(168, 85, 247, 0.14);
+  border-bottom: 1px solid var(--read-purple-border);
+}
+
+.rana-prose-body th {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  color: var(--read-text-bright) !important;
+  padding: 14px 18px;
+  white-space: nowrap;
+}
+
+.rana-prose-body td {
+  padding: 13px 18px;
+  color: var(--read-text-main) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rana-prose-body tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rana-prose-body tbody tr:hover {
+  background: rgba(16, 185, 129, 0.06);
+}
+
+/* 9. COLORFUL SYNTAX HIGHLIGHTING FOR CODE BLOCKS (CHROMA + DRACULA/TOKYO NIGHT) */
+.rana-prose-body code:not(pre code) {
+  font-family: var(--font-code) !important;
+  font-size: 0.85em !important;
+  background: var(--read-bg-elevated) !important;
+  color: var(--read-emerald-bright) !important;
+  padding: 3px 7px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(168, 85, 247, 0.25) !important;
+}
+
+.rana-code-wrapper {
+  position: relative;
+  margin: 2em 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--read-purple-border);
+  background: #090710 !important;
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.75);
+}
+
+.rana-code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-family: var(--font-code) !important;
+  font-size: 0.74rem;
+  color: var(--read-text-faint);
+}
+
+.rana-mac-dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.rana-mac-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.rana-mac-dots span:nth-child(1) { background: #ff5f56; }
+.rana-mac-dots span:nth-child(2) { background: #ffbd2e; }
+.rana-mac-dots span:nth-child(3) { background: #27c93f; }
+
+.rana-copy-btn {
+  font-family: var(--font-code) !important;
+  font-size: 0.72rem;
+  color: var(--read-text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rana-copy-btn:hover {
+  color: var(--read-text-bright);
+  border-color: var(--read-purple);
+}
+
+.rana-copy-btn.copied {
+  color: #090710;
+  background: var(--read-emerald-bright);
+  border-color: var(--read-emerald-bright);
+  font-weight: 600;
+}
+
+.rana-prose-body pre,
+.rana-prose-body .highlight pre {
+  margin: 0 !important;
+  padding: 18px 20px !important;
+  background: #090710 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  overflow-x: auto;
+}
+
+.rana-prose-body pre code {
+  font-family: var(--font-code) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.68 !important;
+  color: #f8f8f2;
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Complete Chroma Colorful Token Palette (Dracula / Cyber-Emerald) */
+.chroma .c, .chroma .ch, .chroma .cm, .chroma .c1, .chroma .cs, .chroma .cp, .chroma .cpf { color: #64748b !important; font-style: italic !important; }
+.chroma .k, .chroma .kc, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr, .chroma .ow { color: #c084fc !important; font-weight: 600 !important; }
+.chroma .kt, .chroma .nc, .chroma .nn, .chroma .ne { color: #38bdf8 !important; }
+.chroma .nf, .chroma .fm, .chroma .na { color: #34d399 !important; }
+.chroma .s, .chroma .sa, .chroma .sb, .chroma .sc, .chroma .dl, .chroma .sd, .chroma .s2, .chroma .se, .chroma .sh, .chroma .si, .chroma .sx, .chroma .sr, .chroma .s1, .chroma .ss { color: #fde047 !important; }
+.chroma .m, .chroma .mb, .chroma .mf, .chroma .mh, .chroma .mi, .chroma .il, .chroma .mo { color: #fb923c !important; }
+.chroma .o, .chroma .p { color: #94a3b8 !important; }
+.chroma .nv, .chroma .vc, .chroma .vg, .chroma .vi, .chroma .vm, .chroma .nb, .chroma .bp { color: #f472b6 !important; }
+.chroma .nt { color: #c084fc !important; }
+.chroma .gd { color: #fb7185 !important; background-color: rgba(251, 113, 133, 0.12) !important; }
+.chroma .gi { color: #34d399 !important; background-color: rgba(52, 211, 153, 0.12) !important; }
+
+/* Fallback Token Colors for Plain Code Blocks */
+.tok-kw { color: #c084fc; font-weight: 600; }
+.tok-str { color: #fde047; }
+.tok-num { color: #fb923c; }
+.tok-fn { color: #34d399; }
+.tok-com { color: #64748b; font-style: italic; }
+
+/* 10. ARTICLE FOOTER & NEXT/PREV NAVIGATION */
+.rana-post-footer {
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--read-purple-border);
+}
+
+.rana-adj-nav {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.rana-adj-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--read-bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  text-decoration: none !important;
+  transition: all 0.25s var(--ease-butter);
+}
+
+.rana-adj-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--read-emerald-border);
+  background: var(--read-bg-elevated);
+  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+}
+
+.rana-adj-label {
+  font-family: var(--font-code) !important;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--read-emerald-bright);
+  margin-bottom: 6px;
+}
+
+.rana-adj-title {
+  font-family: var(--font-display) !important;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--read-text-bright);
+  line-height: 1.35;
+}
+
+/* 11. MOBILE & ANDROID OPTIMIZATION */
+@media screen and (max-width: 768px) {
+  .rana-editorial-shell {
+    padding: 32px 16px 80px 16px;
+  }
+  .rana-post-header {
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+  }
+  .rana-editorial-shell .rana-post-title {
+    font-size: clamp(1.85rem, 7.5vw, 2.4rem) !important;
+  }
+  .rana-prose-body,
+  .rana-prose-body p,
+  .rana-prose-body li {
+    font-size: 1.02rem !important;
+    line-height: 1.78 !important;
+  }
+  .rana-prose-body h2 {
+    font-size: 1.48rem !important;
+  }
+  .rana-prose-body h3 {
+    font-size: 1.24rem !important;
+  }
+  .rana-adj-nav {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<!-- Top Reading Progress Bar -->
+<div class="rana-progress-track" aria-hidden="true">
+  <div id="ranaReadingProgress" class="rana-progress-bar"></div>
+</div>
+
+<div class="rana-editorial-shell">
+  <!-- Article Header & Dynamic Frontmatter Metadata -->
+  <header class="rana-post-header">
+    <a href="/post/" class="rana-breadcrumb">
+      <span>&#8592;</span>
+      <span>All Articles</span>
+    </a>
+
+    <div>
+      {{ with .Params.categories }}
+        <span class="rana-category-kicker">{{ index . 0 }}</span>
+      {{ end }}
+    </div>
+
+    <h1 class="rana-post-title">{{ .Title }}</h1>
+
+    {{ with (.Params.subtitle | default .Params.description) }}
+      <p class="rana-post-subtitle">{{ . }}</p>
+    {{ end }}
+
+    <!-- Metadata Bar: Author, Date, Last Updated, & Clean Reading Time (No Word Count) -->
+    <div class="rana-meta-grid">
+      <div class="rana-meta-chip">
+        <span>By <strong style="color: var(--read-text-bright);">{{ .Params.author | default .Site.Params.meta.author | default "Rana" }}</strong></span>
+      </div>
+
+      {{ if not .Date.IsZero }}
+      <div class="rana-meta-chip">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02 Jan, 2006" }}</time>
+      </div>
+      {{ end }}
+
+      {{ if and (not .Lastmod.IsZero) (ne (.Lastmod.Format "2006-01-02") (.Date.Format "2006-01-02")) }}
+      <div class="rana-meta-chip">
+        <span>Updated: {{ .Lastmod.Format "02 Jan, 2006" }}</span>
+      </div>
+      {{ end }}
+
+      <div class="rana-meta-chip emerald-chip">
+        <span class="rana-pulse-dot"></span>
+        <span>{{ if lt $readMins 1 }}1{{ else }}{{$readMins }}{{ end }} min read</span>
+      </div>
+    </div>
+
+    <!-- Frontmatter Tags -->
+    {{ with .Params.tags }}
+    <div class="rana-tags-row">
+      {{ range . }}
+        <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}/" class="rana-tag-pill">#{{ . }}</a>
+      {{ end }}
     </div>
     {{ end }}
 
-    <article class="rana-article-content">
-        {{ .Content }}
-    </article>
+    <!-- Optional Featured Image from Frontmatter -->
+    {{ with (.Params.image | default .Params.cover) }}
+    <div class="rana-cover-frame">
+      <img src="{{ . | relURL }}" alt="{{ $.Title }}" loading="lazy" />
+    </div>
+    {{ end }}
+  </header>
+
+  <!-- Automatic Table of Contents (Clean without 'Jump to Section') -->
+  {{ if and (gt $proseWords 150) (ne .Params.toc false) (in .TableOfContents "<li>") }}
+  <details class="rana-toc-box" open>
+    <summary>
+      <span>Table of Contents</span>
+      <span class="rana-toc-chevron" aria-hidden="true">&#9662;</span>
+    </summary>
+    <div class="rana-toc-inner">
+      {{ .TableOfContents }}
+    </div>
+  </details>
+  {{ end }}
+
+  <!-- Main Article Content -->
+  <article id="ranaArticleBody" class="rana-prose-body">
+    {{ .Content }}
+  </article>
+
+  <!-- Article Footer: Bottom Tags & Next/Previous Article Cards -->
+  <footer class="rana-post-footer">
+    {{ with .Params.tags }}
+    <div style="margin-bottom: 20px;">
+      <span style="font-family: var(--font-code); font-size: 0.78rem; color: var(--read-text-faint); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 10px;">Filed Under Topics</span>
+      <div class="rana-tags-row" style="margin-top: 0;">
+        {{ range . }}
+          <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}/" class="rana-tag-pill">#{{ . }}</a>
+        {{ end }}
+      </div>
+    </div>
+    {{ end }}
+
+    {{ if or .PrevInSection .NextInSection }}
+    <nav class="rana-adj-nav" aria-label="Article Navigation">
+      {{ with .PrevInSection }}
+      <a href="{{ .Permalink }}" class="rana-adj-card">
+        <span class="rana-adj-label">&#8592; Previous Article</span>
+        <span class="rana-adj-title">{{ .Title }}</span>
+      </a>
+      {{ else }}
+      <div></div>
+      {{ end }}
+
+      {{ with .NextInSection }}
+      <a href="{{ .Permalink }}" class="rana-adj-card" style="text-align: right;">
+        <span class="rana-adj-label">Next Article &#8594;</span>
+        <span class="rana-adj-title">{{ .Title }}</span>
+      </a>
+      {{ end }}
+    </nav>
+    {{ end }}
+  </footer>
 </div>
 
-<div id="ranaBackToTop" class="rana-back-to-top">
-    &#8593;
+<!-- Floating Back to Top Button -->
+<div id="ranaBackToTop" class="rana-back-to-top" aria-label="Back to top">
+  &#8593;
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    let lastScrollTop = 0;
-    
-    // Grabs the main theme navbar and our new button
-    const navbar = document.querySelector(".navbar.fixed-top"); 
-    const backToTopBtn = document.getElementById("ranaBackToTop");
+  const progressBar = document.getElementById("ranaReadingProgress");
+  const backToTopBtn = document.getElementById("ranaBackToTop");
+  const articleBody = document.getElementById("ranaArticleBody");
 
-    window.addEventListener("scroll", function() {
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-        // 1. SMART NAVBAR LOGIC
-        if (navbar) {
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                // User is scrolling down: Hide Navbar
-                navbar.classList.add("nav-hidden");
-            } else {
-                // User is scrolling up: Show Navbar
-                navbar.classList.remove("nav-hidden");
-            }
-        }
-        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Prevents mobile bouncing glitches
-
-        // 2. BACK TO TOP BUTTON LOGIC
-        if (scrollTop > 400) {
-            // Show button after scrolling down 400px
-            backToTopBtn.classList.add("show-btn");
-        } else {
-            // Hide button if near the top
-            backToTopBtn.classList.remove("show-btn");
-        }
+  if (articleBody) {
+    // 1. Wrap Markdown Tables in Responsive Scroll Containers
+    const tables = articleBody.querySelectorAll("table");
+    tables.forEach(function(tbl) {
+      if (!tbl.parentElement.classList.contains("rana-table-scroll")) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "rana-table-scroll";
+        tbl.parentNode.insertBefore(wrapper, tbl);
+        wrapper.appendChild(tbl);
+      }
     });
 
-    // 3. CLICK TO SMOOTH SCROLL LOGIC
-    backToTopBtn.addEventListener("click", function() {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
+    // 2. Add macOS Top Bar, Copy Button & Fallback Colorful Syntax Highlighting
+    const preBlocks = articleBody.querySelectorAll("pre");
+    preBlocks.forEach(function(pre) {
+      if (pre.parentElement.classList.contains("rana-code-wrapper")) return;
+
+      const codeEl = pre.querySelector("code");
+      const rawText = codeEl ? codeEl.innerText : pre.innerText;
+
+      if (codeEl && codeEl.children.length === 0) {
+        let escaped = codeEl.innerHTML;
+        escaped = escaped.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, '<span class="tok-com">$1</span>');
+        escaped = escaped.replace(/(&quot;.*?&quot;|&#34;.*?&#34;|".*?"|'.*?'|`[\s\S]*?`)/g, '<span class="tok-str">$1</span>');
+        escaped = escaped.replace(/\b(const|let|let|var|function|return|if|else|for|while|await|async|import|export|from|class|new|try|catch|document|window|true|false|null|undefined)\b/g, '<span class="tok-kw">$1</span>');
+        escaped = escaped.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="tok-num">$1</span>');
+        codeEl.innerHTML = escaped;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "rana-code-wrapper";
+
+      const bar = document.createElement("div");
+      bar.className = "rana-code-bar";
+
+      const dots = document.createElement("div");
+      dots.className = "rana-mac-dots";
+      dots.innerHTML = "<span></span><span></span><span></span>";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "rana-copy-btn";
+      copyBtn.type = "button";
+      copyBtn.textContent = "Copy Code";
+
+      copyBtn.addEventListener("click", function() {
+        navigator.clipboard.writeText(rawText).then(function() {
+          copyBtn.textContent = "Copied ✓";
+          copyBtn.classList.add("copied");
+          setTimeout(function() {
+            copyBtn.textContent = "Copy Code";
+            copyBtn.classList.remove("copied");
+          }, 2000);
         });
+      });
+
+      bar.appendChild(dots);
+      bar.appendChild(copyBtn);
+
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(bar);
+      wrapper.appendChild(pre);
     });
+  }
+
+  // 3. 60 FPS Reading Progress & Back-to-Top Scroll Handler
+  window.addEventListener("scroll", function() {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+    if (progressBar && docHeight > 0) {
+      const progress = Math.min(Math.max(scrollTop / docHeight, 0), 1);
+      progressBar.style.transform = "scaleX(" + progress + ")";
+    }
+
+    if (backToTopBtn) {
+      if (scrollTop > 350) {
+        backToTopBtn.classList.add("show-btn");
+      } else {
+        backToTopBtn.classList.remove("show-btn");
+      }
+    }
+  }, { passive: true });
+
+  // 4. Smooth Scroll to Top
+  if (backToTopBtn) {
+    backToTopBtn.addEventListener("click", function() {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    });
+  }
 });
 </script>
 

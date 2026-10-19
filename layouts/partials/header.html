@@ -1,0 +1,481 @@
+<!-- ==========================================================================
+TRISPECTIVE GLOBAL HEADER OVERRIDE (layouts/partials/header.html)
+SITE-WIDE FONTS LINK | Desktop Pill Links | Mobile 3-Dot Kebab + Centered Modal
+========================================================================== -->
+<link rel="stylesheet" href="{{ "css/fonts.css" | relURL }}">
+<style>
+/* 1. Force-kill the theme's giant purple banner (.bg-clr1) */
+.bg-clr1,
+.bg-clr2,
+div.bg-clr1,
+div.bg-clr2,
+.jumbotron,
+.jumbotron-fluid,
+.page-header,
+.hero-header,
+main > div.container-fluid.text-center:first-of-type,
+body > header:not(#trispectiveHeaderWrapper) {
+display: none !important;
+background: none !important;
+height: 0 !important;
+min-height: 0 !important;
+max-height: 0 !important;
+padding: 0 !important;
+margin: 0 !important;
+border: none !important;
+overflow: hidden !important;
+visibility: hidden !important;
+}
+/* 2. Restore & Darken .bg-mat (About & Tools page content) */
+.bg-mat,
+div.bg-mat,
+main .container-fluid.bg-mat {
+display: block !important;
+visibility: visible !important;
+background: transparent !important;
+background-color: transparent !important;
+background-image: none !important;
+color: #e2e8f0 !important;
+padding-top: 20px !important;
+}
+/* 3. Global Ambient AMOLED Dark Canvas */
+body, html, main, .main-content, #content {
+background-color: #07040d !important;
+background-image:
+radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.16) 0%, transparent 55%),
+radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05) 0%, transparent 45%) !important;
+background-attachment: fixed !important;
+color: #e2e8f0 !important;
+}
+/* 4. Centered Apple Dynamic Island Navbar Wrapper */
+#trispectiveHeaderWrapper {
+position: fixed !important;
+top: 16px !important;
+left: 0 !important;
+right: 0 !important;
+margin-left: auto !important;
+margin-right: auto !important;
+width: calc(100% - 32px) !important;
+max-width: 820px !important;
+z-index: 99999 !important;
+transform: translate3d(0, 0, 0) !important;
+will-change: transform;
+transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease !important;
+background: transparent !important;
+padding: 0 !important;
+border: none !important;
+}
+#trispectiveHeaderWrapper.nav-hidden {
+transform: translate3d(0, -160%, 0) !important;
+opacity: 0 !important;
+pointer-events: none !important;
+}
+.trispective-island-bar {
+position: relative;
+display: flex !important;
+align-items: center !important;
+justify-content: space-between !important;
+width: 100% !important;
+padding: 8px 22px !important;
+border-radius: 9999px !important;
+background: rgba(10, 7, 18, 0.82) !important;
+backdrop-filter: blur(20px) saturate(160%) !important;
+-webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+border: 1px solid rgba(192, 132, 252, 0.3) !important;
+box-shadow: 0 14px 36px -4px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.06) inset !important;
+}
+.trispective-island-bar::before {
+content: "";
+position: absolute;
+top: 0;
+left: 10%;
+right: 10%;
+height: 1px;
+background: linear-gradient(90deg, transparent, rgba(233, 213, 255, 0.45), transparent);
+pointer-events: none;
+}
+.trispective-brand-link {
+display: inline-flex !important;
+align-items: center !important;
+gap: 10px !important;
+text-decoration: none !important;
+background: transparent !important;
+border: none !important;
+padding: 0 !important;
+}
+.trispective-brand-link img {
+width: 34px !important;
+height: 34px !important;
+border-radius: 8px !important;
+object-fit: cover !important;
+filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.55)) !important;
+transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.trispective-brand-link:hover img {
+transform: scale(1.08) !important;
+filter: drop-shadow(0 0 14px rgba(16, 185, 129, 0.7)) !important;
+}
+.trispective-brand-text {
+color: #f3e8ff !important;
+font-size: 0.92rem !important;
+font-weight: 800 !important;
+letter-spacing: 0.08em !important;
+text-shadow: 0 0 14px rgba(192, 132, 252, 0.45) !important;
+}
+.trispective-nav-menu {
+display: flex !important;
+align-items: center !important;
+gap: 6px !important;
+margin: 0 !important;
+padding: 0 !important;
+list-style: none !important;
+}
+.trispective-nav-link {
+display: inline-flex !important;
+align-items: center !important;
+color: #cbb8e8 !important;
+font-size: 0.88rem !important;
+font-weight: 600 !important;
+text-decoration: none !important;
+padding: 6px 15px !important;
+border-radius: 9999px !important;
+background: transparent !important;
+border: 1px solid transparent !important;
+box-shadow: none !important;
+transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease, text-shadow 0.25s ease !important;
+}
+.trispective-nav-link:hover {
+color: #ffffff !important;
+background: rgba(192, 132, 252, 0.14) !important;
+border-color: rgba(192, 132, 252, 0.4) !important;
+text-shadow: 0 0 12px rgba(192, 132, 252, 0.65) !important;
+}
+.trispective-nav-link.is-active {
+color: #34d399 !important;
+background: rgba(16, 185, 129, 0.12) !important;
+border-color: rgba(52, 211, 153, 0.35) !important;
+text-shadow: 0 0 10px rgba(52, 211, 153, 0.5) !important;
+}
+/* 5. MOBILE KEBAB (3-DOT) — default hidden */
+.trispective-kebab-btn {
+display: none;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+gap: 3px;
+width: 36px;
+height: 36px;
+border-radius: 50%;
+background: rgba(255, 255, 255, 0.06);
+border: 1px solid rgba(192, 132, 252, 0.32);
+cursor: pointer;
+padding: 0;
+flex-shrink: 0;
+transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.trispective-kebab-btn .kebab-dot {
+display: block;
+width: 3.5px;
+height: 3.5px;
+border-radius: 50%;
+background: #e9d5ff;
+box-shadow: 0 0 6px rgba(192, 132, 252, 0.8);
+transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+.trispective-kebab-btn:hover,
+.trispective-kebab-btn.is-open {
+background: rgba(192, 132, 252, 0.16);
+border-color: rgba(192, 132, 252, 0.55);
+box-shadow: 0 0 14px rgba(192, 132, 252, 0.35);
+}
+.trispective-kebab-btn.is-open .kebab-dot:nth-child(1) {
+transform: translateY(3.5px) rotate(45deg) scale(1.15);
+}
+.trispective-kebab-btn.is-open .kebab-dot:nth-child(2) {
+opacity: 0;
+transform: scale(0.4);
+}
+.trispective-kebab-btn.is-open .kebab-dot:nth-child(3) {
+transform: translateY(-3.5px) rotate(-45deg) scale(1.15);
+}
+/* 6. CENTERED GLASS MODAL — SIRF OPTIONS */
+.trispective-sheet-backdrop {
+position: fixed;
+inset: 0;
+z-index: 99990;
+background: rgba(3, 2, 8, 0.66);
+backdrop-filter: blur(7px);
+-webkit-backdrop-filter: blur(7px);
+opacity: 0;
+transition: opacity 0.32s ease;
+}
+.trispective-sheet-backdrop.is-visible {
+opacity: 1;
+}
+.trispective-sheet-backdrop[hidden],
+.trispective-mobile-sheet[hidden] {
+display: none !important;
+}
+.trispective-mobile-sheet {
+position: fixed;
+top: 50%;
+left: 50%;
+z-index: 99995;
+width: min(340px, calc(100vw - 44px));
+background: rgba(10, 7, 18, 0.94);
+backdrop-filter: blur(30px) saturate(160%);
+-webkit-backdrop-filter: blur(30px) saturate(160%);
+border: 1px solid rgba(192, 132, 252, 0.38);
+border-radius: 26px;
+box-shadow: 0 30px 70px -18px rgba(0, 0, 0, 0.95), 0 0 34px -6px rgba(192, 132, 252, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+padding: 14px;
+opacity: 0;
+pointer-events: none;
+transform: translate(-50%, -50%) scale(0.9);
+transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+overflow: hidden;
+}
+.trispective-mobile-sheet::before {
+content: "";
+position: absolute;
+top: 0;
+left: 12%;
+right: 12%;
+height: 1px;
+background: linear-gradient(90deg, transparent, rgba(233, 213, 255, 0.5), transparent);
+pointer-events: none;
+}
+.trispective-mobile-sheet.is-open {
+opacity: 1;
+pointer-events: auto;
+transform: translate(-50%, -50%) scale(1);
+}
+.sheet-links {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+.sheet-link {
+position: relative;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 15px 18px;
+border-radius: 18px;
+background: rgba(255, 255, 255, 0.04);
+border: 1px solid rgba(255, 255, 255, 0.08);
+text-decoration: none !important;
+color: #ece6f6;
+font-size: 1.02rem;
+font-weight: 700;
+letter-spacing: 0.02em;
+opacity: 0;
+transform: translateY(12px);
+transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+}
+.trispective-mobile-sheet.is-open .sheet-link {
+animation: sheetLinkIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.trispective-mobile-sheet.is-open .sheet-link:nth-child(1) { animation-delay: 0.06s; }
+.trispective-mobile-sheet.is-open .sheet-link:nth-child(2) { animation-delay: 0.13s; }
+.trispective-mobile-sheet.is-open .sheet-link:nth-child(3) { animation-delay: 0.2s; }
+.trispective-mobile-sheet.is-open .sheet-link:nth-child(4) { animation-delay: 0.27s; }
+.trispective-mobile-sheet.is-open .sheet-link:nth-child(5) { animation-delay: 0.34s; }
+@keyframes sheetLinkIn {
+to { opacity: 1; transform: translateY(0); }
+}
+.sheet-link:hover,
+.sheet-link:active {
+background: rgba(192, 132, 252, 0.12);
+border-color: rgba(192, 132, 252, 0.45);
+box-shadow: 0 0 18px rgba(192, 132, 252, 0.2);
+color: #ffffff;
+}
+.sheet-link .sheet-arrow {
+color: #a795c8;
+transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+}
+.sheet-link:hover .sheet-arrow,
+.sheet-link:active .sheet-arrow {
+transform: translateX(4px);
+color: #e9d5ff;
+}
+.sheet-link.is-active {
+background: rgba(16, 185, 129, 0.12);
+border-color: rgba(52, 211, 153, 0.4);
+color: #34d399;
+box-shadow: 0 0 18px rgba(52, 211, 153, 0.18);
+}
+.sheet-link.is-active .sheet-arrow {
+color: #34d399;
+}
+.subpage-top-spacer {
+height: 88px;
+width: 100%;
+}
+/* 7. DESKTOP GUARD — PC par kebab/modal KABHI nahi */
+@media screen and (min-width: 769px) {
+.trispective-kebab-btn {
+display: none !important;
+}
+.trispective-nav-menu {
+display: flex !important;
+}
+.trispective-mobile-sheet,
+.trispective-sheet-backdrop {
+display: none !important;
+}
+}
+/* 8. MOBILE RULES */
+@media screen and (max-width: 768px) {
+#trispectiveHeaderWrapper {
+top: 10px !important;
+width: calc(100% - 20px) !important;
+}
+.trispective-island-bar {
+padding: 6px 14px !important;
+}
+.trispective-brand-text {
+display: none !important;
+}
+.trispective-nav-menu {
+display: none !important;
+}
+.trispective-kebab-btn {
+display: inline-flex !important;
+}
+.subpage-top-spacer {
+height: 70px;
+}
+}
+</style>
+<header id="trispectiveHeaderWrapper">
+<nav class="trispective-island-bar" aria-label="Main Navigation">
+<a href="{{ site.BaseURL }}" class="trispective-brand-link" aria-label="TRISPECTIVE Home">
+{{ with site.Params.brand.logo_32px }}
+<img src="{{ . | relURL }}" alt="TRISPECTIVE Logo" width="34" height="34" />
+{{ end }}
+<span class="trispective-brand-text">TRISPECTIVE</span>
+</a>
+<div class="trispective-nav-menu">
+{{ $currentPage := . }}
+{{ $seenUrls := slice }}
+{{ range site.Menus.main }}
+{{ $cleanUrl := .URL | relLangURL }}
+{{ if not (in $seenUrls $cleanUrl) }}
+{{ $seenUrls = $seenUrls | append $cleanUrl }}
+{{ $isActive := or (eq $currentPage.RelPermalink $cleanUrl) (and (ne $cleanUrl "/") (hasPrefix $currentPage.RelPermalink $cleanUrl)) }}
+<a href="{{ $cleanUrl }}" class="trispective-nav-link {{ if $isActive }}is-active{{ end }}">
+{{ .Name }}
+</a>
+{{ end }}
+{{ end }}
+</div>
+<button class="trispective-kebab-btn" id="trispectiveKebabBtn" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="trispectiveMobileSheet">
+<span class="kebab-dot"></span>
+<span class="kebab-dot"></span>
+<span class="kebab-dot"></span>
+</button>
+</nav>
+</header>
+<div class="trispective-sheet-backdrop" id="trispectiveSheetBackdrop" hidden></div>
+<div class="trispective-mobile-sheet" id="trispectiveMobileSheet" role="dialog" aria-modal="true" aria-label="Navigation options" hidden>
+<nav class="sheet-links" aria-label="Mobile Navigation">
+{{ $currentPage := . }}
+{{ $seenUrls2 := slice }}
+{{ range site.Menus.main }}
+{{ $cleanUrl := .URL | relLangURL }}
+{{ if not (in $seenUrls2 $cleanUrl) }}
+{{ $seenUrls2 = $seenUrls2 | append $cleanUrl }}
+{{ $isActive := or (eq $currentPage.RelPermalink $cleanUrl) (and (ne $cleanUrl "/") (hasPrefix $currentPage.RelPermalink $cleanUrl)) }}
+<a href="{{ $cleanUrl }}" class="sheet-link {{ if $isActive }}is-active{{ end }}">
+<span>{{ .Name }}</span>
+<span class="sheet-arrow">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<line x1="5" y1="12" x2="19" y2="12"></line>
+<polyline points="12 5 19 12 12 19"></polyline>
+</svg>
+</span>
+</a>
+{{ end }}
+{{ end }}
+</nav>
+</div>
+{{ if not .IsHome }}
+<div class="subpage-top-spacer"></div>
+{{ end }}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+var lastScrollY = window.scrollY;
+var headerEl = document.getElementById("trispectiveHeaderWrapper");
+var sheetEl = document.getElementById("trispectiveMobileSheet");
+var ticking = false;
+window.addEventListener("scroll", function() {
+if (ticking) return;
+ticking = true;
+requestAnimationFrame(function() {
+var currentScrollY = window.scrollY;
+if (headerEl && !(sheetEl && sheetEl.classList.contains("is-open"))) {
+if (currentScrollY > lastScrollY && currentScrollY > 80) {
+headerEl.classList.add("nav-hidden");
+} else {
+headerEl.classList.remove("nav-hidden");
+}
+}
+lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
+ticking = false;
+});
+}, { passive: true });
+var kebabBtn = document.getElementById("trispectiveKebabBtn");
+var backdrop = document.getElementById("trispectiveSheetBackdrop");
+if (!kebabBtn || !sheetEl || !backdrop) return;
+var hideTimer = null;
+function openSheet() {
+if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+sheetEl.hidden = false;
+backdrop.hidden = false;
+requestAnimationFrame(function() {
+sheetEl.classList.add("is-open");
+backdrop.classList.add("is-visible");
+});
+kebabBtn.classList.add("is-open");
+kebabBtn.setAttribute("aria-expanded", "true");
+document.body.style.overflow = "hidden";
+}
+function closeSheet() {
+sheetEl.classList.remove("is-open");
+backdrop.classList.remove("is-visible");
+kebabBtn.classList.remove("is-open");
+kebabBtn.setAttribute("aria-expanded", "false");
+document.body.style.overflow = "";
+hideTimer = setTimeout(function() {
+sheetEl.hidden = true;
+backdrop.hidden = true;
+hideTimer = null;
+}, 340);
+}
+kebabBtn.addEventListener("click", function() {
+if (sheetEl.classList.contains("is-open")) {
+closeSheet();
+} else {
+openSheet();
+}
+});
+backdrop.addEventListener("click", closeSheet);
+sheetEl.addEventListener("click", function(e) {
+if (e.target.closest(".sheet-link")) {
+closeSheet();
+}
+});
+document.addEventListener("keydown", function(e) {
+if (e.key === "Escape" && sheetEl.classList.contains("is-open")) {
+closeSheet();
+}
+});
+window.addEventListener("resize", function() {
+if (window.innerWidth > 768 && sheetEl.classList.contains("is-open")) {
+closeSheet();
+}
+}, { passive: true });
+});
+</script>

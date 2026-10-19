@@ -1,425 +1,684 @@
-/* =========================================
-   1. GLOBAL VARIABLES & OVERRIDES
-   ========================================= */
+/* ==========================================================================
+   TRISPECTIVE — JAPANESE ZEN x APPLE MINIMALIST DESIGN SYSTEM
+   Offline Local Typography: Cinzel Decorative | Rosaline | Bricolage | Lexend
+   100% Pure Vanilla CSS | Ultra-Lightweight 60 FPS
+   ========================================================================== */
+
+/* 1. OFFLINE LOCAL FONT DECLARATIONS */
+@font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/CinzelDecorative-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Rosaline';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Rosaline-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/Lexend-VariableFont_wght.ttf') format('truetype');
+}
+
+/* 2. DESIGN TOKENS (JAPANESE MA & APPLE HIG PALETTE) */
 :root {
-    --theme-mat: #000000 !important;
-    --theme-nav: #000000 !important;
+  --bg-void: #030508;
+  --bg-surface: #0a0d14;
+  --bg-surface-glass: rgba(12, 16, 25, 0.72);
+  --bg-card: rgba(14, 18, 28, 0.65);
+  --bg-card-hover: rgba(20, 26, 40, 0.85);
+
+  --starlight-pure: #ffffff;
+  --starlight-dim: #dad7e5;
+  --starlight-muted: #94a3b8;
+  --starlight-subtle: #475569;
+
+  --accent-geometry: #e0e7ff;
+  --accent-core: #a855f7;
+  --accent-glow: rgba(168, 85, 247, 0.35);
+  --accent-cyan: #38bdf8;
+
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-specular: rgba(255, 255, 255, 0.2);
+  --border-active: rgba(168, 85, 247, 0.55);
+
+  /* Typography Mapping */
+  --font-hero-title: 'Cinzel Decorative', Georgia, serif;
+  --font-hero-author: 'Rosaline', cursive, sans-serif;
+  --font-global-ui: 'Bricolage Grotesque', -apple-system, sans-serif;
+  --font-reading-body: 'Lexend', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-dynamic: 0 12px 36px -4px rgba(0, 0, 0, 0.7), 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+  --shadow-island: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+
+  --theme-mat: #030508 !important;
+  --theme-nav: #030508 !important;
 }
 
-body[data-theme="dark"], body, html, main, .main-content {
-    background-color: #000000 !important;
-    background-image: none !important; /* Kills the theme background instantly */
-    color: #e0e0e0 !important;
-    font-family: 'Lato', sans-serif;
-    margin: 0;
-    padding: 0;
+/* 3. BASE RESET & VIEWPORT SETUP */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
+html {
+  background-color: var(--bg-void) !important;
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body, body[data-theme="dark"], main, .main-content {
+  background-color: var(--bg-void) !important;
+  background-image: none !important;
+  color: var(--starlight-dim) !important;
+  font-family: var(--font-global-ui) !important;
+  margin: 0;
+  padding: 0;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* All Headings Default to Bricolage Grotesque */
 h1, h2, h3, h4, h5, h6 {
-    color: #ffffff !important;
-    font-family: "Times New Roman", Times, serif !important;
+  color: var(--starlight-pure) !important;
+  font-family: var(--font-global-ui) !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* =========================================
-   2. NAVBAR & LOGO
-   ========================================= */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.2s var(--ease-apple);
+}
+
+/* 4. APPLE "DYNAMIC ISLAND" FLOATING CAPSULE NAVBAR */
+.navbar.fixed-top, nav.navbar {
+  top: 16px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 36px) !important;
+  max-width: 880px !important;
+  border-radius: 9999px !important;
+  background: var(--bg-surface-glass) !important;
+  backdrop-filter: blur(28px) saturate(210%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(210%) !important;
+  border: 1px solid var(--border-glass) !important;
+  box-shadow: var(--shadow-island) !important;
+  padding: 8px 24px !important;
+  transition: transform 0.4s var(--ease-apple), opacity 0.3s ease !important;
+  z-index: 1000 !important;
+}
+
+.nav-hidden {
+  transform: translate(-50%, -130%) !important;
+  opacity: 0;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  font-family: var(--font-global-ui) !important;
+}
+
 .navbar-brand img {
-    max-height: 65px !important;
-    filter: drop-shadow(0 0 8px #b026ff);
-    transition: transform 0.4s ease, filter 0.4s ease;
-}
-.navbar-brand img:hover {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 15px #d896ff);
+  max-height: 32px !important;
+  width: auto;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4));
+  transition: transform 0.3s var(--ease-apple), filter 0.3s ease;
 }
 
-/* =========================================
-   3. HOMEPAGE HERO SECTION
-   ========================================= */
-.trispective-hero {
-    min-height: 55vh; 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-    background-image: radial-gradient(circle at top center, #1a052b 0%, #000000 60%) !important;
+.navbar-brand:hover img {
+  transform: scale(1.08) rotate(-2deg);
+  filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.7));
 }
 
-.trispective-title {
-    font-size: clamp(3rem, 10vw, 6rem) !important; 
-    color: #ffffff !important;
-    font-weight: 900 !important;
-    text-transform: uppercase;
-    letter-spacing: 6px;
-    margin: 0;
-    text-shadow: 0 0 10px #fff, 0 0 20px #b026ff, 0 0 40px #b026ff, 0 0 80px #7d1fa5 !important;
-    opacity: 0; 
-    animation: cinematicReveal 1s ease-out forwards, smoothNeon 3s 1s infinite alternate ease-in-out;
+.navbar-nav {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-left: auto;
 }
 
-.trispective-author {
-    font-size: clamp(1.2rem, 4vw, 2.5rem) !important;
-    color: #e0b0ff !important; 
-    font-weight: 600;
-    font-style: italic;
-    margin-top: 10px;
-    text-shadow: 0 0 15px rgba(176, 38, 255, 0.6) !important;
-    opacity: 0;
-    animation: cinematicReveal 1s 0.4s ease-out forwards;
+.navbar-nav .nav-link, .nav-item a, .trispective-nav-link {
+  color: var(--starlight-muted) !important;
+  font-family: var(--font-global-ui) !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em;
+  padding: 6px 14px !important;
+  border-radius: 9999px !important;
+  background: transparent !important;
+  transition: all 0.25s var(--ease-apple) !important;
 }
 
-/* =========================================
-   4. HOMEPAGE ARTICLE CARDS
-   ========================================= */
-.post-list-container {
-    padding: 40px 15px 80px 15px; 
-    background-color: #000000 !important;
+.navbar-nav .nav-link:hover, .nav-item a:hover, .trispective-nav-link:hover {
+  color: var(--starlight-pure) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
 }
 
-.post-card {
-    margin: 0 auto 30px auto;
-    max-width: 750px;
-    border: 1px solid #2a1140; 
-    padding: 30px;
-    border-radius: 16px;
-    background: rgba(10, 10, 10, 0.8); 
-    backdrop-filter: blur(5px);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeUp 0.8s ease-out forwards;
+.navbar-nav .active > .nav-link, .nav-item.active a, .trispective-nav-link.is-active {
+  color: var(--starlight-pure) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.05) inset;
 }
 
-.post-card:nth-child(1) { animation-delay: 0.6s; }
-.post-card:nth-child(2) { animation-delay: 0.8s; }
-.post-card:nth-child(3) { animation-delay: 1.0s; }
-
-.post-card:hover {
-    border-color: #b026ff;
-    box-shadow: 0 8px 30px rgba(176, 38, 255, 0.2);
-    transform: translateY(-8px) scale(1.01); 
+/* 5. SACRED GEOMETRY HERO SECTION (CINZEL DECORATIVE + ROSALINE) */
+.trispective-hero, .trispective-hero-stream {
+  position: relative;
+  min-height: 68vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 140px 24px 60px 24px;
+  background: radial-gradient(circle at 50% 45%, #080d1a 0%, var(--bg-void) 70%) !important;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-glass);
 }
 
-.post-card h2 { margin-top: 0; margin-bottom: 15px; }
-.post-card h2 a {
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 2rem;
-    transition: color 0.3s ease, text-shadow 0.3s ease;
-}
-.post-card:hover h2 a { color: #e0b0ff; text-shadow: 0 0 10px rgba(176, 38, 255, 0.5); }
-.post-summary { color: #b3b3b3; font-size: 1.15rem; line-height: 1.7; font-family: 'Lato', sans-serif; }
-
-/* =========================================
-   5. CUSTOM ARTICLE PAGE LAYOUT
-   ========================================= */
-.rana-article-wrapper {
-    max-width: 850px;
-    margin: 100px auto 0 auto; /* Ensures space below navbar */
-    padding: 40px 20px 80px 20px;
-    background-color: #000000 !important;
-}
-
-.rana-article-header {
-    text-align: center;
-    margin-bottom: 50px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid #2a1140; 
+.trispective-hero::before, .trispective-hero-stream::before {
+  content: "";
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(540px, 92vw);
+  height: min(540px, 92vw);
+  background-image: url("/images/hero.jpg");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.38;
+  filter: contrast(1.25) brightness(0.95);
+  pointer-events: none;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 72%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 72%);
+  animation: celestialGaze 10s ease-in-out infinite alternate;
+  z-index: 1;
 }
 
-.rana-article-title {
-    font-size: clamp(2.5rem, 6vw, 4.5rem) !important;
-    color: #ffffff !important;
-    margin-bottom: 15px;
-    text-shadow: 0 0 15px rgba(176, 38, 255, 0.4) !important; 
+.trispective-hero::after, .trispective-hero-stream::after {
+  content: "";
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(640px, 96vw);
+  height: min(640px, 96vw);
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(56, 189, 248, 0.05) 30%, transparent 68%);
+  pointer-events: none;
+  z-index: 0;
 }
 
-.rana-article-meta { color: #a0a0a0; font-size: 1.1rem; font-style: italic; }
-
-.rana-article-content {
-    color: #e0e0e0; 
-    font-size: 1.18rem;
-    line-height: 1.8;
+/* Homepage "TRISPECTIVE" Title: Cinzel Decorative */
+.trispective-title, .hero-main-title {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-hero-title) !important;
+  font-size: clamp(2.8rem, 7.5vw, 5.2rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1.1;
+  margin: 0;
+  text-transform: uppercase;
+  color: var(--starlight-pure) !important;
+  background: linear-gradient(180deg, #ffffff 40%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.9));
+  animation: appleHeroReveal 0.9s var(--ease-apple) forwards;
 }
 
-.rana-article-content h1, .rana-article-content h2, .rana-article-content h3 {
-    color: #ffffff;
-    margin-top: 45px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #1a052b; 
-    padding-bottom: 10px;
+/* Homepage "By Rana" Author Capsule: Rosaline */
+.trispective-author, .hero-author-capsule {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 6px 18px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  color: var(--accent-core) !important;
+  font-family: var(--font-hero-author) !important;
+  font-size: 1.35rem !important;
+  letter-spacing: 0.02em;
+  text-transform: none !important;
+  font-style: normal !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  animation: appleHeroReveal 0.9s 0.2s var(--ease-apple) both;
 }
 
-.rana-article-content a {
-    color: #e0b0ff;
-    text-decoration: none;
-    border-bottom: 1px dashed #7d1fa5;
-    transition: all 0.3s ease;
-}
-.rana-article-content a:hover {
-    color: #ffffff;
-    text-shadow: 0 0 10px #b026ff;
-    border-bottom-color: #ffffff;
+.trispective-author::before, .author-live-dot {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
 }
 
-/* =========================================
-   6. TABLE OF CONTENTS & OBSIDIAN HIGHLIGHTS
-   ========================================= */
-.toc-container, #TableOfContents {
-    background-color: #270138 !important;
-    padding: 25px !important;
-    border-radius: 12px !important;
-    border: 1px solid #4a0f7a !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-    margin-bottom: 40px !important;
+/* 6. POST CARDS & STREAM LISTING */
+.post-list-container, .stream-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 64px 20px 100px 20px;
+  background-color: transparent !important;
 }
 
-#TableOfContents ul { list-style-type: none !important; padding-left: 20px !important; }
-#TableOfContents li { margin-bottom: 8px !important; }
-#TableOfContents a { color: #e0b0ff !important; text-decoration: none !important; transition: all 0.3s ease; }
-#TableOfContents a:hover { color: #ffffff !important; text-shadow: 0 0 8px #b026ff !important; }
+.post-card, .article-stream-card {
+  position: relative;
+  margin: 0 0 24px 0;
+  padding: 30px 34px;
+  background: var(--bg-card) !important;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid var(--border-glass) !important;
+  border-radius: 20px;
+  box-shadow: var(--shadow-dynamic);
+  overflow: hidden;
+  transition: transform 0.35s var(--ease-apple), border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
+  will-change: transform;
+}
 
+.post-card::before, .article-stream-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-specular), transparent);
+  transition: all 0.4s var(--ease-apple);
+}
+
+.post-card:hover, .article-stream-card:hover {
+  transform: translateY(-5px) scale(1.006);
+  background: var(--bg-card-hover) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.8), 0 0 24px rgba(168, 85, 247, 0.12);
+}
+
+.post-card:hover::before, .article-stream-card:hover::before {
+  left: 4%;
+  right: 4%;
+  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.7), transparent);
+}
+
+.post-card h2, .article-stream-card h2, .card-headline {
+  font-family: var(--font-global-ui) !important;
+  font-size: 1.65rem;
+  line-height: 1.3;
+  margin-bottom: 12px;
+  letter-spacing: -0.025em;
+  color: var(--starlight-pure);
+}
+
+/* Card summaries use Lexend for smooth reading */
+.post-summary, .card-excerpt {
+  font-family: var(--font-reading-body) !important;
+  color: var(--starlight-muted);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.post-meta-inline, .card-top-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--starlight-subtle);
+}
+
+/* 7. ARTICLE READING VIEW (HEADINGS: BRICOLAGE | PROSE: LEXEND) */
+.rana-article-wrapper, .rana-editorial-shell {
+  max-width: 740px;
+  margin: 110px auto 0 auto;
+  padding: 0 24px 100px 24px;
+  background-color: transparent !important;
+}
+
+.rana-article-header, .rana-post-header {
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.rana-article-title, .rana-post-title {
+  font-family: var(--font-global-ui) !important;
+  font-size: clamp(2.2rem, 5.5vw, 3.4rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.18 !important;
+  color: var(--starlight-pure) !important;
+  margin-bottom: 20px;
+}
+
+/* Article Prose & About Page text: Lexend */
+.rana-article-content, .rana-prose-body, .bg-mat p, .content p {
+  font-family: var(--font-reading-body) !important;
+  color: var(--starlight-dim) !important;
+  font-size: 1.08rem !important;
+  line-height: 1.85 !important;
+}
+
+.rana-article-content p, .rana-prose-body p {
+  font-family: var(--font-reading-body) !important;
+  margin-bottom: 1.75em;
+}
+
+.rana-article-content h2, .rana-prose-body h2 {
+  font-family: var(--font-global-ui) !important;
+  font-size: 1.85rem !important;
+  font-weight: 700 !important;
+  margin-top: 56px;
+  margin-bottom: 22px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.rana-article-content h3, .rana-prose-body h3 {
+  font-family: var(--font-global-ui) !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  margin-top: 40px;
+  margin-bottom: 16px;
+}
+
+.rana-article-content a, .rana-prose-body a {
+  color: var(--starlight-pure);
+  text-decoration: underline;
+  text-decoration-color: rgba(168, 85, 247, 0.4);
+  text-underline-offset: 4px;
+  transition: all 0.2s ease;
+}
+
+.rana-article-content a:hover, .rana-prose-body a:hover {
+  text-decoration-color: var(--starlight-pure);
+  color: #d8b4fe;
+}
+
+.rana-article-content blockquote, .rana-prose-body blockquote {
+  font-family: var(--font-reading-body) !important;
+  margin: 36px 0;
+  padding: 18px 26px;
+  border-left: 2px solid var(--accent-core);
+  background: var(--bg-card);
+  border-radius: 0 14px 14px 0;
+  color: var(--starlight-dim);
+  font-style: italic;
+}
+
+/* 8. TABLE OF CONTENTS & OBSIDIAN SYNTAX ACCENTS */
+.toc-container, #TableOfContents, .rana-toc-box {
+  background: var(--bg-card) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 24px 28px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--border-glass) !important;
+  box-shadow: var(--shadow-dynamic) !important;
+  margin: 36px 0 48px 0 !important;
+}
+
+#TableOfContents ul {
+  list-style: none !important;
+  padding-left: 18px !important;
+  margin: 0 !important;
+}
+
+#TableOfContents li {
+  margin: 8px 0 !important;
+  font-family: var(--font-global-ui) !important;
+  font-size: 0.94rem;
+}
+
+#TableOfContents a {
+  color: var(--starlight-muted) !important;
+  transition: color 0.2s ease;
+}
+
+#TableOfContents a:hover {
+  color: var(--starlight-pure) !important;
+}
+
+/* Obsidian ==highlight== Starlight Engine */
 mark {
-    background-color: #4a0f7a !important;
-    color: #ffffff !important;
-    padding: 2px 6px !important;
-    border-radius: 4px !important;
+  background: rgba(168, 85, 247, 0.22) !important;
+  color: #faf5ff !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(168, 85, 247, 0.38) !important;
+  font-weight: 500;
 }
 
-.rana-article-content pre, .rana-article-content code {
-    background-color: #12031a; 
-    color: #e0b0ff;
-    border-radius: 6px;
-    padding: 2px 6px;
-    border: 1px solid #2a1140;
+/* Code Snippets */
+code:not(pre code) {
+  font-family: var(--font-mono) !important;
+  font-size: 0.88em;
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #38bdf8;
+  padding: 3px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--border-glass);
 }
 
-/* =========================================
-   7. SCROLLBAR & KEYFRAMES
-   ========================================= */
-::-webkit-scrollbar { width: 10px !important; background-color: #000000 !important; }
-::-webkit-scrollbar-thumb { background-color: #270138 !important; border-radius: 10px !important; border: 2px solid #000000 !important; }
-::-webkit-scrollbar-thumb:hover { background-color: #7d1fa5 !important; }
-html { scrollbar-width: thin !important; scrollbar-color: #270138 #000000 !important; }
-
-@keyframes cinematicReveal {
-    0% { opacity: 0; transform: scale(0.95); filter: blur(8px); }
-    100% { opacity: 1; transform: scale(1); filter: blur(0px); }
+pre {
+  position: relative;
+  background-color: #05080e !important;
+  border: 1px solid var(--border-glass);
+  border-radius: 14px;
+  padding: 24px 22px 20px 22px;
+  overflow-x: auto;
+  margin: 32px 0;
+  box-shadow: var(--shadow-dynamic);
 }
 
-@keyframes smoothNeon {
-    from { filter: brightness(100%); }
-    to { filter: brightness(125%); text-shadow: 0 0 15px #fff, 0 0 25px #d896ff, 0 0 50px #b026ff, 0 0 90px #7d1fa5 !important; }
+pre code {
+  font-family: var(--font-mono) !important;
+  font-size: 0.92rem;
+  line-height: 1.65;
 }
 
-@keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* =========================================
-   8. ANDROID / MOBILE OPTIMIZATION
-   ========================================= */
-@media screen and (max-width: 768px) {
-    /* 1. Fix the Overflowing Hero Title */
-    .trispective-title {
-        font-size: clamp(2rem, 12vw, 3.5rem) !important; /* Smaller minimum size */
-        letter-spacing: 2px !important; /* Stops the letters from pushing off-screen */
-        line-height: 1.2 !important;
-    }
-
-    .trispective-author {
-        font-size: 1.2rem !important;
-    }
-
-    /* 2. Optimize Homepage Cards for Thumbs */
-    .post-list-container {
-        padding: 20px 10px 60px 10px !important; 
-    }
-
-    .post-card {
-        padding: 20px 15px !important; /* Less padding to give text more room */
-        margin-bottom: 20px !important;
-        border-radius: 12px !important;
-    }
-
-    .post-card h2 a {
-        font-size: 1.5rem !important; /* Slightly smaller post titles */
-    }
-
-    .post-summary {
-        font-size: 1rem !important;
-        line-height: 1.5;
-    }
-
-    /* 3. Optimize the Article Reading Experience */
-    .rana-article-wrapper {
-        margin-top: 70px !important; /* Less space needed under the mobile navbar */
-        padding: 20px 15px 50px 15px !important;
-    }
-
-    .rana-article-title {
-        font-size: clamp(1.8rem, 8vw, 2.5rem) !important;
-        margin-bottom: 10px !important;
-    }
-
-    .rana-article-meta {
-        font-size: 0.95rem !important;
-    }
-
-    .rana-article-content {
-        font-size: 1.05rem !important; /* Perfect reading size for high-res Android screens */
-        line-height: 1.6 !important;
-    }
-
-    /* 4. Compact the Table of Contents */
-    .toc-container, #TableOfContents {
-        padding: 15px !important;
-        margin-bottom: 30px !important;
-    }
-}
-
-
-/* =========================================
-   9. SMART NAVBAR & BACK TO TOP BUTTON
-   ========================================= */
-
-/* Target the fixed navbar directly instead of the parent header */
-.navbar.fixed-top {
-    transition: transform 0.4s cubic-bezier(0.3, 1, 0.3, 1) !important;
-}
-
-/* The class JavaScript will add to hide the navbar */
-.nav-hidden {
-    transform: translateY(-100%) !important;
-}
-
-
-/* The class JavaScript will add to hide the navbar */
-.nav-hidden {
-    transform: translateY(-100%) !important;
-}
-
-/* The Neon Back to Top Button */
+/* 9. APPLE SPECULAR BACK TO TOP BUTTON */
 .rana-back-to-top {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #7d1fa5, #b026ff);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(176, 38, 255, 0.4);
-    border: 2px solid #270138;
-    z-index: 1001;
-    
-    /* Hidden by default */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px);
-    transition: all 0.3s ease;
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 44px;
+  height: 44px;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--starlight-pure);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow-island);
+  border: 1px solid var(--border-glass);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+  transition: all 0.3s var(--ease-apple);
 }
 
-/* The class JavaScript will add to show the button */
 .rana-back-to-top.show-btn {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .rana-back-to-top:hover {
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 6px 20px rgba(176, 38, 255, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px) scale(1.05);
 }
 
-/* Mobile adjustments for the button */
+/* 10. ZEN MINIMAL FOOTER */
+.rana-custom-footer, body > footer, .rana-zen-footer {
+  background-color: var(--bg-void) !important;
+  border-top: 1px solid var(--border-glass) !important;
+  padding: 56px 20px 64px 20px !important;
+  text-align: center !important;
+  margin-top: 80px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: var(--font-global-ui) !important;
+}
+
+.footer-socials, body > footer .social, .footer-social-dock {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 20px !important;
+  margin-bottom: 18px !important;
+}
+
+.footer-socials a, body > footer .social a, .footer-social-btn {
+  color: var(--starlight-muted) !important;
+  font-size: 1.15rem !important;
+  transition: all 0.2s var(--ease-apple);
+}
+
+.footer-socials a:hover, body > footer .social a:hover, .footer-social-btn:hover {
+  color: var(--starlight-pure) !important;
+  transform: translateY(-2px);
+}
+
+.footer-copyright, body > footer p, .footer-copyright-text {
+  color: var(--starlight-subtle) !important;
+  font-family: var(--font-global-ui) !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.02em;
+  margin: 0 !important;
+}
+
+/* 11. ANIMATIONS & SCROLLBAR */
+::-webkit-scrollbar {
+  width: 6px;
+  background-color: var(--bg-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+@keyframes appleHeroReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes celestialGaze {
+  0% {
+    transform: translate(-50%, -50%) scale(0.97) rotate(0deg);
+    opacity: 0.32;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.03) rotate(1.5deg);
+    opacity: 0.44;
+  }
+}
+
+/* 12. MOBILE & ANDROID HARDWARE ACCELERATION */
 @media screen and (max-width: 768px) {
-    .rana-back-to-top {
-        bottom: 20px;
-        right: 20px;
-        width: 45px;
-        height: 45px;
-        font-size: 20px;
-    }
+  .navbar.fixed-top, nav.navbar {
+    top: 10px !important;
+    width: calc(100% - 20px) !important;
+    padding: 6px 16px !important;
+  }
+
+  .trispective-hero, .trispective-hero-stream {
+    min-height: 52vh;
+    padding: 100px 16px 40px 16px;
+  }
+
+  .trispective-title, .hero-main-title {
+    font-size: clamp(2.2rem, 9vw, 3.2rem) !important;
+  }
+
+  .post-list-container, .stream-container {
+    padding: 36px 14px 70px 14px;
+  }
+
+  .post-card, .article-stream-card {
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    border-radius: 16px;
+  }
+
+  .post-card h2, .article-stream-card h2, .card-headline {
+    font-size: 1.35rem;
+  }
+
+  .rana-article-wrapper, .rana-editorial-shell {
+    margin-top: 90px;
+    padding: 0 16px 70px 16px;
+  }
+
+  .rana-article-title, .rana-post-title {
+    font-size: 2rem !important;
+  }
+
+  .rana-article-content, .rana-prose-body {
+    font-size: 1.02rem !important;
+    line-height: 1.75;
+  }
+
+  .rana-back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
 }
-
-
-/* =========================================
-   10. CUSTOM TRISPECTIVE FOOTER
-   ========================================= */
-.rana-custom-footer {
-    background-color: #000000 !important;
-    border-top: 1px solid #2a1140; /* Dark purple border top pe */
-    padding: 40px 20px 60px 20px;
-    text-align: center;
-    margin-top: 50px;
-}
-
-.footer-socials a {
-    color: #e0b0ff; /* Light purple icon */
-    display: inline-block;
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
-}
-
-.footer-socials a:hover {
-    color: #b026ff; /* Neon hover effect */
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 10px #b026ff);
-}
-
-.footer-copyright {
-    color: #a0a0a0; /* Soft gray for copyright text */
-    font-family: 'Lato', sans-serif;
-    font-size: 0.95rem;
-    letter-spacing: 1px;
-}
-
-
-
-
-/* Stronger rule to hide the duplicate parent name */
-.dropdown-menu > a:first-of-type {
-    display: none !important;
-}
-
-
-/* =========================================
-   11. BRUTE FORCE FOOTER CENTERING
-   ========================================= */
-body > footer {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    width: 100% !important;
-    padding-bottom: 30px !important;
-}
-
-body > footer .container,
-body > footer .row,
-body > footer ul, 
-body > footer .social {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    margin: 0 auto !important;
-    width: 100% !important;
-}
-
-body > footer .social a {
-    margin: 0 10px 15px 10px !important;
-    display: inline-block !important;
-}
-
-
-

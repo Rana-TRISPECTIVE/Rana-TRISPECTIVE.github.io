@@ -6,7 +6,7 @@ author: "Rana"
 ---
 
 {{< callout type="info" title="Note" >}}
-For this first/trial article, AI was used heavily to polish the translation and structure. That said, the core knowledge is mine and represents a level of insight that AI simply cannot match.
+The Dhruv Rathee video linked below is blocked in India. To watch it, go to YouTube Settings → Location and select a country outside India, such as Switzerland, Norway, or Sweden. Then open the link again.
 {{< /callout >}}
 
 Recently, a massive controversy erupted on the internet when YouTuber Dhruv Rathee uploaded a video claiming that <mark>Hinduism inherently permits, and even encourages, meat consumption—including beef.</mark> Relying on a mix of cherry-picked verses, mistranslations by foreign authors, and AI-generated images, the video painted a heavily distorted picture of Sanatan Dharma. 

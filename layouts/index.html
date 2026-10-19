@@ -1,65 +1,1164 @@
 {{ define "main" }}
+<style>
+/* ==========================================================================
+   TRISPECTIVE — SILK-WEAVE CHROME EDITION (v10)
+   Premium Thread-Material Wordmark | Single-Loop 60 FPS Kinetic Engine
+   ========================================================================== */
+:root {
+  --bg-cosmos: #05020a;
+  --c-purple: #c084fc;
+  --c-purple-deep: #a855f7;
+  --c-purple-bright: #e9d5ff;
+  --c-purple-glow: rgba(192, 132, 252, 0.35);
+  --c-purple-border: rgba(192, 132, 252, 0.22);
+  --c-cyan: #00f5d4;
+  --c-cyan-glow: rgba(0, 245, 212, 0.35);
+  --c-emerald: #34d399;
+  --c-emerald-glow: rgba(52, 211, 153, 0.4);
+  --text-muted: #94a3b8;
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+}
+body, html, main, .main-content {
+  background-color: var(--bg-cosmos) !important;
+  color: var(--text-muted) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+footer, .footer, .site-footer {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-top: 0 !important;
+}
 
-<link rel="stylesheet" href="/css/custom.css">
+/* ---------- LAYER 0: Universe canvas ---------- */
+#cosmosBack {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.92;
+}
 
-<div class="trispective-hero">
-    <h1 class="trispective-title">TRISPECTIVE</h1>
-    <p class="trispective-author">By Rana</p>
-</div>
+/* ---------- HERO STAGE ---------- */
+.cosmic-hero {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 96px 4vw 50px 4vw;
+}
+.hero-bg-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.hero-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  opacity: 0.97;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, transparent 100%);
+  pointer-events: none;
+  user-select: none;
+}
+.hero-bg-desktop {
+  display: block;
+  filter: brightness(1.12) contrast(1.08);
+}
+.hero-bg-mobile {
+  display: none;
+  filter: none;
+  opacity: 0.95;
+}
+.hero-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(58% 46% at 50% 44%, rgba(168, 85, 247, 0.17) 0%, rgba(168, 85, 247, 0.06) 45%, transparent 72%),
+    radial-gradient(40% 34% at 50% 54%, rgba(0, 245, 212, 0.05) 0%, transparent 70%);
+}
+.hero-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse 62% 46% at 50% 44%, rgba(4, 2, 9, 0.4) 0%, rgba(4, 2, 9, 0.16) 55%, rgba(4, 2, 9, 0) 78%);
+}
+.hero-atmos {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 30%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(5, 2, 10, 0) 0%,
+    rgba(5, 2, 10, 0.45) 48%,
+    rgba(5, 2, 10, 0.85) 78%,
+    #05020a 100%);
+}
 
-<div class="post-list-container">
-    {{ range (where .Site.RegularPages "Section" "post") }}
-        <div class="post-card">
-            <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
-            <div class="post-summary">{{ .Summary | truncate 150 }}</div>
-        </div>
-    {{ end }}
-</div>
+/* ---------- HERO CONTENT ---------- */
+.hero-content {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  will-change: transform, opacity;
+}
+.brand-stage {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+  animation: stageIn 1.1s var(--ease-apple) backwards;
+}
+@keyframes stageIn {
+  from { opacity: 0; transform: translateY(28px) scale(0.955); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* ==========================================================================
+   SILK-WEAVE ROYAL AMETHYST WORDMARK (PC SCALE)
+   Static 4-layer material (ek baar rasterize) + pseudo-layer sheen/aura
+   ========================================================================== */
+html .brand-name {
+  position: relative;
+  max-width: 100%;
+  font-size: clamp(3.4rem, 8.8vw, 7.6rem) !important;
+  line-height: 1.22 !important;
+  padding: 0.1em 0.14em 0.18em !important;
+  margin: 0 0 16px 0;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.05);
+  background-image:
+    repeating-linear-gradient(100deg,
+      rgba(255, 255, 255, 0.14) 0px, rgba(255, 255, 255, 0.14) 1px,
+      rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0) 3px),
+    repeating-linear-gradient(6deg,
+      rgba(30, 10, 60, 0.26) 0px, rgba(30, 10, 60, 0.26) 1px,
+      transparent 1px, transparent 4px),
+    radial-gradient(120% 55% at 50% 0%,
+      rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.07) 45%, transparent 70%),
+    linear-gradient(180deg,
+      #ffffff 0%,
+      #f5ecff 12%,
+      #ddb6fe 26%,
+      #b678f2 42%,
+      #9333ea 58%,
+      #6b21a8 72%,
+      #8b3fd6 83%,
+      #c084fc 92%,
+      #f2eaff 100%);
+  background-size: auto, auto, 100% 100%, 100% 100%;
+  background-position: 0 0, 0 0, 0 0, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* Breathing amethyst aura (compositor-only: opacity/transform) */
+.brand-name::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  padding: inherit;
+  color: rgba(147, 51, 234, 0.5);
+  filter: blur(34px);
+  z-index: -1;
+  pointer-events: none;
+  animation: glowBreathe 5.2s ease-in-out infinite alternate;
+}
+@keyframes glowBreathe {
+  from { opacity: 0.45; transform: scale(1); }
+  to { opacity: 0.85; transform: scale(1.015); }
+}
+/* Specular silk sheen sweep (alag layer, main text repaint nahi hota) */
+.brand-name::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  padding: inherit;
+  background: linear-gradient(100deg,
+    transparent 32%,
+    rgba(255, 255, 255, 0.85) 47%,
+    rgba(255, 255, 255, 0.25) 52%,
+    transparent 66%);
+  background-size: 260% 100%;
+  background-position: 150% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sheenSweep 6.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sheenSweep {
+  0%, 55% { background-position: 150% 0; }
+  85%, 100% { background-position: -110% 0; }
+}
 
-<div id="ranaBackToTop" class="rana-back-to-top">
-    &#8593;
-</div>
+/* ---------- BY RANA SIGNATURE CAPSULE ---------- */
+.by-rana-capsule {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 26px;
+  border-radius: 9999px;
+  background: rgba(8, 12, 16, 0.58);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: stageIn 1.1s 0.18s var(--ease-apple) backwards;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s var(--ease-apple);
+}
+.by-rana-capsule:hover {
+  border-color: rgba(52, 211, 153, 0.5);
+  box-shadow: 0 10px 30px -6px rgba(0, 0, 0, 0.9), 0 0 24px rgba(52, 211, 153, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+.by-rana-capsule::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -35%;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: skewX(-18deg);
+  animation: capsuleShine 7s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes capsuleShine {
+  0%, 60% { left: -35%; }
+  85%, 100% { left: 125%; }
+}
+.live-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: radial-gradient(circle at 32% 30%, #d1fae5, #34d399 55%, #059669 100%);
+  animation: dotBreathe 2.8s ease-in-out infinite;
+}
+@keyframes dotBreathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(52, 211, 153, 0.7), 0 0 18px rgba(52, 211, 153, 0.3); }
+  50% { transform: scale(1.18); box-shadow: 0 0 14px rgba(52, 211, 153, 0.95), 0 0 30px rgba(52, 211, 153, 0.5); }
+}
+.by-word {
+  color: #cbd5e1;
+}
+.rana-name {
+  color: #34d399;
+  text-shadow: 0 0 14px rgba(52, 211, 153, 0.55), 0 0 30px rgba(16, 185, 129, 0.25);
+}
+.rana-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 7px;
+  border-radius: 1px;
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+  vertical-align: -0.15em;
+  animation: caretBlink 1.15s steps(2, start) infinite;
+}
+@keyframes caretBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+html .by-rana-text {
+  font-size: 1.08rem !important;
+  letter-spacing: 0.06em !important;
+}
 
+/* Scroll hint */
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.scroll-hint svg {
+  animation: hintBob 1.8s ease-in-out infinite;
+  color: var(--c-cyan);
+}
+@keyframes hintBob {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+/* ---------- COSMIC DRIFT ---------- */
+.cosmic-drift {
+  position: relative;
+  z-index: 1;
+  height: 18vh;
+  pointer-events: none;
+}
+
+/* ---------- LAYER 3: stars above image ---------- */
+#cosmosFront {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   PORTAL GATE: CENTER-COMPOSED SQUARE CARDS
+   ========================================================================== */
+.portal-gate {
+  position: relative;
+  z-index: 2;
+  padding: 6vh 24px 14vh 24px;
+  display: flex;
+  justify-content: center;
+}
+.gate-aura {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(420px circle at var(--ax, 50%) var(--ay, 58%),
+    rgba(192, 132, 252, 0.17) 0%,
+    rgba(0, 245, 212, 0.06) 45%,
+    rgba(192, 132, 252, 0) 72%);
+}
+.gate-aura.aura-pulse {
+  animation: auraPulse 0.65s var(--ease-apple);
+}
+@keyframes auraPulse {
+  0% { transform: scale(1); opacity: 0.95; }
+  40% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+.gate-row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+.gate-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 22px;
+  width: min(330px, 88vw);
+  aspect-ratio: 1 / 1;
+  padding: 40px 28px 64px 28px;
+  border-radius: 30px;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 45%, rgba(192, 132, 252, 0.09) 78%, rgba(16, 185, 129, 0.05) 100%),
+    rgba(13, 9, 24, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  color: #ffffff;
+  text-decoration: none !important;
+  box-shadow:
+    0 30px 60px -18px rgba(0, 0, 0, 0.92),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 44px rgba(192, 132, 252, 0.05);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(120px) scale(0.92);
+  will-change: transform, opacity;
+  box-sizing: border-box;
+}
+.gate-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  pointer-events: none;
+}
+.gate-btn::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -30%;
+  width: 38%;
+  height: 220%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transform: skewX(-20deg) translateX(-180%);
+  pointer-events: none;
+}
+.gate-btn.settled {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s var(--ease-apple);
+}
+.gate-btn.settled:hover {
+  transform: translateY(-6px);
+  border-color: rgba(192, 132, 252, 0.55);
+  box-shadow:
+    0 38px 70px -16px var(--c-purple-glow),
+    0 0 38px rgba(192, 132, 252, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 54px rgba(192, 132, 252, 0.09);
+}
+.gate-btn.settled:active {
+  transform: translateY(-2px) scale(0.98);
+}
+.gate-btn.settled:hover::after {
+  transform: skewX(-20deg) translateX(420%);
+  transition: transform 0.9s var(--ease-apple);
+}
+.gate-btn-tools.settled:hover {
+  border-color: rgba(0, 245, 212, 0.5);
+  box-shadow:
+    0 38px 70px -16px var(--c-cyan-glow),
+    0 0 38px rgba(0, 245, 212, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 54px rgba(0, 245, 212, 0.08);
+}
+.gate-orbit {
+  position: absolute;
+  right: -38px;
+  top: -38px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  animation: orbitSpin 16s linear infinite;
+}
+.gate-orbit::before {
+  content: "";
+  position: absolute;
+  inset: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(192, 132, 252, 0.18);
+}
+.gate-orbit::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0, 245, 212, 0.55);
+  box-shadow: 0 0 8px rgba(0, 245, 212, 0.6);
+}
+.gate-btn-tools .gate-orbit::before {
+  border-color: rgba(0, 245, 212, 0.16);
+}
+.gate-btn-tools .gate-orbit::after {
+  background: rgba(192, 132, 252, 0.55);
+  box-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
+}
+@keyframes orbitSpin {
+  to { transform: rotate(360deg); }
+}
+.gate-icon-stage {
+  position: relative;
+  display: flex;
+  z-index: 2;
+}
+.gate-icon-stage::before {
+  content: "";
+  position: absolute;
+  inset: -28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.24) 0%, transparent 65%);
+  filter: blur(6px);
+  opacity: 0.7;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.gate-btn-tools .gate-icon-stage::before {
+  background: radial-gradient(circle, rgba(0, 245, 212, 0.22) 0%, transparent 65%);
+}
+.gate-btn.settled:hover .gate-icon-stage::before {
+  opacity: 1;
+}
+.gate-icon-well {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border-radius: 26px;
+  background: rgba(192, 132, 252, 0.1);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  box-shadow: inset 0 0 18px rgba(192, 132, 252, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-purple-bright);
+  flex-shrink: 0;
+  transition: transform 0.35s var(--ease-apple), background 0.3s ease, color 0.3s ease;
+}
+.gate-btn-tools .gate-icon-well {
+  background: rgba(0, 245, 212, 0.1);
+  border-color: rgba(0, 245, 212, 0.35);
+  box-shadow: inset 0 0 18px rgba(0, 245, 212, 0.16);
+  color: var(--c-cyan);
+}
+.gate-btn.settled:hover .gate-icon-well {
+  background: var(--c-purple-deep);
+  border-color: var(--c-purple-deep);
+  color: #05020a;
+  transform: scale(1.08) rotate(-3deg);
+}
+.gate-btn-tools.settled:hover .gate-icon-well {
+  background: var(--c-cyan);
+  border-color: var(--c-cyan);
+  color: #05020a;
+  transform: scale(1.08) rotate(3deg);
+}
+.gate-text-col {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.gate-label {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  line-height: 1.15;
+}
+.gate-caption {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.gate-chevron {
+  position: absolute;
+  right: 26px;
+  bottom: 26px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+  z-index: 2;
+  transition: all 0.35s var(--ease-apple);
+}
+.gate-btn.settled:hover .gate-chevron {
+  background: var(--c-purple-deep);
+  border-color: var(--c-purple-deep);
+  color: #05020a;
+  transform: translateX(5px);
+}
+.gate-btn-tools.settled:hover .gate-chevron {
+  background: var(--c-cyan);
+  border-color: var(--c-cyan);
+  color: #05020a;
+}
+.gate-progress {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 14px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--c-purple-deep), var(--c-cyan));
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 2;
+}
+.gate-btn.settled .gate-progress {
+  transform: scaleX(1);
+  opacity: 0.4;
+}
+
+/* ---------- ANDROID / MOBILE — ALAG SCALE ---------- */
+@media (max-width: 960px) {
+  .cosmic-hero {
+    min-height: 96vh;
+    padding: 88px 6vw 40px 6vw;
+  }
+  .hero-bg-desktop { display: none; }
+  .hero-bg-mobile { display: block; }
+  html .brand-name {
+    font-size: clamp(2.55rem, 11.5vw, 4.4rem) !important;
+    padding: 0.08em 0.1em 0.16em !important;
+    -webkit-text-stroke: 0;
+  }
+  html .by-rana-text {
+    font-size: 1rem !important;
+  }
+  .by-rana-capsule {
+    padding: 9px 20px;
+    gap: 10px;
+  }
+  .cosmic-drift {
+    height: 12vh;
+  }
+  .gate-row {
+    flex-direction: column;
+    gap: 22px;
+    width: 100%;
+    align-items: center;
+  }
+  .gate-btn {
+    width: min(340px, 92vw);
+    padding: 34px 20px 58px 20px;
+    gap: 18px;
+  }
+  .gate-icon-well {
+    width: 78px;
+    height: 78px;
+    border-radius: 22px;
+  }
+  .gate-label {
+    font-size: 1.3rem;
+  }
+  .gate-chevron {
+    right: 20px;
+    bottom: 20px;
+    width: 38px;
+    height: 38px;
+  }
+  .portal-gate {
+    padding: 5vh 16px 12vh 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-name::before, .brand-name::after, .live-dot, .rana-caret,
+  .by-rana-capsule::before, .scroll-hint svg, .brand-stage, .by-rana-capsule,
+  .gate-orbit {
+    animation: none !important;
+  }
+  .gate-btn {
+    opacity: 1;
+    transform: none;
+  }
+}
+</style>
+
+<!-- LAYER 0: Universe BEHIND everything -->
+<canvas id="cosmosBack"></canvas>
+
+<!-- ==========================================================================
+     HERO: image backdrop + silk-weave wordmark + emerald signature
+     ========================================================================== -->
+<section class="cosmic-hero">
+  <div class="hero-bg-wrap">
+    <img
+      src="/images/hero1.jpg"
+      alt=""
+      class="hero-bg hero-bg-desktop"
+      loading="eager"
+      onerror="this.onerror=null; this.src='/images/hero1.png';"
+    >
+    <img
+      src="/images/hero2.jpg"
+      alt=""
+      class="hero-bg hero-bg-mobile"
+      loading="eager"
+      onerror="this.onerror=null; this.src='/images/hero2.png';"
+    >
+  </div>
+  <div class="hero-tint"></div>
+  <div class="hero-veil"></div>
+  <div class="hero-atmos"></div>
+
+  <div class="hero-content" id="heroContent">
+    <div class="brand-stage" id="brandStage">
+      <h1 class="brand-name" data-text="TRISPECTIVE">TRISPECTIVE</h1>
+    </div>
+    <div class="by-rana-capsule">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span class="by-rana-text"><span class="by-word">By</span> <span class="rana-name">Rana</span><span class="rana-caret" aria-hidden="true"></span></span>
+    </div>
+  </div>
+
+  <div class="scroll-hint" id="scrollHint">
+    <span>Scroll</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </div>
+</section>
+
+<!-- Compressed cosmic drift room -->
+<div class="cosmic-drift"></div>
+
+<!-- LAYER 3: stars + sparkles ABOVE the image -->
+<canvas id="cosmosFront"></canvas>
+
+<!-- ==========================================================================
+     PORTAL GATE: square cards, rise → settle → footer-locked
+     ========================================================================== -->
+<section class="portal-gate" id="portalGate">
+  <div class="gate-aura" id="gateAura"></div>
+  <div class="gate-row">
+    <a href="{{ "post/" | relURL }}" class="gate-btn" id="gateArticles">
+      <span class="gate-orbit" aria-hidden="true"></span>
+      <span class="gate-icon-stage">
+        <span class="gate-icon-well">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+        </span>
+      </span>
+      <span class="gate-text-col">
+        <span class="gate-label">Explore Articles</span>
+        <span class="gate-caption">Archive · Essays · Search</span>
+      </span>
+      <span class="gate-chevron">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+      <span class="gate-progress"></span>
+    </a>
+    <a href="{{ "tools/" | relURL }}" class="gate-btn gate-btn-tools" id="gateTools">
+      <span class="gate-orbit" aria-hidden="true"></span>
+      <span class="gate-icon-stage">
+        <span class="gate-icon-well">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"></line>
+            <line x1="4" y1="10" x2="4" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12" y2="3"></line>
+            <line x1="20" y1="21" x2="20" y2="16"></line>
+            <line x1="20" y1="12" x2="20" y2="3"></line>
+            <line x1="1" y1="14" x2="7" y2="14"></line>
+            <line x1="9" y1="8" x2="15" y2="8"></line>
+            <line x1="17" y1="16" x2="23" y2="16"></line>
+          </svg>
+        </span>
+      </span>
+      <span class="gate-text-col">
+        <span class="gate-label">Tools</span>
+        <span class="gate-caption">Utilities · Focus · Datasets</span>
+      </span>
+      <span class="gate-chevron">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+      <span class="gate-progress"></span>
+    </a>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     KINETIC ENGINE v2: SINGLE rAF LOOP | CACHED SPRITES | ZERO STRING ALLOC
+     ========================================================================== -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    let lastScrollTop = 0;
-    
-    // Grabs the main theme navbar and our new button
-    const navbar = document.querySelector(".navbar.fixed-top"); 
-    const backToTopBtn = document.getElementById("ranaBackToTop");
+(function() {
+  'use strict';
 
-    window.addEventListener("scroll", function() {
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  var reduceMotion = false;
+  if (window.matchMedia) {
+    reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
 
-        // 1. SMART NAVBAR LOGIC
-        if (navbar) {
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                // User is scrolling down: Hide Navbar
-                navbar.classList.add("nav-hidden");
-            } else {
-                // User is scrolling up: Show Navbar
-                navbar.classList.remove("nav-hidden");
-            }
-        }
-        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Prevents mobile bouncing glitches
+  var TAU = 6.2832;
+  var backCanvas = document.getElementById('cosmosBack');
+  var frontCanvas = document.getElementById('cosmosFront');
+  var scrollY = 0;
+  var scrollDirty = true;
+  var mouseX = 0;
+  var mouseY = 0;
+  var clamp01 = function(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); };
+  var easeOutQuart = function(p) { return 1 - Math.pow(1 - p, 4); };
+  var easeInOut = function(p) { return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; };
 
-        // 2. BACK TO TOP BUTTON LOGIC
-        if (scrollTop > 400) {
-            // Show button after scrolling down 400px
-            backToTopBtn.classList.add("show-btn");
+  var BACK_PAL = ['#00f5d4', '#c084fc', '#ffffff'];
+  var FRONT_PAL = ['#c084fc', '#00f5d4', '#ffffff'];
+
+  var bctx = null;
+  var fctx = null;
+  var w = 0, h = 0;
+  var backStars = [];
+  var frontStars = [];
+  var nebulaBlobs = [];
+  var nebCanvas = null;
+  var blobSprites = {};
+  var shooter = null;
+  var nextShot = 3000 + Math.random() * 3000;
+  var hasCanvas = false;
+
+  function makeNeb(wd, ht) {
+    var c = document.createElement('canvas');
+    c.width = wd;
+    c.height = ht;
+    var g = c.getContext('2d');
+    var g1 = g.createRadialGradient(wd * 0.32, ht * 0.36, 40, wd * 0.32, ht * 0.36, Math.max(wd, ht) * 0.75);
+    g1.addColorStop(0, 'rgba(168, 85, 247, 0.5)');
+    g1.addColorStop(0.55, 'rgba(120, 60, 200, 0.22)');
+    g1.addColorStop(1, 'rgba(4, 2, 9, 0)');
+    g.fillStyle = g1;
+    g.fillRect(0, 0, wd, ht);
+    var g2 = g.createRadialGradient(wd * 0.76, ht * 0.72, 30, wd * 0.76, ht * 0.72, Math.max(wd, ht) * 0.65);
+    g2.addColorStop(0, 'rgba(0, 245, 212, 0.14)');
+    g2.addColorStop(1, 'rgba(4, 2, 9, 0)');
+    g.fillStyle = g2;
+    g.fillRect(0, 0, wd, ht);
+    return c;
+  }
+  function makeBlobSprite(rgb) {
+    if (blobSprites[rgb]) return blobSprites[rgb];
+    var s = document.createElement('canvas');
+    s.width = 256;
+    s.height = 256;
+    var g = s.getContext('2d');
+    var gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+    gr.addColorStop(0, 'rgba(' + rgb + ',1)');
+    gr.addColorStop(1, 'rgba(' + rgb + ',0)');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, 256, 256);
+    blobSprites[rgb] = s;
+    return s;
+  }
+
+  function initStars() {
+    backStars = [];
+    frontStars = [];
+    var i;
+    var isMobile = w < 960;
+    var BACK_COUNT = isMobile ? 60 : 110;
+    var FRONT_COUNT = isMobile ? 20 : 38;
+    for (i = 0; i < BACK_COUNT; i++) {
+      backStars.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        radius: Math.random() * 1.3 + 0.3,
+        baseAlpha: Math.random() * 0.6 + 0.2,
+        speed: Math.random() * 0.02 + 0.005,
+        phase: Math.random() * TAU,
+        depth: Math.random() * 0.8 + 0.2,
+        ci: i % 4 === 0 ? 0 : (i % 3 === 0 ? 1 : 2)
+      });
+    }
+    for (i = 0; i < FRONT_COUNT; i++) {
+      frontStars.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        radius: Math.random() * 1.6 + 0.6,
+        baseAlpha: Math.random() * 0.5 + 0.35,
+        speed: Math.random() * 0.03 + 0.008,
+        phase: Math.random() * TAU,
+        depth: Math.random() * 1 + 0.4,
+        ci: i % 3 === 0 ? 0 : (i % 5 === 0 ? 1 : 2)
+      });
+    }
+    nebulaBlobs = [
+      { x: w * 0.25, y: h * 0.3, vx: 0.12, vy: 0.06, r: Math.max(w, h) * 0.34, c: '192, 132, 252' },
+      { x: w * 0.78, y: h * 0.68, vx: -0.1, vy: -0.05, r: Math.max(w, h) * 0.3, c: '168, 85, 247' },
+      { x: w * 0.55, y: h * 0.15, vx: 0.07, vy: 0.09, r: Math.max(w, h) * 0.26, c: '217, 70, 239' }
+    ];
+  }
+
+  if (backCanvas && frontCanvas) {
+    bctx = backCanvas.getContext('2d');
+    fctx = frontCanvas.getContext('2d');
+    hasCanvas = true;
+    var resize = function() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      backCanvas.width = w;
+      backCanvas.height = h;
+      frontCanvas.width = w;
+      frontCanvas.height = h;
+      nebCanvas = makeNeb(w, h);
+      initStars();
+      if (reduceMotion) {
+        drawBack();
+        drawFront(0);
+      }
+    };
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+  }
+
+  function drawBack() {
+    bctx.clearRect(0, 0, w, h);
+    var t = easeInOut(clamp01(scrollY / (h * 1.05)));
+    var neb = 0.1 + 0.45 * t;
+    bctx.globalAlpha = neb;
+    bctx.drawImage(nebCanvas, mouseX * 22, mouseY * 18);
+    for (var i = 0; i < backStars.length; i++) {
+      var s = backStars[i];
+      s.phase += s.speed;
+      var a = s.baseAlpha + Math.sin(s.phase) * 0.22;
+      var px = s.x + mouseX * 10 * s.depth;
+      var py = ((s.y - scrollY * 0.1 * s.depth) % h + h) % h;
+      bctx.globalAlpha = a < 0.1 ? 0.1 : a;
+      bctx.fillStyle = BACK_PAL[s.ci];
+      bctx.beginPath();
+      bctx.arc(px, py, s.radius, 0, TAU);
+      bctx.fill();
+    }
+    bctx.globalAlpha = 1;
+  }
+
+  function drawFront(now) {
+    fctx.clearRect(0, 0, w, h);
+    var t = easeInOut(clamp01(scrollY / (h * 1.05)));
+    var blobAlpha = 0.05 * (0.3 + 0.7 * t);
+    var b, i, s;
+    for (b = 0; b < nebulaBlobs.length; b++) {
+      var bl = nebulaBlobs[b];
+      bl.x += bl.vx;
+      bl.y += bl.vy;
+      if (bl.x < -bl.r || bl.x > w + bl.r) bl.vx *= -1;
+      if (bl.y < -bl.r || bl.y > h + bl.r) bl.vy *= -1;
+      fctx.globalAlpha = blobAlpha;
+      fctx.drawImage(makeBlobSprite(bl.c), bl.x - bl.r, bl.y - bl.r, bl.r * 2, bl.r * 2);
+    }
+    for (i = 0; i < frontStars.length; i++) {
+      s = frontStars[i];
+      s.phase += s.speed;
+      var a = s.baseAlpha + Math.sin(s.phase) * 0.3;
+      var px = s.x - mouseX * 14 * s.depth;
+      var py = ((s.y - scrollY * 0.16 * s.depth) % h + h) % h;
+      fctx.globalAlpha = a < 0.08 ? 0.08 : a;
+      fctx.fillStyle = FRONT_PAL[s.ci];
+      fctx.beginPath();
+      fctx.arc(px, py, s.radius, 0, TAU);
+      fctx.fill();
+      if (!reduceMotion && a > s.baseAlpha + 0.24) {
+        var fl = s.radius * 5;
+        fctx.globalAlpha = (a - s.baseAlpha) * 0.9;
+        fctx.strokeStyle = FRONT_PAL[s.ci];
+        fctx.lineWidth = 0.7;
+        fctx.beginPath();
+        fctx.moveTo(px - fl, py);
+        fctx.lineTo(px + fl, py);
+        fctx.moveTo(px, py - fl);
+        fctx.lineTo(px, py + fl);
+        fctx.stroke();
+      }
+    }
+    fctx.globalAlpha = 1;
+    if (!reduceMotion) {
+      if (!shooter && now > nextShot) {
+        shooter = {
+          x: Math.random() * w * 0.7 + w * 0.15,
+          y: Math.random() * h * 0.35,
+          vx: -(4 + Math.random() * 3),
+          vy: 2 + Math.random() * 1.5,
+          life: 1
+        };
+      }
+      if (shooter) {
+        shooter.x += shooter.vx;
+        shooter.y += shooter.vy;
+        shooter.life -= 0.018;
+        if (shooter.life <= 0) {
+          shooter = null;
+          nextShot = now + 3500 + Math.random() * 4000;
         } else {
-            // Hide button if near the top
-            backToTopBtn.classList.remove("show-btn");
+          var tx = shooter.x - shooter.vx * 9;
+          var ty = shooter.y - shooter.vy * 9;
+          fctx.lineWidth = 1.6;
+          fctx.globalAlpha = 0.45 * shooter.life;
+          fctx.strokeStyle = '#c084fc';
+          fctx.beginPath();
+          fctx.moveTo(shooter.x, shooter.y);
+          fctx.lineTo(tx, ty);
+          fctx.stroke();
+          fctx.globalAlpha = 0.85 * shooter.life;
+          fctx.strokeStyle = '#ffffff';
+          fctx.beginPath();
+          fctx.moveTo(shooter.x, shooter.y);
+          fctx.lineTo(tx, ty);
+          fctx.stroke();
+          fctx.globalAlpha = 1;
         }
-    });
+      }
+    }
+  }
 
-    // 3. CLICK TO SMOOTH SCROLL LOGIC
-    backToTopBtn.addEventListener("click", function() {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
+  /* ---------- Brand micro-tilt (spring, merged into single loop) ---------- */
+  var brandStage = document.getElementById('brandStage');
+  var tiltActive = !!(brandStage && !reduceMotion);
+  var bCurrX = 0, bCurrY = 0, bTargX = 0, bTargY = 0;
+  if (tiltActive) {
+    window.addEventListener('mousemove', function(e) {
+      bTargX = -((e.clientY - window.innerHeight / 2) / (window.innerHeight / 2)) * 3.2;
+      bTargY = ((e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)) * 3.2;
+    }, { passive: true });
+  }
+
+  /* ---------- Scroll-driven DOM updates (dirty-flag, single loop) ---------- */
+  var heroContent = document.getElementById('heroContent');
+  var hint = document.getElementById('scrollHint');
+  var gate = document.getElementById('portalGate');
+  var gateBtns = [
+    document.getElementById('gateArticles'),
+    document.getElementById('gateTools')
+  ];
+
+  var updateGate = function() {
+    if (!gate) return;
+    var vh = window.innerHeight;
+    var rect = gate.getBoundingClientRect();
+    var p = clamp01((vh - rect.top) / (vh * 0.7));
+    var footer = document.querySelector('footer');
+    if (footer && footer.getBoundingClientRect().top < vh * 0.95) {
+      p = 1;
+    }
+    for (var i = 0; i < gateBtns.length; i++) {
+      var btn = gateBtns[i];
+      if (!btn || btn.getAttribute('data-settled') === '1') continue;
+      var offset = i * 0.12;
+      var q = clamp01((p - offset) / (1 - offset));
+      if (reduceMotion) q = 1;
+      var e = easeOutQuart(q);
+      var prog = btn.querySelector('.gate-progress');
+      if (q >= 1) {
+        btn.setAttribute('data-settled', '1');
+        btn.classList.add('settled');
+        btn.style.opacity = '';
+        btn.style.transform = '';
+        if (prog) prog.style.transform = '';
+      } else {
+        btn.style.opacity = Math.min(q * 1.6, 1).toFixed(2);
+        btn.style.transform = 'translateY(' + ((1 - e) * 120).toFixed(1) + 'px) scale(' + (0.92 + 0.08 * e).toFixed(3) + ')';
+        if (prog) prog.style.transform = 'scaleX(' + e.toFixed(3) + ')';
+      }
+    }
+  };
+
+  var applyScrollDOM = function() {
+    var vh = window.innerHeight;
+    if (heroContent) {
+      var fade = clamp01(scrollY / (vh * 0.7));
+      heroContent.style.transform = 'translate3d(0, ' + (-scrollY * 0.14).toFixed(1) + 'px, 0)';
+      heroContent.style.opacity = (1 - fade * 0.85).toFixed(2);
+    }
+    if (hint) {
+      hint.style.opacity = Math.max(0, 0.7 - scrollY / 160).toFixed(2);
+    }
+    updateGate();
+  };
+
+  window.addEventListener('scroll', function() {
+    scrollY = window.scrollY || document.documentElement.scrollTop;
+    scrollDirty = true;
+    if (reduceMotion) {
+      applyScrollDOM();
+      scrollDirty = false;
+    }
+  }, { passive: true });
+
+  window.addEventListener('mousemove', function(e) {
+    mouseX = (e.clientX - w / 2) / (w / 2);
+    mouseY = (e.clientY - h / 2) / (h / 2);
+  }, { passive: true });
+  window.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 0) {
+      mouseX = (e.touches[0].clientX - w / 2) / (w / 2);
+      mouseY = (e.touches[0].clientY - h / 2) / (h / 2);
+    }
+  }, { passive: true });
+
+  /* ---------- SINGLE MASTER LOOP ---------- */
+  var frame = function(now) {
+    if (hasCanvas) {
+      drawBack();
+      drawFront(now || 0);
+    }
+    if (tiltActive) {
+      bCurrX += (bTargX - bCurrX) * 0.06;
+      bCurrY += (bTargY - bCurrY) * 0.06;
+      brandStage.style.transform = 'perspective(900px) rotateX(' + bCurrX.toFixed(2) + 'deg) rotateY(' + bCurrY.toFixed(2) + 'deg)';
+    }
+    if (scrollDirty) {
+      applyScrollDOM();
+      scrollDirty = false;
+    }
+    if (!reduceMotion) {
+      requestAnimationFrame(frame);
+    }
+  };
+  frame(0);
+
+  /* ---------- Reactive aura behind gates ---------- */
+  var aura = document.getElementById('gateAura');
+  if (aura && gate) {
+    var centerAura = function() {
+      aura.style.setProperty('--ax', '50%');
+      aura.style.setProperty('--ay', '58%');
+      aura.style.opacity = '0.5';
+    };
+    centerAura();
+    for (var g = 0; g < gateBtns.length; g++) {
+      (function(btn) {
+        if (!btn) return;
+        btn.addEventListener('mouseenter', function() {
+          var gr = gate.getBoundingClientRect();
+          var br = btn.getBoundingClientRect();
+          aura.style.setProperty('--ax', (br.left - gr.left + br.width / 2) + 'px');
+          aura.style.setProperty('--ay', (br.top - gr.top + br.height / 2) + 'px');
+          aura.style.opacity = '0.95';
         });
-    });
-});
+        btn.addEventListener('mouseleave', function() {
+          centerAura();
+        });
+        btn.addEventListener('click', function() {
+          aura.classList.remove('aura-pulse');
+          void aura.offsetWidth;
+          aura.classList.add('aura-pulse');
+          aura.style.opacity = '1';
+        });
+      })(gateBtns[g]);
+    }
+  }
+})();
 </script>
 {{ end }}

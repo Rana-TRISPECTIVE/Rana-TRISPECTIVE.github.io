@@ -7,7 +7,7 @@ author: "Rana"
 
 **"Extractor by Rana"** is a lightweight browser script that bypasses Google Drive's highly secure "view-only" file restrictions.
 
-## ✨ Features
+##  Features
 
 * **PDF Extraction:**
   * **Text to .md file:** I included the Markdown (`.md`) option instead of `.txt` because it is much easier for both humans and AI to understand.
@@ -22,7 +22,7 @@ author: "Rana"
   <img src="/images/image2.png" alt="Extractor by Rana UI 2" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
 </div>
 
-## 🛠️ How to Use It
+##  How to Use It
 
 You don't need to be a programmer to use this. You just need the code and a couple of seconds. Choose the method that suits your vibe:
 
@@ -40,7 +40,7 @@ You don't need to be a programmer to use this. You just need the code and a coup
 
 If you don't know how to add a new script, [watch this quick tutorial](https://youtu.be/7LWOBkKhbGk?si=wj7ZYLKfWgbw7Dx8). You just have to paste the code below into a new Tampermonkey script.
 
-## 💻 The Code
+##  The Code
 
 ```javascript
 // ==UserScript==
@@ -61,7 +61,7 @@ If you don't know how to add a new script, [watch this quick tutorial](https://y
     let isScrolling = false;
     let scrollerInterval = null;
 
-    // ✨ TRUSTED TYPES BYPASS ✨
+    //  TRUSTED TYPES BYPASS
     let secureHTML;
     if (window.trustedTypes && window.trustedTypes.createPolicy) {
         try {
@@ -70,7 +70,7 @@ If you don't know how to add a new script, [watch this quick tutorial](https://y
         } catch (e) { secureHTML = (html) => html; }
     } else { secureHTML = (html) => html; }
 
-    // ✨ NETWORK INTERCEPTOR ✨
+    //  NETWORK INTERCEPTOR
     const origOpen = XMLHttpRequest.prototype.open;
     const origSend = XMLHttpRequest.prototype.send;
 
@@ -122,7 +122,7 @@ If you don't know how to add a new script, [watch this quick tutorial](https://y
         return origSend.apply(this, arguments);
     };
 
-    // ✨ UI CREATION (With Minimize & Resize) ✨
+    //  UI CREATION (With Minimize & Resize)
     let panel;
     const initTimer = setInterval(() => {
         if (document.body) { clearInterval(initTimer); buildUI(); }
@@ -382,7 +382,7 @@ If you don't know how to add a new script, [watch this quick tutorial](https://y
             htmlContent += `<img src="${collectedImagePages[p]}" alt="Page ${p}">`;
         });
 
-        // 🧠 The Magic Code: Waits for all images to completely load, then forcefully opens the Save Dialog
+        //  The Magic Code: Waits for all images to completely load, then forcefully opens the Save Dialog
         htmlContent += `
             <script>
                 window.onload = function() {

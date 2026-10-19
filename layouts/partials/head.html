@@ -1,90 +1,101 @@
 <head>
 {{ template "_internal/google_analytics.html" . }}
-  <!-- Basic head tags -->
+  <!-- Basic meta tags -->
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  
   <title>
   {{- .Title | default site.Title }} {{- default " | " site.Params.meta.titleSeparator -}} {{ if not .IsHome }}{{ site.Title }}{{ else }}{{ site.Params.meta.tagline }}{{ end -}}
   </title>
   
-  <!-- Theme CSS -->
-  {{ $css := resources.Get "sass/theme.scss" | resources.ExecuteAsTemplate "/assets/css/theme.scss" . | toCSS  }}
+  <!-- Base Theme SCSS (Compiled) -->
+  {{ $css := resources.Get "sass/theme.scss" | resources.ExecuteAsTemplate "/assets/css/theme.scss" . | toCSS }}
   
-  <!-- Run PostCSS on $css, only if on Production Environment, since its builds take considerably more time -->
   {{ if and (eq hugo.Environment "production") (eq site.Params.userExperience.speedMode "enable") -}}
-    {{- $css = $css | postCSS | fingerprint | resources.PostProcess }}
+    {{- $css =$css | postCSS | fingerprint | resources.PostProcess }}
   {{- else }}
-    {{- $css = $css | minify | fingerprint }}
+    {{- $css =$css | minify | fingerprint }}
   {{- end }}
   
-  <!-- Note: Changing integrity attribute of CSS link tag dynamicaly, gives error with respect to subresource integrity. -->
   <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity | safeHTMLAttr }}" crossorigin="anonymous">
 
-  <!-- Prefetch and Preconnect Google Fonts API -->
+  <!-- GLOBAL DESIGN SYSTEM (AMOLED Obsidian + Apple Glassmorphic CSS) -->
+  <link rel="stylesheet" href="/css/custom.css">
+
+  <!-- Suppress Default Theme Purple Hero Banners on Subpages -->
+  <style>
+    /* Kills the ugly purple header box on /tools/, /about/, and inner pages */
+    header.header, 
+    .hero-header, 
+    .page-header, 
+    .banner, 
+    .title-banner,
+    div[class*="hero-banner"],
+    div[class*="page-title-container"] {
+      display: none !important;
+      background: none !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+    }
+  </style>
+
+  <!-- Preconnect & DNS Prefetch -->
   <link rel="dns-prefetch" href="//fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   
-  <!-- AMP, RSS Feed, and other output formats -->
+  <!-- Output Formats (RSS, Atom) -->
   {{- range .AlternativeOutputFormats -}}
     {{- printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink site.Title | safeHTML }}
   {{- end -}}
   
+  <!-- Favicons -->
   {{ if site.Params.faviconTags }}
     {{- $faviconTags := site.Params.faviconTags | resources.FromString "/favicon-temp.html" | resources.ExecuteAsTemplate "/favicon-temp.html" . | minify }}
     {{- $faviconTags.Content | safeHTML }}
   {{- end }}
   
-  <!-- Address bar color -->
-  <!-- Chrome, Firefox OS and Opera -->
-  <meta name="theme-color" content="#fff6f8">
-  <!-- Windows Phone -->
-  <meta name="msapplication-navbutton-color" content="#fff6f8">
-  <!-- iOS Safari -->
+  <!-- Pure AMOLED Theme Color for Android & Mobile Browsers -->
+  <meta name="theme-color" content="#030508">
+  <meta name="msapplication-navbutton-color" content="#030508">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   {{ if site.Params.customVerification.myWOT }}
-  <!-- WOT Verification -->
   <meta name="wot-verification" content="{{ site.Params.customVerification.myWOT }}" />
   {{ end }}
   
-  <!-- Googe Analytics, Cookie Consent should work only on production website -->
+  <!-- Google Analytics & Minimal Tracking Support -->
   {{ if eq hugo.Environment "production" -}}
     {{ if site.GoogleAnalytics }}
-      <!-- Google Analytics shall work only on production website -->
       {{ if and (eq site.Params.cookieConsent.switch "on") (eq site.Params.cookieConsent.type "opt-in") }}
         <script>
-        // Disable tracking by default
         window['{{ printf "%s%s" "ga-disable-" site.GoogleAnalytics }}'] = true;
         </script>
       {{ else if eq site.Params.userExperience.googleAnalytics.script 1 }}
-        <!-- we will be running this if cookie consent type isn't set to opt-in and if gAnalytics script minimal-analytics by James Hill is selected. see: https://github.com/jahilldev/minimal-analytics/tree/main/packages/ga4#onload -->
         <script>
         window.minimalAnalytics = {
           trackingId: '{{ site.GoogleAnalytics }}',
-          autoTrack: true, // <-- initialize tracking
+          autoTrack: true,
         };
         </script>
       {{ end }}
       
       {{ if or (ne site.Params.userExperience.googleAnalytics.script 1) (ne site.Params.userExperience.googleAnalytics.script 2) }}
         {{ if hasPrefix site.GoogleAnalytics "UA-" }}
-          <!-- prefetch -->
           <link rel="dns-prefetch" href="https://www.google-analytics.com/">
           <link rel="preconnect" href="https://www.google-analytics.com/" crossorigin>
-          {{ warnf "You are using Universal Analytics tag of Google Analytics, which is set to be deprecated." }}
           {{ if ne site.Params.userExperience.googleAnalytics.loading "async" }}
             {{ template "_internal/google_analytics.html" . }}
           {{ else }}
             {{ template "_internal/google_analytics_async.html" . }}
           {{ end }}
         {{ else if hasPrefix site.GoogleAnalytics "G-" }}
-          <!-- prefetch -->
           <link rel="dns-prefetch" href="https://www.googletagmanager.com/">
           <link rel="preconnect" href="https://www.googletagmanager.com/" crossorigin>
           {{ template "_internal/google_analytics.html" . }}
-        {{ else }}
-          {{ warnf "Check if you have provided correct Google Analytics ID in config file." }}
         {{ end }}
       {{ else if eq site.Params.userExperience.googleAnalytics.script 1 }}
         {{- $script := resources.GetRemote "https://cdn.jsdelivr.net/npm/@minimal-analytics/ga4/dist/index.js" }}
@@ -96,16 +107,12 @@
       {{ end }}
     {{ end }}
     {{ if ne site.Params.seo.switch "off" }}
-      <!-- SEO tag -->
       {{- partial "seo.html" . -}}
     {{ end }}
-    <!-- Hugo's Tag shall work only on production website -->
     {{ hugo.Generator }}
   {{- else }}
     {{ if ne site.Params.seo.switch "off" }}
-      <!-- SEO tag -->
       {{- partial "seo.html" . -}}
     {{ end }}
   {{- end }}
 </head>
-
