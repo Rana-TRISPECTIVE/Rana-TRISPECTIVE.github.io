@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="gu" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>સિંધુ ખીણની સભ્યતા — 3D સચોટ નગર, ઇન્ટરેક્ટિવ D3 નકશા અને #NCERT જ્ઞાન કોષ</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+      background: #000000; color: #f3f4f6;
+      font-family: 'Noto Sans Gujarati', 'Shruti', 'Lohit Gujarati', system-ui, -apple-system, sans-serif;
+    }
+    #world-canvas-wrap { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; }
+    #world-canvas-wrap canvas { display: block; width: 100%; height: 100%; cursor: grab; outline: none; }
+    #world-canvas-wrap canvas:active { cursor: grabbing; }
+
+    #pins-layer { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
+    .pin-3d {
+      position: absolute; transform: translate(-50%, -100%);
+      pointer-events: auto; cursor: pointer; white-space: nowrap; user-select: none;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+    .pin-3d:hover { transform: translate(-50%, -110%) scale(1.06); z-index: 30; }
+    .pin-common { background: rgba(59, 7, 100, 0.92); border: 1.5px solid #c084fc; color: #f3e8ff; }
+    .pin-specific { background: rgba(7, 45, 78, 0.94); border: 1.5px solid #38bdf8; color: #e0f2fe; }
+    .pin-3d.active-pin { box-shadow: 0 0 22px rgba(251, 191, 36, 0.95); border-color: #fde68a !important; z-index: 28; }
+
+    .hud-glass {
+      background: rgba(7, 7, 13, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(147, 51, 234, 0.44);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+    }
+    .ncert-tag {
+      display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 800;
+      background: rgba(245, 158, 11, 0.22); color: #fcd34d; border: 1px solid rgba(251, 191, 36, 0.65);
+      margin-left: 4px; vertical-align: middle;
+    }
+    .ncert-only-mode .non-ncert-item { display: none !important; }
+    .tele-list li { position: relative; padding-left: 1rem; margin-bottom: 0.48rem; line-height: 1.6; }
+    .tele-list li::before { content: "▸"; position: absolute; left: 0; color: #c084fc; font-weight: 800; }
+    input[type="range"] { accent-color: #a855f7; }
+    .scroll-clean::-webkit-scrollbar { width: 5px; height: 5px; }
+    .scroll-clean::-webkit-scrollbar-track { background: rgba(10,10,18,0.5); }
+    .scroll-clean::-webkit-scrollbar-thumb { background: #7e22ce; border-radius: 999px; }
+    .boustro-lit { background: #9333ea !important; border-color: #fde68a !important; color: #fff !important; transform: scale(1.1); }
+    .atlas-tab.active { background: #9333ea; color: #fff; border-color: #e9d5ff; }
+  </style>
+</head>
+<body>
+
+  <!-- FULL-VIEWPORT 3D HARAPPAN CITY -->
+  <div id="world-canvas-wrap"></div>
+
+  <!-- FLOATING COLOR-CODED 3D PINS -->
+  <div id="pins-layer"></div>
+
+  <!-- TOP-LEFT HUD: BRAND + LEGEND + 3 WORKSPACE LAUNCHERS -->
+  <div class="fixed top-3 left-3 z-20 flex flex-wrap items-center gap-1.5 max-w-[78vw]">
+    <div class="hud-glass rounded-xl px-2.5 py-1.5 flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-amber-500 flex items-center justify-center font-extrabold text-sm text-white shrink-0">સિં</div>
+      <div class="leading-tight">
+        <div class="text-xs sm:text-sm font-extrabold text-white">સિંધુ ખીણ 3D નગર + D3 નકશા</div>
+        <div class="flex items-center gap-2 text-[10px] mt-0.5">
+          <span class="text-purple-300 font-bold">🟣 સર્વવ્યાપી</span>
+          <span class="text-sky-300 font-bold">🔵 સ્થળ-વિશિષ્ટ</span>
+        </div>
+      </div>
+    </div>
+
+    <button id="btn-toggle-index" class="hud-glass px-2.5 py-2 rounded-xl text-[11px] font-bold text-purple-200 hover:border-purple-400">સૂચિ (<span id="visited-count">1</span>/14)</button>
+    <button id="btn-open-atlas" class="hud-glass px-3 py-2 rounded-xl text-[11px] font-bold text-cyan-300 border-cyan-500/60 hover:bg-cyan-950/50">🗺️ નકશા અને આકૃતિઓ (PDF Atlas)</button>
+    <button id="btn-open-hub" class="hud-glass px-3 py-2 rounded-xl text-[11px] font-bold text-amber-300 border-amber-500/60 hover:bg-amber-950/50">📚 સંપૂર્ણ નોંધ + #NCERT + ક્વિઝ</button>
+    <button id="btn-toggle-pins" class="hud-glass px-2.5 py-2 rounded-xl text-[11px] font-bold text-gray-200 hover:border-purple-400">પિન: ચાલુ</button>
+  </div>
+
+  <!-- TOP-RIGHT CAMERA & DETAIL PANEL CONTROLS -->
+  <div class="fixed top-3 right-3 z-20 flex items-center gap-1.5">
+    <button id="btn-cam-in" aria-label="ઝૂમ ઇન" class="hud-glass w-8 h-8 rounded-lg text-sm font-bold text-white hover:bg-purple-900/60">+</button>
+    <button id="btn-cam-out" aria-label="ઝૂમ આઉટ" class="hud-glass w-8 h-8 rounded-lg text-sm font-bold text-white hover:bg-purple-900/60">−</button>
+    <button id="btn-cam-overview" class="hud-glass px-2.5 h-8 rounded-lg text-[11px] font-bold text-cyan-300 hover:bg-cyan-950/60">આખું નગર</button>
+    <button id="btn-toggle-card" class="hud-glass px-2.5 h-8 rounded-lg text-[11px] font-bold text-purple-200 hover:bg-purple-900/60">વિગત ✕</button>
+  </div>
+
+  <!-- LEFT-SIDE 14-STEP MASTER INDEX CHECKLIST -->
+  <aside id="index-drawer" class="hidden fixed top-16 left-3 bottom-20 z-25 w-[86vw] sm:w-[300px] hud-glass rounded-2xl flex flex-col overflow-hidden">
+    <div class="px-3.5 py-2.5 border-b border-purple-900/50 bg-black/60 flex items-center justify-between">
+      <div>
+        <div class="text-xs font-extrabold text-white">સંપૂર્ણ 3D નકશા સૂચિ (૧૪ સ્થળો)</div>
+        <div class="text-[10px] text-gray-400">એક પણ મુદ્દો મિસ ન થાય — ક્લિક કરી સીધા જાઓ</div>
+      </div>
+      <button id="btn-close-index" class="text-xs text-gray-400 hover:text-white px-1.5">✕</button>
+    </div>
+    <div id="index-list-body" class="p-2.5 overflow-y-auto scroll-clean space-y-1.5 text-xs flex-1"></div>
+  </aside>
+
+  <!-- RIGHT-SIDE FLOATING SPATIAL STORY CARD -->
+  <aside id="story-card" class="fixed top-14 right-3 bottom-20 z-20 w-[92vw] sm:w-[410px] hud-glass rounded-2xl flex flex-col overflow-hidden transition-all duration-300">
+    <div class="px-4 py-3 border-b border-purple-900/50 bg-black/60 shrink-0 space-y-1.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span id="step-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-900/70 text-purple-200 border border-purple-500/40">પગલું ૧ / ૧૪</span>
+          <span id="step-scope-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full"></span>
+        </div>
+        <label class="inline-flex items-center gap-1 text-[10px] text-amber-300 font-bold cursor-pointer shrink-0">
+          <input id="card-ncert-filter" type="checkbox" class="accent-amber-400" />
+          <span>માત્ર #NCERT</span>
+        </label>
+      </div>
+      <h1 id="step-title" class="text-sm sm:text-base font-extrabold text-white leading-snug"></h1>
+    </div>
+
+    <div id="story-body" class="p-4 overflow-y-auto scroll-clean space-y-3 text-xs flex-1">
+      <div id="step-scope-reason" class="p-2.5 rounded-xl text-[11px] leading-relaxed"></div>
+      <div id="step-metrics" class="grid grid-cols-2 gap-2"></div>
+      <div id="step-live-controls" class="hidden p-3 rounded-xl bg-purple-950/45 border border-purple-500/55 space-y-2"></div>
+      <ul id="step-bullets" class="tele-list text-gray-100"></ul>
+      <div id="step-deep-note" class="p-3 rounded-xl bg-amber-950/30 border border-amber-600/45 text-[11px] text-amber-100 leading-relaxed"></div>
+      <div id="step-micro-quiz" class="p-3 rounded-xl bg-zinc-950/90 border border-cyan-800/50 space-y-2"></div>
+    </div>
+  </aside>
+
+  <!-- BOTTOM 14-STEP GUIDED JOURNEY BAR -->
+  <nav class="fixed bottom-3 left-3 right-3 z-20 hud-glass rounded-2xl px-2.5 py-2 flex items-center justify-between gap-2">
+    <button id="btn-prev-step" class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-purple-900/60 border border-purple-700/60 text-xs font-bold text-white shrink-0">◀ પાછળ</button>
+    <div id="step-dots-bar" class="flex items-center gap-1.5 overflow-x-auto scroll-clean py-0.5 px-1"></div>
+    <button id="btn-next-step" class="px-3 py-1.5 rounded-xl bg-purple-700 hover:bg-purple-600 border border-purple-400/60 text-xs font-bold text-white shrink-0">આગળ ▶</button>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- INTERACTIVE PDF-DIAGRAMS & D3 MAPS ATLAS MODAL (ALL 12 CLASS-NOTE MAPS!)  -->
+  <!-- ========================================================================= -->
+  <div id="atlas-modal" class="hidden fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
+    <div class="w-full max-w-6xl max-h-[94vh] hud-glass rounded-2xl flex flex-col overflow-hidden border-cyan-500/60">
+      <div class="px-4 py-3 border-b border-purple-900/60 bg-black/85 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-sm sm:text-base font-extrabold text-cyan-300">🗺️ ક્લાસ નોટ્સ (PDF) આધારિત ઇન્ટરેક્ટિવ D3 નકશા અને આકૃતિઓ</h2>
+          <p class="text-[11px] text-gray-400">તમારી બંને PDF ના તમામ ૧૨ હાથથી દોરેલા નકશા અને આકૃતિઓનું ઇન્ટરેક્ટિવ પુનઃનિર્માણ — કોઈપણ સ્થળ/તત્ત્વ પર ક્લિક કરો</p>
+        </div>
+        <button id="btn-close-atlas" class="px-3 py-1.5 rounded-xl bg-red-950/60 border border-red-600/60 text-xs font-bold text-red-200 hover:bg-red-900/60">3D નગરમાં પાછા જાઓ ✕</button>
+      </div>
+
+      <!-- 5 Interactive Map/Diagram Switchers -->
+      <div class="px-4 py-2 border-b border-purple-900/40 bg-zinc-950 flex flex-wrap gap-1.5 text-xs">
+        <button data-at="geo" class="atlas-tab active px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-purple-700/60 font-bold">૧. નદી-મેલુહા અને ૫ સીમાડા (PDF p.1-2)</button>
+        <button data-at="cultures" class="atlas-tab px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-purple-700/60 font-bold">૨. ૪ પ્રારંભિક + સમકાલીન સંસ્કૃતિઓ (PDF p.4, 13-14)</button>
+        <button data-at="trade" class="atlas-tab px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-purple-700/60 font-bold">૩. આયાત-નિકાસ વેપાર જાળું (PDF p.14)</button>
+        <button data-at="irrigation" class="atlas-tab px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-purple-700/60 font-bold">૪. ૪ સિંચાઈ, ગબરબંધ અને ધોળાવીરા (PDF p.12-13)</button>
+        <button data-at="diagrams" class="atlas-tab px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-purple-700/60 font-bold">૫. ઈંટ ૧:૨:૪, પૈડું, બૌસ્ટ્રોફેડોન, સેમેટરી-H (PDF p.7,11,10)</button>
+      </div>
+
+      <div id="atlas-body" class="p-4 overflow-y-auto scroll-clean flex-1 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- FULL-DEPTH KNOWLEDGE HUB MODAL (100% NOTES + #NCERT + 15-QUESTION QUIZ)   -->
+  <!-- ========================================================================= -->
+  <div id="hub-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
+    <div class="w-full max-w-6xl max-h-[93vh] hud-glass rounded-2xl flex flex-col overflow-hidden border-purple-500/60">
+      <div class="px-4 py-3 border-b border-purple-900/60 bg-black/85 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-sm sm:text-base font-extrabold text-amber-300">📚 સિંધુ ખીણ સંપૂર્ણ જ્ઞાન કોષ — ૧૦૦% ઊંડાણપૂર્વક (માર્કડાઉન નોટ્સ + #NCERT)</h2>
+          <p class="text-[11px] text-gray-400">કોઈપણ વિગત ટૂંકાવી નથી — રાજકીય, સામાજિક, આર્થિક, ધાર્મિક વ્યવસ્થા, ૮ પતન સિદ્ધાંતો, ૧૬ વારસા અને ૧૫ પ્રશ્નો ક્વિઝ</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-950/50 border border-amber-500/60 text-xs font-bold text-amber-300 cursor-pointer">
+            <input id="hub-ncert-filter" type="checkbox" class="accent-amber-400" />
+            <span>માત્ર #NCERT મુદ્દા</span>
+          </label>
+          <button id="btn-close-hub" class="px-3 py-1.5 rounded-xl bg-red-950/60 border border-red-600/60 text-xs font-bold text-red-200 hover:bg-red-900/60">બંધ કરો ✕</button>
+        </div>
+      </div>
+
+      <div class="px-4 py-2 border-b border-purple-900/40 bg-zinc-950 flex flex-wrap gap-1.5 text-xs">
+        <button data-ht="foundations" class="ht-btn px-2.5 py-1.5 rounded-lg bg-purple-700 text-white font-bold">૧. ખ્યાલ-કાલક્રમ-૪ તબક્કા</button>
+        <button data-ht="geography" class="ht-btn px-2.5 py-1.5 rounded-lg bg-zinc-900 text-gray-300 border border-purple-800/50 font-bold">૨. ભૂગોળ-૧૬ સ્થળો-સમકાલીન</button>
+        <button data-ht="economy" class="ht-btn px-2.5 py-1.5 rounded-lg bg-zinc-900 text-gray-300 border border-purple-800/50 font-bold">૩. આર્થિક વ્યવસ્થા (કૃષિ-વેપાર)</button>
+        <button data-ht="politySociety" class="ht-btn px-2.5 py-1.5 rounded-lg bg-zinc-900 text-gray-300 border border-purple-800/50 font-bold">૪. રાજકીય અને સામાજિક જીવન</button>
+        <button data-ht="religionScript" class="ht-btn px-2.5 py-1.5 rounded-lg bg-zinc-900 text-gray-300 border border-purple-800/50 font-bold">૫. ધર્મ, દફનવિધિ અને લિપિ</button>
+        <button data-ht="declineLegacy" class="ht-btn px-2.5 py-1.5 rounded-lg bg-zinc-900 text-gray-300 border border-purple-800/50 font-bold">૬. ૮ પતન, ૧૬ વારસા, સમાધાન</button>
+        <button data-ht="quiz" class="ht-btn px-2.5 py-1.5 rounded-lg bg-amber-950/50 text-amber-300 border border-amber-600/50 font-bold">૭. ૧૫ પ્રશ્નો ક્વિઝ</button>
+      </div>
+
+      <div id="hub-modal-body" class="p-4 overflow-y-auto scroll-clean text-xs space-y-4 flex-1"></div>
+    </div>
+  </div>
+
+  <script>
+    const N = '<span class="ncert-tag">#NCERT</span>';
+
+    /* =========================================================================
+       14-STEP SPATIALLY ACCURATE 3D MEMORY PALACE DATA
+       ========================================================================= */
+    const JOURNEY_STEPS = [
+      {
+        id: 'overview', scope: 'common', short: '૧. આખું નગર', pinLabel: 'આખું હડપ્પન નગર', pinPos: [0, 9.5, 0],
+        title: '૧. હડપ્પન નગરનો સંપૂર્ણ માનસિક નકશો (PDF p.6 + NCERT)',
+        scopeReason: '🟣 <b>પર્પલ પિન</b> = સર્વવ્યાપી હડપ્પન લક્ષણો. 🔵 <b>બ્લુ પિન</b> = સ્થળ-વિશિષ્ટ રચનાઓ (મોહેંજો-દડો, હડપ્પા, લોથલ, ધોળાવીરા, કાલીબંગા). ઉપર <b>"🗺️ નકશા અને આકૃતિઓ"</b> માં તમારી PDF ના તમામ ૧૨ નકશા ઇન્ટરેક્ટિવ રૂપે જુઓ!',
+        cam: { theta: 0.72, phi: 0.96, radius: 56, lookAt: [0, 1.5, 0] },
+        metrics: [['કુલ વિસ્તાર', '૧૦+ લાખ / ૧૨,૯૯,૬૦૦ ચો.કિ.મી.'], ['શોધાયેલ સ્થળો', '૧,૨૦૦ – ૧,૫૦૦ સ્થળો']],
+        bullets: [
+          { ncert: true, txt: `<b>ભૌગોલિક સ્કેલ:</b> ત્રિકોણાકાર વિસ્તાર ~૧૨,૯૯,૬૦૦ ચો.કિ.મી. — આધુનિક પાકિસ્તાન અને પ્રાચીન મિસર + મેસોપોટેમિયાના સંયુક્ત વિસ્તારથી પણ મોટું ${N}.` },
+          { ncert: true, txt: `<b>દ્વિ-સ્તરીય નગર:</b> પશ્ચિમે ઊંચા કાચી ઈંટના ઓટલા પર <b>સિટાડેલ</b> અને પૂર્વે ૯૦° ગ્રીડમાં <b>નીચલું નગર</b> ${N}.` },
+          { ncert: false, txt: '<b>PDF p.6 નકશા મુજબ:</b> ફરતી કિલ્લેબંધી (પૂર-જંગલી પ્રાણી રક્ષણ), સિટાડેલ, મુખ્ય-પેટા રસ્તા, સમ્પ/મેનહોલ, લાકડાની જાળી → નદી/શોષખાડો અને અંતર્મુખી અંગણાવાળું મકાન.' },
+          { ncert: false, txt: '<b>દમનકારી ભવ્યતાનો અભાવ:</b> રાજમહેલ, મકબરા કે મંદિર નહીં; જાહેર ઉપયોગીતા મુખ્ય → "સામ્યવાદી આદર્શ લોક".' }
+        ],
+        deep: 'ઉપર ડાબે "સૂચિ (૧/૧૪)" ખોલી દરેક સ્થળ ટ્રૅક કરો અને "🗺️ નકશા અને આકૃતિઓ" માં વેપાર, ૪ પ્રારંભિક સંસ્કૃતિઓ, સિંચાઈ-ગબરબંધ અને ધોળાવીરાનો અલગ ઇન્ટરેક્ટિવ નકશો જુઓ.',
+        quiz: { q: 'નકશામાં બ્લુ રંગના પિન શું દર્શાવે છે?', opts: ['દરેક શહેરમાં સામાન્ય રચના', 'માત્ર ચોક્કસ સ્થળે (લોથલ/મોહેંજો-દડો/ધોળાવીરા) મળેલી વિશિષ્ટ રચના'], ans: 1 }
+      },
+      {
+        id: 'citadelWalls', scope: 'common', short: '૨. સિટાડેલ-બુરજો', pinLabel: 'સિટાડેલ, કિલ્લેબંધી અને બુરજો', pinPos: [-24.5, 5.5, -1],
+        title: '૨. સિટાડેલ (ઉપલું નગર), બિન-લશ્કરી કિલ્લેબંધી અને ચાર ખૂણાના બુરજો',
+        scopeReason: '🟣 <b>પર્પલ (સર્વવ્યાપી):</b> હડપ્પા, મોહેંજો-દડો, કાલીબંગા, સુત્કાગેન-દોર, સુરકોટડા સહિત લગભગ બધા મોટા નગરોમાં સિટાડેલ અને કિલ્લેબંધી. (અપવાદ: ચન્હુદડોમાં સિટાડેલ નહીં; ધોળાવીરામાં ૩ સ્તર).',
+        cam: { theta: -0.78, phi: 0.90, radius: 24, lookAt: [-17.5, 2.5, -1] },
+        metrics: [['સિટાડેલ પાયો', 'ઊંચો કાચી ઈંટનો ઓટલો'], ['કિલ્લેબંધી હેતુ', 'પૂર અને જંગલી પ્રાણી રક્ષણ']],
+        bullets: [
+          { ncert: true, txt: `<b>ઊંચો ઓટલો:</b> હડપ્પા, મોહેંજો-દડો અને કાલીબંગામાં ઊંચા કાચી ઈંટના ઓટલા પર નિર્માણ ${N}.` },
+          { ncert: false, txt: '<b>ચાર ખૂણાના બુરજો અને પશ્ચિમી પ્રવેશદ્વાર:</b> ચારેય ખૂણે બુરજો (Bastions) દિવાલને પૂરના દબાણ સામે મજબૂતી, દેખરેખ અને જંગલી પ્રાણીઓથી સુરક્ષા આપતા (યુદ્ધ કિલ્લા નહીં).' },
+          { ncert: true, txt: `<b>રાજકીય મહત્ત્વ:</b> Old NCERT મુજબ વિશાળ જાહેર ઈંટ બાંધકામો શાસક વર્ગની <b>શ્રમ એકત્રીકરણ અને કર-સંગ્રહ ક્ષમતા</b> દર્શાવે ${N}.` },
+          { ncert: false, txt: '<b>રાજમહેલનો અભાવ:</b> કોઈ રાજચિહ્ન કે સૈન્ય છાવણી નહીં → જાહેર-વહીવટી સંકુલ અને પૂર આશ્રય.' }
+        ],
+        deep: 'NCERT Fig. 7.2 (હડપ્પા) મુજબ સિટાડેલની પશ્ચિમ દિવાલમાં મુખ્ય <b>પશ્ચિમી પ્રવેશદ્વાર (Western Gateways)</b> હતા.',
+        quiz: { q: 'સિટાડેલની ફરતી કિલ્લેબંધીનો મુખ્ય હેતુ શું હતો?', opts: ['મોટા યુદ્ધ લડવા', 'પૂર અને જંગલી પ્રાણીઓથી રક્ષણ'], ans: 1 }
+      },
+      {
+        id: 'greatBath', scope: 'specific', short: '૩. મહાસ્નાનાગાર', pinLabel: 'મહાસ્નાનાગાર (માત્ર મોહેંજો-દડો)', pinPos: [-16, 5.8, -7.8],
+        title: '૩. મહાસ્નાનાગાર — બિટ્યુમેન જળરોધક સ્તર અને સ્તંભયુક્ત પરસાળ',
+        scopeReason: '🔵 <b>બ્લુ (સ્થળ-વિશિષ્ટ — માત્ર મોહેંજો-દડો):</b> આવું વિશાળ જાહેર ધાર્મિક સ્નાનાગાર માત્ર મોહેંજો-દડોના સિટાડેલ પર જ મળ્યું છે.',
+        cam: { theta: 0.42, phi: 0.72, radius: 13.0, lookAt: [-16, 3.0, -7.8] },
+        metrics: [['માપ (NCERT)', '11.88 × 7.01 × 2.43 મી.'], ['જળરોધક પડ', 'જીપ્સમ + બિટ્યુમેન (ડામર)']],
+        liveControl: 'greatBathCutaway',
+        bullets: [
+          { ncert: true, txt: `<b>ચોક્કસ માપ:</b> ૧૧.૮૮ × ૭.૦૧ × ૨.૪૩ મી. (૩૯ × ૨૩ × ૮ ફૂટ); પકવેલી ઈંટનું તળિયું ${N}.` },
+          { ncert: false, txt: '<b>જળરોધક ઇજનેરી:</b> પાણી લીક ન થાય તે માટે બે પાકી ઈંટની દિવાલો વચ્ચે <b>જીપ્સમ મોર્ટાર</b> અને કાળા <b>બિટ્યુમેન (ડામર)</b> નું જળરોધક સ્તર.' },
+          { ncert: true, txt: `<b>પગથિયાં, પરસાળ અને કૂવો:</b> ઉત્તર-દક્ષિણ બંને છેડે પગથિયાં, સ્તંભયુક્ત પરસાળ, બદલવાના ઓરડા, બાજુના કૂવાથી પાણી પુરવઠો અને ખૂણાની કોર્બેલ્ડ નિકાસ ગટર ${N}.` },
+          { ncert: true, txt: `<b>હેતુ:</b> સામૂહિક ધાર્મિક સ્નાન (Ritual bathing) ${N}.` }
+        ],
+        deep: 'નીચેનું બટન દબાવી આગળની દિવાલ પારદર્શક કરી ઈંટ નીચેનું કાળું બિટ્યુમેન પડ અને નિકાસ પાઇપ જુઓ!',
+        quiz: { q: 'મહાસ્નાનાગારમાં પાણી લીક થતું અટકાવવા શું વપરાયું?', opts: ['જીપ્સમ મોર્ટાર અને બિટ્યુમેન (ડામર)', 'માત્ર માટી'], ans: 0 }
+      },
+      {
+        id: 'granary', scope: 'specific', short: '૪. મહાઅન્નાગાર', pinLabel: 'મહાઅન્નાગાર (૨×૬ કોઠાર — હડપ્પા)', pinPos: [-16, 6.0, 2.5],
+        title: '૪. મહાઅન્નાગાર (Great Granary) — રાજ્ય અન્ન સંગ્રહ અને કર વ્યવસ્થા',
+        scopeReason: '🔵 <b>બ્લુ (સ્થળ-વિશિષ્ટ — હડપ્પા/મોહેંજો-દડો/કાલીબંગા):</b> હડપ્પામાં નદી કિનારે ૨×૬ = ૧૨ કોઠાર, મોહેંજોમાં એક વિશાળ અન્નાગાર, કાલીબંગામાં દક્ષિણે ઈંટ ઓટલા.',
+        cam: { theta: -0.55, phi: 0.78, radius: 15.5, lookAt: [-16, 3.5, 2.5] },
+        metrics: [['મોહેંજો-દડો (NCERT)', '45.71 × 15.23 મી.'], ['હડપ્પા (NCERT)', '12 કોઠાર (~838 ચો.મી.)']],
+        bullets: [
+          { ncert: true, txt: `<b>હડપ્પા (Mound F):</b> ૨ હરોળમાં ૬-૬ કોઠાર (દરેક ૧૫.૨૩ × ૬.૦૯ મી.; કુલ ~૮૩૮ ચો.મી.); નદી કિનારા નજીક સરળ જળપરિવહન માટે ${N}.` },
+          { ncert: false, txt: '<b>હવા-ઉજાસ (Ventilation):</b> ભેજ રોકવા ઊંચી સ્લીપર દિવાલો અને હવાની નળીઓ.' },
+          { ncert: true, txt: `<b>રાજકોષીય ભૂમિકા:</b> ખેડૂતો પાસેથી કર રૂપે ઉઘરાવેલું અનાજ — વેતન ચુકવણી (મેસોપોટેમિયાના જવ-વેતન જેવું) અને આપત્તિ માટે સંગ્રહ ${N}.` },
+          { ncert: true, txt: `<b>કાલીબંગા:</b> દક્ષિણ ભાગમાં અન્નાગારના ઈંટ ઓટલા ${N}.` }
+        ],
+        deep: 'અન્નાગાર, ગોળાકાર ઓટલા અને ખેતરો ત્રણેય અલગ-અલગ સાચા સ્થળે દર્શાવેલા છે.',
+        quiz: { q: 'હડપ્પાના ૧૨ અન્નાગાર કોઠારોનો કુલ વિસ્તાર (~838 ચો.મી.) કોના જેટલો હતો?', opts: ['મોહેંજો-દડોના મહાઅન્નાગાર જેટલો', 'લોથલની ગોદી જેટલો'], ans: 0 }
+      },
+      {
+        id: 'threshingBarracks', scope: 'specific', short: '૫. ઓટલા-બેરેક', pinLabel: 'ગોળાકાર ઓટલા અને શ્રમિક બેરેક (હડપ્પા)', pinPos: [-16, 4.0, 11.2],
+        title: '૫. ગોળાકાર અનાજ ઝૂડવાના ઓટલા અને બે-ઓરડાના શ્રમિક બેરેક',
+        scopeReason: '🔵 <b>બ્લુ (સ્થળ-વિશિષ્ટ — હડપ્પા):</b> હડપ્પાના અન્નાગારની બરાબર દક્ષિણે જ આ ૧૮ ગોળાકાર ઓટલા અને શ્રમિક બેરેક મળ્યા.',
+        cam: { theta: -0.25, phi: 0.80, radius: 14.5, lookAt: [-16, 1.8, 11.5] },
+        metrics: [['ગોળાકાર ઓટલા', '૧૮ ઈંટ ઓટલા (વચ્ચે ખાંડણી)'], ['શ્રમિક આવાસ', 'બે-ઓરડાના બેરેક']],
+        bullets: [
+          { ncert: true, txt: `<b>ગોળાકાર ઈંટ ઓટલા:</b> વચ્ચે લાકડાની ખાંડણી મૂકવા ખાડો; તિરાડોમાંથી <b>ઘઉં અને જવ</b>ના દાણા મળ્યા ${N}.` },
+          { ncert: true, txt: `<b>શ્રમિક બેરેક:</b> ઓટલા નીચે એકસરખા <b>બે ઓરડાના મકાનો</b> — અનાજ ખાંડતા મજૂરોનાં આવાસ ${N}.` },
+          { ncert: false, txt: '<b>વર્ગભેદ પુરાવો:</b> નાના બેરેક વિ. નીચલા નગરના બહુમાળી મકાનો સ્પષ્ટ શ્રમ વિભાજન દર્શાવે.' }
+        ],
+        deep: 'NCERT Fig. 7.2 મુજબ ક્રમ: નદી → અન્નાગાર → ગોળાકાર અનાજ ઓટલા → શ્રમિક બેરેક.',
+        quiz: { q: 'હડપ્પાના ગોળાકાર ઓટલાની તિરાડોમાંથી શું મળ્યું?', opts: ['ઘઉં અને જવ', 'રાગી અને મકાઈ'], ans: 0 }
+      },
+      {
+        id: 'streetsGrid', scope: 'common', short: '૬. ૯૦° રસ્તા-ઈંટો', pinLabel: '૯૦° ચેસ-બોર્ડ રસ્તા અને બળદગાડું', pinPos: [7, 4.0, -0.5],
+        title: '૬. નીચલું નગર — ૯૦° ચેસ-બોર્ડ રસ્તા, ૧:૨:૪ ઈંટો અને પરિવહન',
+        scopeReason: '🟣 <b>પર્પલ (સર્વવ્યાપી):</b> દરેક પરિપક્વ નગરમાં ૯૦° રસ્તા, ૧:૨:૪ પકવેલી ઈંટો અને નક્કર પૈડાંવાળાં બળદગાડાં.',
+        cam: { theta: 0.48, phi: 0.78, radius: 22, lookAt: [7, 1.4, -0.5] },
+        metrics: [['ઈંટ ગુણોત્તર', '1 : 2 : 4 (English Bond)'], ['બળદગાડું પૈડું', 'નક્કર ✓ (આરાવાળું ✗)']],
+        bullets: [
+          { ncert: true, txt: `<b>ચેસ-બોર્ડ ગ્રીડ:</b> મુખ્ય માર્ગ અને પેટા શેરીઓ <b>૯૦° કાટખૂણે</b> કાપી લંબચોરસ બ્લોક બનાવે (મેસોપોટેમિયાથી વિપરીત) ${N}.` },
+          { ncert: true, txt: `<b>પકવેલી ઈંટો:</b> ૧:૨:૪ (28×14×7 સે.મી.); પથ્થરના મકાનોનો અભાવ (ધોળાવીરા અપવાદ). મિસરમાં કાચી ઈંટો મુખ્ય ${N}.` },
+          { ncert: true, txt: `<b>ભૂમિ પરિવહન:</b> બળદ/ભેંસથી ખેંચાતું ગાડું (<i>એક્કા</i> જેવું); માત્ર <b>નક્કર પૈડાં</b> — આરાવાળાં પૈડાં નહીં (PDF p.11 આકૃતિ) ${N}.` },
+          { ncert: false, txt: '<b>ઝૂંપડપટ્ટી અભાવ:</b> નાનામાં નાનું ઘર પણ ગ્રીડ-ગટર સાથે જોડાયેલું.' }
+        ],
+        deep: 'મકાનોના દરવાજા મુખ્ય માર્ગ પર નહીં પણ પેટા શેરીઓ પર ખૂલતા.',
+        quiz: { q: 'હડપ્પન બળદગાડાંનાં પૈડાં કેવાં હતાં?', opts: ['નક્કર (Solid)', 'આરાવાળાં (Spoked)'], ans: 0 }
+      },
+      {
+        id: 'heroHouse', scope: 'common', short: '૭. અંતર્મુખી મકાન', pinLabel: 'અંતર્મુખી મકાન (અંગણું, કૂવો, સ્નાનાગાર)', pinPos: [2.5, 5.2, 5.8],
+        title: '૭. હડપ્પન મકાનની આંતરિક રચના (PDF p.6 Inset Diagram)',
+        scopeReason: '🟣 <b>પર્પલ (સર્વવ્યાપી):</b> મધ્ય અંગણાવાળાં ૧–૩ માળના સપાટ છત મકાનો, ખાનગી કૂવો, સ્નાનાગાર, રસોડું, દ્વિ-શૌચાલય.',
+        cam: { theta: 0.58, phi: 0.68, radius: 11.8, lookAt: [2.5, 1.6, 5.8] },
+        metrics: [['બહારના બારણાં', 'શૂન્ય (મુખ્ય રસ્તા પર બંધ)'], ['માળ', '૧ થી ૩ માળ + સીડી']],
+        liveControl: 'houseCutaway',
+        bullets: [
+          { ncert: false, txt: '<b>અંતર્મુખી સ્થાપત્ય:</b> મુખ્ય રસ્તા પર બંધ દિવાલ; બારણાં-બારીઓ <b>મધ્ય અંગણા</b> તરફ ખૂલે (ગોપનીયતા, ધૂળ રક્ષણ, ઠંડક).' },
+          { ncert: true, txt: `<b>ખાનગી કૂવો અને સ્નાનાગાર:</b> લગભગ દરેક ઘરમાં અંગણું, ઢાળવાળું સ્નાનાગાર, સીડી અને ખાનગી કૂવો (મોહેંજોમાં ૭૦૦+; કાલીબંગામાં ખાસ) ${N}.` },
+          { ncert: false, txt: '<b>દ્વિ-શૌચાલય:</b> (૧) ગટર સાથે જોડાયેલ ફ્લશ શૌચાલય, (૨) ટેરાકોટા રિંગ-વેલ ખાડાવાળું શૌચાલય.' },
+          { ncert: true, txt: `<b>રસોડું અને સાધનો:</b> ચૂલો, લાલ પર કાળા ચિત્રોવાળા માટલા; તાંબાના ત્રાક, સોય, કાંસકો, માછલી-હૂક, છરી ${N}.` }
+        ],
+        deep: '3D છત કટઅવે સ્લાઇડર હલાવી અંદરનું અંગણું, કૂવો, સ્નાનાગાર, શૌચાલય, રસોડું અને સીડી જુઓ.',
+        quiz: { q: 'ખાડાવાળા શૌચાલયમાં અંદર શેનું અસ્તર વપરાતું?', opts: ['ટેરાકોટા રિંગ વેલ', 'લોખંડની પાઇપ'], ans: 0 }
+      },
+      {
+        id: 'drainage', scope: 'common', short: '૮. ૩-સ્તરીય ગટર', pinLabel: '૩-સ્તરીય ભૂગર્ભ ગટર (X-Ray)', pinPos: [10.5, 2.5, 1.2],
+        title: '૮. ૩-સ્તરીય ભૂગર્ભ ગટર (PDF p.6 — નાની → મધ્યમ → મોટી → જાળી → શોષખાડો)',
+        scopeReason: '🟣 <b>પર્પલ (સર્વવ્યાપી):</b> મોહેંજો-દડો, હડપ્પા, લોથલ, બનાવાલી સહિત દરેક પરિપક્વ નગરની અજોડ સ્વચ્છતા વ્યવસ્થા.',
+        cam: { theta: 0.22, phi: 0.94, radius: 17.5, lookAt: [10.5, 0.2, 1.5] },
+        metrics: [['તુલના (NCERT)', 'માત્ર ક્રીટ (નોસોસ) સમકક્ષ'], ['ગાળણ', 'લાકડાની છૂટી જાળી']],
+        liveControl: 'drainageXray',
+        bullets: [
+          { ncert: false, txt: '<b>સ્તર ૧ (ઘરની નાની નાળી):</b> સ્નાનાગાર, રસોડા અને ફ્લશ શૌચાલયમાંથી નાની ઈંટની નાળી દિવાલ વીંધી બહાર નીકળે.' },
+          { ncert: true, txt: `<b>સ્તર ૨ (પેટા શેરી ગટર):</b> ઘરની નાળી ૯૦° એ પેટા શેરીની ગટરમાં ભળી ચાર રસ્તાના <b>સમ્પ/મેનહોલ</b>માં પડે ${N}.` },
+          { ncert: true, txt: `<b>સ્તર ૩ (મુખ્ય માર્ગની મોટી ગટર):</b> ગુરુત્વાકર્ષણ ઢાળવાળી મોટી ગટર; સફાઈ માટે <b>ઈંટ/પથ્થરનાં ઢાંકણાં</b> અને નિયમિત <b>મેનહોલ</b> ${N}.` },
+          { ncert: false, txt: '<b>લાકડાની જાળી અને નિકાસ:</b> પૂર્વ દિવાલ બહાર <b>લાકડાની છૂટી જાળી</b> ઘન કચરો રોકે; પાણી <b>શોષખાડા</b> કે નદી/સમુદ્રમાં જાય.' }
+        ],
+        deep: `Old NCERT: પ્રાચીન વિશ્વમાં આવી ગટર વ્યવસ્થા માત્ર <b>ક્રીટ (Knossos)</b> ખાતે જ હતી ${N}.`,
+        quiz: { q: 'નગર બહાર ગટર નીકળતાં પહેલાં ઘન કચરો રોકવા શું લગાવાતું?', opts: ['લાકડાની છૂટી જાળી', 'તાંબાનું ફિલ્ટર'], ans: 0 }
+      },
+      {
+        id: 'lothalDock', scope: 'specific', short: '૯. લોથલ ગોદી-વેપાર', pinLabel: 'લોથલ ભરતી ગોદી (માત્ર લોથલ)', pinPos: [6, 4.8, -15.2],
+        title: '૯. લોથલ ભરતી ગોદી, મેલુહા-મેસોપોટેમિયા વેપાર, મુદ્રા અને તોલમાપ',
+        scopeReason: '🔵 <b>બ્લુ (સ્થળ-વિશિષ્ટ — માત્ર લોથલ):</b> વિશ્વની પ્રાચીનતમ કૃત્રિમ ભરતી ગોદી માત્ર લોથલમાં મળી. (સંપૂર્ણ આયાત-નિકાસ નકશો "🗺️ નકશા અને આકૃતિઓ" ટેબ ૩ માં જુઓ!).',
+        cam: { theta: 2.55, phi: 0.84, radius: 18.5, lookAt: [6, 1.2, -15.2] },
+        metrics: [['ગોદી માપ', '214–218 × 36–37 મી.'], ['તોલમાપ', '૧૬-આધારિત + દશાંશ']],
+        liveControl: 'dockTide',
+        bullets: [
+          { ncert: true, txt: `<b>લોથલ બંદર:</b> ભોગાવો-સાબરમતી મુખ; પૂર રક્ષણ ઈંટ દિવાલ; ભારત-મેસોપોટેમિયા વેપાર કેન્દ્ર ${N}.` },
+          { ncert: false, txt: '<b>ભરતી અને સ્લુઇસ ગેટ:</b> ભરતીમાં સઢવાળાં વહાણ પ્રવેશે; ઓટમાં <b>સ્લુઇસ ગેટ</b> બંધ કરી પાણી લોક થાય; વધારાનું પાણી સ્પિલ ચેનલથી બહાર.' },
+          { ncert: true, txt: `<b>મેલુહા સંપર્ક (~2350 BCE):</b> વિનિમય પ્રથા (કોઈ સિક્કા નહીં); મધ્યસ્થ મથકો <b>દિલમુન (બહેરીન)</b>, <b>મકાન (ઓમાન)</b> અને <b>ફૈલાકા હોર્ડ</b> ${N}.` },
+          { ncert: true, txt: `<b>તોલમાપ અને મુદ્રા:</b> 16, 64, 160, 320, 640 (૧૬ આના = ૧ રૂપિયો; કૌટિલ્ય) + દશાંશ; કાંસ્ય સળિયો, લોથલ હાથીદાંત સ્કેલ (1.6 mm); ~૨,૦૦૦ મુદ્રાઓ ${N}.` }
+        ],
+        deep: '3D ભરતી સ્લાઇડર ઓટ (20%) પર લાવી સ્લુઇસ ગેટ બંધ કરી વહાણ તરતું જુઓ!',
+        quiz: { q: 'મેસોપોટેમિયા-મેલુહા માર્ગનાં બે મધ્યસ્થ મથકો કયાં?', opts: ['દિલમુન (બહેરીન) અને મકાન (ઓમાન)', 'કોલાર અને બુર્ઝાહોમ'], ans: 0 }
+      },
+      {
+        id: 'artisanQuarter', scope: 'common', short: '૧૦. કારીગર મહોલ્લો', pinLabel: 'કારીગર મહોલ્લો (મણકા, કાંસું, માટીકામ)', pinPos: [12, 4.5, 6.2],
+        title: '૧૦. કારીગર મહોલ્લો — મણકા, લોસ્ટ-વેક્સ કાંસું, કાપડ અને માટીકામ',
+        scopeReason: '🟣 <b>પર્પલ (સર્વવ્યાપી — ખાસ કેન્દ્રો ચન્હુદડો/લોથલ/ધોળાવીરા):</b> મણકા સૌથી મોટો હસ્તઉદ્યોગ; દરેક નગરમાં કારીગર વસ્તી મુખ્ય.',
+        cam: { theta: 1.05, phi: 0.76, radius: 13.5, lookAt: [12, 1.5, 6.2] },
+        metrics: [['સૌથી મોટો ઉદ્યોગ', 'મણકા (અર્નેસ્ટાઇટ ડ્રિલ)'], ['૫ ધાતુઓ', 'તાંબું, ટીન, સીસું, સોનું, ચાંદી']],
+        bullets: [
+          { ncert: false, txt: '<b>મણકા ઉદ્યોગ:</b> ભઠ્ઠીમાં પીળા પથ્થરને તપાવી લાલ કાર્નેલિયન; અતિ-કઠણ <b>અર્નેસ્ટાઇટ ડ્રિલ</b> (ધોળાવીરામાં ૧,૬૦૦+).' },
+          { ncert: true, txt: `<b>તાંબું-કાંસું અને લોસ્ટ-વેક્સ:</b> ટીનની અછતથી કાંસ્ય ઓજાર ઓછા; છતાં <b>કાંસ્ય નર્તકી (ત્રિભંગ)</b>, કુહાડી-કરવત-છરી + લાંબી <b>ચર્ટ બ્લેડ</b> ${N}.` },
+          { ncert: true, txt: `<b>હડપ્પન વેર માટીકામ:</b> ચાક પર ચમકદાર <b>લાલ પર કાળું</b> (BRW થી અલગ) અને <b>રાખોડી પર કાળું</b>; મોર-માછલી-પાન ${N}.` },
+          { ncert: true, txt: `<b>કાપડ અને વર્ગભેદ:</b> મોહેંજોથી વણેલું સુતરાઉ કાપડ, ત્રાક; ઉચ્ચ વર્ગ (મુદ્રા-ધાતુ) વિ. સામાન્ય વર્ગ (ટેરાકોટા) ${N}.` }
+        ],
+        deep: 'ચન્હુદડો-લોથલમાં બનેલા કાર્નેલિયન મણકા મેસોપોટેમિયાના ઉર કબ્રસ્તાનમાંથી પ્રાપ્ત થયા.',
+        quiz: { q: 'કાંસ્ય ઓજારો તાંબા કરતાં ઓછા કેમ મળ્યા?', opts: ['ટીનની અછતને કારણે', 'લોખંડને કારણે'], ans: 0 }
+      },
+      {
+        id: 'fieldsGabarband', scope: 'specific', short: '૧૧. ખેતરો-ગબરબંધ', pinLabel: 'ખેડેલા ચાસ (કાલીબંગા) અને ગબરબંધ', pinPos: [-19, 3.5, 22],
+        title: '૧૧. પૂર-મેદાન કૃષિ, કાલીબંગા ચાસ, ૪ સિંચાઈ અને ગબરબંધ (PDF p.12)',
+        scopeReason: '🔵 <b>બ્લુ (સ્થળ-વિશિષ્ટ પુરાવા):</b> ખેડેલા ચાસ કાલીબંગા, ચોખા લોથલ, જવ બનાવાલી, ગબરબંધ બલુચિસ્તાન. (સંપૂર્ણ ૪ સિંચાઈ નકશો "🗺️ નકશા" ટેબ ૪ માં જુઓ!).',
+        cam: { theta: -0.95, phi: 0.86, radius: 18.5, lookAt: [-19, 1.0, 22] },
+        metrics: [['ઋતુ (NCERT)', 'રવી (નવેમ્બર → એપ્રિલ)'], ['રોકડિયો પાક', 'કપાસ (ગ્રીક: સિન્ડોન)']],
+        bullets: [
+          { ncert: true, txt: `<b>પ્રાચીન ફળદ્રુપતા:</b> હાલ સિંધમાં ~૧૫ સે.મી. વરસાદ; પ્રાચીન ગાઢ વનસ્પતિ અને <b>નાઈલ કરતાં વધુ કાંપ લાવતા સિંધુ પૂર</b> ("સિંધુએ સિંધ બનાવ્યું") ${N}.` },
+          { ncert: true, txt: `<b>પાકો-ઓજારો:</b> ઘઉં, જવ (બનાવાલી), વટાણા, ચણા, મસૂર, રાઈ, તલ, બાજરી, <b>ચોખા (લોથલ 1800 BCE)</b>, કપાસ (સિન્ડોન); લાકડાનું હળ (કાલીબંગા), તાંબા-પથ્થર દાતરડા ${N}.` },
+          { ncert: true, txt: `<b>૪ સિંચાઈ:</b> પૂર, નહેર (શોર્તુગાઈ; Old NCERT મુજબ મુખ્ય ક્ષેત્રમાં અભાવ ${N}), તળાવ (ગુજરાત), <b>ગબરબંધ</b> (બલુચિસ્તાન પાળા — પાણી-કાંપ રોકી વનીકરણ ${N}).` },
+          { ncert: true, txt: `<b>પશુપાલન:</b> ખૂંધવાળા વૃષભ પ્રિય; કૂતરા-બિલાડી, ગધેડા-ઊંટ; ગુજરાતમાં હાથી પાળ્યા; <b>ઘોડા-કેન્દ્રિત નહીં</b> (સુરકોટડા ~2000 BCE શંકાસ્પદ) ${N}.` }
+        ],
+        deep: 'ખેતરોની પશ્ચિમે બલુચિસ્તાન શૈલીનો ગબરબંધ ચેક-ડેમ વરસાદી પાણી-કાંપ રોકતો દર્શાવ્યો છે.',
+        quiz: { q: 'કયા સ્થળે પ્રારંભિક હડપ્પન ખેડેલા ખેતરના ચાસ મળ્યા?', opts: ['કાલીબંગા', 'લોથલ'], ans: 0 }
+      },
+      {
+        id: 'dholaviraRes', scope: 'specific', short: '૧૨. ધોળાવીરા જળાશય', pinLabel: 'ધોળાવીરા જળાશય (પ્રવેશ-નિકાસ સહિત)', pinPos: [11, 3.8, 21],
+        title: '૧૨. ધોળાવીરા જળ સંચય — મનહર-મનસર, ચેક-ડેમ અને સ્પિલવે (PDF p.13 PYQ)',
+        scopeReason: '🔵 <b>બ્લુ (સ્થળ-વિશિષ્ટ — માત્ર ધોળાવીરા, UNESCO ૨૦૨૧):</b> ખદીર બેટ પર ૧૬+ પથ્થર-કોતરેલા જળાશયો અને ત્રિ-સ્તરીય નગર.',
+        cam: { theta: 0.65, phi: 0.80, radius: 17.5, lookAt: [11, 1.0, 21] },
+        metrics: [['જળાશયો', '૧૬+ (૭૯×૭ મી., ૧૩ મી. ઢાળ)'], ['વાવ (૨૦૧૪)', '73.4 × 29.3 × 10 મી.']],
+        liveControl: 'monsoon',
+        bullets: [
+          { ncert: false, txt: '<b>પાણી પ્રવેશ:</b> ઉત્તરે મનસર અને દક્ષિણે મનહર મોસમી નદીઓ (મુખ્ય નદી નહીં, નાના પ્રવાહો — PDF p.13) પર ચેક-ડેમથી પથ્થર નહેર દ્વારા પ્રવેશ.' },
+          { ncert: false, txt: '<b>૧૩ મી. કુદરતી ઢાળ:</b> એક જળાશયમાંથી બીજામાં (Cascading) પાણી વહેતાં કાંપ બેસી જતો અને શુદ્ધ પાણી આગળ વધતું.' },
+          { ncert: false, txt: '<b>પાણી નિકાસ સ્પિલવે:</b> જમણી દિવાલમાં વધારાના પાણીના સુરક્ષિત નિકાસ માટે સ્પિલવે ચેનલ.' },
+          { ncert: true, txt: `<b>ધોળાવીરા અને રાખીગઢી:</b> બંનેમાં ત્રણેય તબક્કા; રાખીગઢી (૫૫૦ ha) ધોળાવીરાથી ઘણું મોટું ${N}.` }
+        ],
+        deep: 'વરસાદ સ્લાઇડર ૮૫%+ પર લઈ જઈ જમણા સ્પિલવેમાંથી વધારાનું પાણી બહાર નીકળતું જુઓ! PDF p.13 નો આખો ત્રિ-સ્તરીય પ્લાન "🗺️ નકશા" ટેબ ૪ માં છે.',
+        quiz: { q: 'ધોળાવીરાના જળાશયો કઈ બે મોસમી નદીઓથી ભરાતાં?', opts: ['મનહર અને મનસર', 'ઘગ્ગર અને હકરા'], ans: 0 }
+      },
+      {
+        id: 'religionCemetery', scope: 'specific', short: '૧૩. ધર્મ-લિપિ-સેમેટરી', pinLabel: 'અગ્નિકુંડ અને સેમેટરી R-37 / H', pinPos: [-7, 4.2, 16.5],
+        title: '૧૩. ધર્મ (મંદિર અભાવ), અણઉકેલી લિપિ અને સેમેટરી R-37 / H (PDF2 p.10)',
+        scopeReason: '🔵 <b>બ્લુ (સ્થળ-વિશિષ્ટ પુરાવા):</b> અગ્નિકુંડ કાલીબંગા-લોથલ; લાકડાની શબપેટી અને H-આકારની સેમેટરી-H હડપ્પા; ઈંટ કબર અને યુગલ દફન લોથલ.',
+        cam: { theta: -0.35, phi: 0.82, radius: 17.5, lookAt: [-7, 1.2, 16.5] },
+        metrics: [['મંદિર (NCERT)', 'સંપૂર્ણ અભાવ'], ['લિપિ (NCERT)', '1853 શોધ • ~4,000 નમૂના']],
+        liveControl: 'boustrophedon',
+        bullets: [
+          { ncert: true, txt: `<b>ધર્મ (૭ તથ્યો):</b> મંદિર અભાવ; કાલીબંગા-લોથલ અગ્નિકુંડ; માતૃદેવી (ગર્ભમાંથી છોડ — Isis); પશુપતિ (૩ શિંગડાવાળા મુખ, મૂળબંધ આસન, હાથી-વાઘ-ગેંડો-ભેંસ + ૨ હરણ); લિંગ-યોનિ; પીપળો; એકશૃંગી-વૃષભ; તાવીજ ${N}.` },
+          { ncert: false, txt: '<b>૩ વિદ્વાન મતભેદો:</b> વ્હીલર (શિવ→રુદ્ર), બી.બી. લાલ (વૈદિક), ઇરાવતમ મહાદેવન (દ્રવિડ-બ્રાહુઈ).' },
+          { ncert: true, txt: `<b>લિપિ:</b> ૨૫૦–૪૦૦ ચિત્રલિપિ ચિહ્નો (TN SCERT: ૪૦૦–૬૦૦), સ્વદેશી; સૌથી લાંબો ૨૬, ધોળાવીરા ૧૦; જમણે→ડાબે અને <b>બૌસ્ટ્રોફેડોન</b> ${N}. વિટ્ઝેલ (ઈમોજી) વિ. પારપોલા (આદ્ય-દ્રવિડ).` },
+          { ncert: true, txt: `<b>દફનવિધિ:</b> મોહેંજો (સંપૂર્ણ/અગ્નિદાહ પછી); હડપ્પા (લાકડાની શબપેટી, R-37 અને <b>H-આકારની સેમેટરી-H</b>); લોથલ (ઈંટ કબર, યુગલ દફન — સતી નહીં); રોપડ (કૂતરો) ${N}.` }
+        ],
+        deep: '3D માં હડપ્પાની લાકડાની શબપેટી, લોથલની ઈંટ કબર અને બાજુમાં H-આકારની સેમેટરી-H (PDF2 p.10 મુજબ) જોઈ શકો છો.',
+        quiz: { q: 'હડપ્પાનું સ્થાન કઈ ઉત્તર-હડપ્પન કબ્રસ્તાન સંસ્કૃતિએ લીધું?', opts: ['સેમેટરી-H સંસ્કૃતિ (H-આકારની કબરો)', 'જોર્વે સંસ્કૃતિ'], ans: 0 }
+      },
+      {
+        id: 'declineLegacy', scope: 'common', short: '૧૪. પતન-૧૬ વારસા', pinLabel: '૧૯૦૦ BCE પતન અને ૧૬ વારસા', pinPos: [2, 6.2, -1],
+        title: '૧૪. પતન (૨૬૦૦→૧૯૦૦ BCE 3D સમય-પરિવર્તન) અને ૧૬ જીવંત વારસા',
+        scopeReason: '🟣 <b>પર્પલ (સમગ્ર સભ્યતા):</b> ~૧૯૦૦ BCE થી ક્રમિક વિનગરીકરણ; નગરીકરણ નાશ પામ્યું પણ લોકો અને ૧૬ સાંસ્કૃતિક પરંપરાઓ જીવંત.',
+        cam: { theta: 0.85, phi: 0.92, radius: 46, lookAt: [1, 1.5, 0] },
+        metrics: [['સર્વમાન્ય કારણ', 'પર્યાવરણીય અવનતિ + શુષ્કતા'], ['રાખીગઢી DNA (2019)', 'સ્ટેપી પૂર્વજોનો અભાવ']],
+        liveControl: 'declineSlider',
+        bullets: [
+          { ncert: true, txt: `<b>પતન:</b> આર્ય આક્રમણ (કોઈ મોટા સંઘર્ષનો પુરાવો નહીં ${N}), પૂર, ટેક્ટોનિક પૂર, વેપાર પતન અસ્વીકૃત. <b>સર્વમાન્ય (ફેરસર્વિસ):</b> સતત ખેતી-અતિચરાણથી ફળદ્રુપતા ઘટાડો + શુષ્કતા અને જમીન ક્ષારતા ${N}.` },
+          { ncert: true, txt: `<b>ઉત્તર-હડપ્પન (1900–1200 BCE):</b> રસ્તામાં જૂની ઈંટની ઝૂંપડપટ્ટી; હડપ્પા→સેમેટરી-H; ભગવાનપુરા PGW સંમિશ્રણ (~1200 BCE); મોહેંજો અંતિમ સ્તરે અસુરક્ષા ${N}.` },
+          { ncert: false, txt: '<b>૩ સ્થળાંતર દિશાઓ:</b> પંજાબ-હરિયાણા, ગંગા-યમુના દોઆબ (સૌથી વધુ), ગુજરાત (રંગપુર-પ્રભાસ).' },
+          { ncert: false, txt: '<b>૧૬ જીવંત વારસા:</b> ૧૬-આધારિત ગણતરી, ધોતી, પાઘડી, અંગણું, માતૃદેવી, શિવ-લિંગ, સ્વસ્તિક, તિલક-બિંદી, બંગડી, અગ્નિકુંડ, સ્નાન, પીપળો, વૃષભ, પ્રકૃતિ-તાવીજ, યોગ, ઢોકરા.' }
+        ],
+        deep: '3D સમય સ્લાઇડર ખેંચી પતન જીવંત જુઓ, અને ઉપર "📚 સંપૂર્ણ નોંધ" માં ૮ પતન સિદ્ધાંતો અને સમાધાન નોંધ ઊંડાણથી વાંચો.',
+        quiz: { q: 'રાખીગઢી ૨૦૧૯ DNA અભ્યાસ મુજબ હડપ્પન વસ્તીમાં શેનો અભાવ હતો?', opts: ['સ્ટેપી પશુપાલક પૂર્વજો', 'સ્વદેશી દક્ષિણ એશિયાઈ પૂર્વજો'], ans: 0 }
+      }
+    ];
+
+    const FULL_QUIZ = [
+      { q: '૧. હડપ્પન મકાનોના બારણાં-બારીઓ મુખ્ય રસ્તા તરફ કેમ નહોતાં ખૂલતાં?', o: ['લશ્કરી રક્ષણ', 'ગોપનીયતા, ધૂળ રક્ષણ અને ઠંડક માટે', 'ધાર્મિક પ્રતિબંધ', 'ઈંટોની અછત'], a: 1, e: 'બધા ઓરડા મધ્ય અંગણા તરફ ખૂલતા.' },
+      { q: '૨. (#NCERT) હડપ્પન ગટર વ્યવસ્થા પ્રાચીન વિશ્વમાં કયા એકમાત્ર સ્થળ સમકક્ષ?', o: ['બેબીલોન', 'મેમ્ફિસ', 'ક્રીટ (નોસોસ)', 'ટ્રોય'], a: 2, e: 'R.S. Sharma મુજબ માત્ર ક્રીટ (Knossos) સમકક્ષ.' },
+      { q: '૩. શોર્તુગાઈ (અફઘાનિસ્તાન) મુખ્યત્વે શેના માટે સ્થાપિત?', o: ['સોનું-હાથીદાંત', 'ટીન અને લાપિસ લાઝુલી', 'તાંબું-શંખ', 'કપાસ'], a: 1, e: 'બદખ્શાંથી લાપિસ લાઝુલી ("આકાશનો પથ્થર") અને ટીન માટે.' },
+      { q: '૪. ધોળાવીરામાં ૧૬+ જળાશયો કઈ બે મોસમી નદીઓથી ભરાતાં?', o: ['સાબરમતી-ભોગાવો', 'મનહર અને મનસર', 'ઘગ્ગર-હકરા', 'રાવી-ચિનાબ'], a: 1, e: 'ખદીર બેટ પર મનહર-મનસર પર ચેક-ડેમ અને ૧૩ મી. ઢાળ.' },
+      { q: '૫. (#NCERT) વ્યાપારી તોલમાપમાં કઈ સંખ્યા અને તેના ગુણાંકો મુખ્ય હતા?', o: ['૧૨', '૧૬ (16, 64, 160, 320, 640)', '૨૦', '૬૦'], a: 1, e: '૧૬-આધારિત પરંપરા — કૌટિલ્ય અને ૧૬ આના = ૧ રૂપિયો.' },
+      { q: '૬. (#NCERT) મેસોપોટેમિયા-મેલુહા માર્ગના બે મધ્યસ્થ મથકો કયાં?', o: ['ઉર-લગશ', 'દિલમુન (બહેરીન) અને મકાન (ઓમાન)', 'લોથલ-સુત્કાગેન', 'મેહરગઢ-આમરી'], a: 1, e: 'દિલમુન અને મકાન (~2350 BCE લેખો).' },
+      { q: '૭. કાર્નેલિયન મણકામાં છિદ્ર પાડવા કયા પથ્થરના ડ્રિલ વપરાતાં?', o: ['ગ્રેનાઈટ', 'અર્નેસ્ટાઇટ (Ernestite)', 'લોખંડ', 'માર્બલ'], a: 1, e: 'ચન્હુદડો, લોથલ અને ધોળાવીરા (૧,૬૦૦+ ડ્રિલ).' },
+      { q: '૮. રાખીગઢી ૨૦૧૯ DNA (વસંત શિંદે, Cell) નું મુખ્ય તારણ?', o: ['સ્ટેપી પૂર્વજો વધુ', 'સ્ટેપી પૂર્વજોનો અભાવ (સ્વદેશી મૂળ)', 'મેસોપોટેમિયા મૂળ', 'DNA મળ્યો નથી'], a: 1, e: 'સ્ટેપી પશુપાલક પૂર્વજોનો અભાવ.' },
+      { q: '૯. (#NCERT) બલુચિસ્તાન-અફઘાનિસ્તાનમાં "ગબરબંધ" શું હતા?', o: ['અન્નાગાર', 'વરસાદી પાણી-કાંપ રોકતા ચેક-ડેમ/પાળા', 'હળ', 'કબરો'], a: 1, e: 'પાણી અને કાંપ રોકી ખેતી-વનીકરણ માટે પાળા (PDF p.12).' },
+      { q: '૧૦. હડપ્પન શસ્ત્રોમાં શેના અભાવથી તે મોટા યુદ્ધ માટે અયોગ્ય હતાં?', o: ['ધાર', 'મધ્ય-ધાર (Mid-rib)', 'હાથો', 'ચમક'], a: 1, e: 'મધ્ય-ધાર (Mid-rib) નો અભાવ → કાયદો-વ્યવસ્થા અને શિકાર પૂરતાં.' },
+      { q: '૧૧. (#NCERT) બૌસ્ટ્રોફેડોન લેખન દિશા શું?', o: ['ઉપરથી નીચે', 'લાઈન ૧ જમણે→ડાબે, લાઈન ૨ ડાબે→જમણે', 'માત્ર ડાબે→જમણે', 'ગોળાકાર'], a: 1, e: 'સર્પાકાર વૈકલ્પિક દિશા (PDF p.11).' },
+      { q: '૧૨. દાયમાબાદ કાંસ્ય હોર્ડની કાળગણના પર શંકાનું કારણ?', o: ['લોખંડ', 'આર્સેનિક (ઈ.સ. ૭૦૦+ ગુપ્ત/અનુ-ગુપ્ત ધાતુવિદ્યા)', 'પથ્થર', 'બ્રાહ્મી લિપિ'], a: 1, e: 'આર્સેનિક મિશ્રણ ઈ.સ. ૭૦૦+ નું લક્ષણ.' },
+      { q: '૧૩. (#NCERT) કયા બે સ્થળે અગ્નિકુંડ (Fire Altars) મળ્યા?', o: ['હડપ્પા-મોહેંજો', 'કાલીબંગા અને લોથલ', 'ચન્હુદડો-માંડા', 'રોપડ-બનાવાલી'], a: 1, e: 'કાલીબંગા અને લોથલ (મંદિર વિના).' },
+      { q: '૧૪. પતન અંગે સૌથી સર્વમાન્ય સિદ્ધાંત કયો?', o: ['આર્ય આક્રમણ', 'ટેક્ટોનિક પૂર', 'પર્યાવરણીય અવનતિ + શુષ્કતા (વોલ્ટર ફેરસર્વિસ)', 'વેપાર પતન'], a: 2, e: 'ફળદ્રુપતા ઘટાડો + શુષ્કતા → ક્રમિક વિનગરીકરણ.' },
+      { q: '૧૫. કયા પ્રારંભિક હડપ્પન સ્થળે "સાત ફેબ્રિક્સ (Seven Fabrics)" માટીકામ મળ્યું?', o: ['આમરી (Amri-Nal)', 'કોટ દીજી', 'દમ્બ સાદાત', 'સોથી-સિસવાલ'], a: 0, e: 'આમરી-નાલ સંસ્કૃતિની વિશિષ્ટ ઓળખ.' }
+    ];
+
+    /* =========================================================================
+       STATE & WORLD ATLAS CACHE
+       ========================================================================= */
+    const state = {
+      stepIdx: 0, visited: new Set([0]), showPins: true, cardOpen: true, indexOpen: false,
+      bathCutaway: false, houseRoofLift: 78, drainXray: false, drainCovers: false,
+      dockTide: 82, sluiceClosed: false, monsoonLevel: 80, declineFactor: 0,
+      boustroTimer: null, atlasTab: 'geo', cultureEra: 'pre', tradeDir: 'all',
+      hubTab: 'foundations', fullQuizAns: {}, worldTopo: null
+    };
+
+    /* =========================================================================
+       THREE.JS 3D HARAPPAN CITY ENGINE (INCLUDING H-SHAPED CEMETERY H!)
+       ========================================================================= */
+    let scene, camera, renderer;
+    let bathFrontWallMat = null, houseRoofMeshGroup = null, streetPavementMat = null;
+    let drainCoverMeshes = [], drainWaterParticles = [];
+    let riverMesh = null, dockWaterMesh = null, sluiceGateMesh = null, dockShipGroup = null;
+    let reservoirWaterMesh = null, reservoirOutletWater = null, greatBathWaterMesh = null;
+    let fieldMeshes = [], slumHutsGroup = null, cartGroup = null, riverBoatGroup = null, furnaceLight = null;
+    const bgMature = new THREE.Color(0x0b0915), bgArid = new THREE.Color(0x2a1b10);
+
+    const cam = {
+      theta: 0.72, phi: 0.96, radius: 56,
+      tTheta: 0.72, tPhi: 0.96, tRadius: 56,
+      look: new THREE.Vector3(0, 1.5, 0), tLook: new THREE.Vector3(0, 1.5, 0),
+      dragging: false, px: 0, py: 0
+    };
+
+    function createBrickTexture(baseHex, mortarHex, rows = 12) {
+      const c = document.createElement('canvas'); c.width = 256; c.height = 256;
+      const ctx = c.getContext('2d'); ctx.fillStyle = mortarHex; ctx.fillRect(0, 0, 256, 256);
+      const rh = 256 / rows;
+      for (let r = 0; r < rows; r++) {
+        const isH = (r % 2 === 1), bw = isH ? 32 : 64, off = isH ? 16 : 0;
+        for (let x = -bw; x < 256 + bw; x += bw) {
+          const d = (Math.sin(r * 13 + x * 7) * 10) | 0;
+          let n = parseInt(baseHex.slice(1), 16);
+          ctx.fillStyle = `rgb(${Math.min(255,Math.max(0,(n>>16)+d))},${Math.min(255,Math.max(0,((n>>8)&0xff)+d))},${Math.min(255,Math.max(0,(n&0xff)+d))})`;
+          ctx.fillRect(x + off + 1.5, r * rh + 1.5, bw - 3, rh - 3);
+        }
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+      return tex;
+    }
+
+    function init3DWorld() {
+      const wrap = document.getElementById('world-canvas-wrap');
+      if (!wrap || typeof THREE === 'undefined') return;
+      scene = new THREE.Scene(); scene.background = bgMature.clone(); scene.fog = new THREE.FogExp2(0x0b0915, 0.008);
+      camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.2, 260);
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      wrap.innerHTML = ''; wrap.appendChild(renderer.domElement);
+
+      scene.add(new THREE.HemisphereLight(0xfde68a, 0x2e1a36, 0.78));
+      const sun = new THREE.DirectionalLight(0xffedd5, 1.2);
+      sun.position.set(28, 38, 22); sun.castShadow = true;
+      sun.shadow.mapSize.width = 1024; sun.shadow.mapSize.height = 1024;
+      sun.shadow.camera.left = -42; sun.shadow.camera.right = 42; sun.shadow.camera.top = 42; sun.shadow.camera.bottom = -42;
+      scene.add(sun);
+      const rim = new THREE.DirectionalLight(0x9333ea, 0.45); rim.position.set(-30, 18, -25); scene.add(rim);
+
+      const brickTex = createBrickTexture('#b85b37', '#5a3221', 12); brickTex.repeat.set(2, 1.5);
+      const brickMat = new THREE.MeshStandardMaterial({ map: brickTex, roughness: 0.84 });
+      const lightTex = createBrickTexture('#cd744c', '#6e402b', 10); lightTex.repeat.set(1.5, 1.5);
+      const lightMat = new THREE.MeshStandardMaterial({ map: lightTex, roughness: 0.82 });
+      const mudTex = createBrickTexture('#8d6446', '#593d29', 14); mudTex.repeat.set(4, 2);
+      const mudMat = new THREE.MeshStandardMaterial({ map: mudTex, roughness: 0.95 });
+      const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.9 });
+      const stoneMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.74 });
+      const bitumenMat = new THREE.MeshStandardMaterial({ color: 0x111116, roughness: 0.35, metalness: 0.15 });
+      const waterMat = new THREE.MeshStandardMaterial({ color: 0x0891b2, emissive: 0x064e63, roughness: 0.18, transparent: true, opacity: 0.88 });
+
+      const addBox = (w, h, d, x, y, z, mat = brickMat, parent = scene) => {
+        const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+        m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
+      };
+
+      // Terrain & Indus River
+      addBox(120, 1.0, 100, 0, -0.5, 0, new THREE.MeshStandardMaterial({ color: 0x2a2018, roughness: 0.96 }));
+      riverMesh = new THREE.Mesh(new THREE.BoxGeometry(120, 0.4, 13), waterMat.clone());
+      riverMesh.position.set(0, -0.1, -24.5); scene.add(riverMesh);
+      addBox(58, 1.1, 1.2, -2, 0.55, -17.6, brickMat);
+      riverBoatGroup = buildSailboat(woodMat); riverBoatGroup.position.set(-14, 0.25, -24); scene.add(riverBoatGroup);
+
+      // Citadel Podium, Walls, Western Gateway, 4 Corner Bastions
+      addBox(18.6, 1.3, 27.6, -16, 0.65, -1.5, mudMat);
+      addBox(17.2, 1.4, 26.2, -16, 1.95, -1.5, mudMat);
+      addBox(17.8, 1.7, 0.75, -16, 3.4, -14.6, brickMat);
+      addBox(17.8, 1.7, 0.75, -16, 3.4, 11.6, brickMat);
+      addBox(0.75, 1.7, 10.5, -24.6, 3.4, -9.2, brickMat);
+      addBox(0.75, 1.7, 10.5, -24.6, 3.4, 6.2, brickMat);
+      addBox(1.4, 2.5, 1.4, -24.9, 3.8, -3.5, lightMat);
+      addBox(1.4, 2.5, 1.4, -24.9, 3.8, 0.5, lightMat);
+      addBox(3.0, 1.2, 3.0, -26.2, 0.6, -1.5, brickMat);
+      addBox(0.75, 1.7, 10.2, -7.4, 3.4, -9.2, brickMat);
+      addBox(0.75, 1.7, 10.2, -7.4, 3.4, 6.2, brickMat);
+      [[-24.8, -14.6], [-24.8, 11.6], [-7.2, -14.6], [-7.2, 11.6]].forEach(([bx, bz]) => addBox(2.0, 2.5, 2.0, bx, 3.8, bz, lightMat));
+
+      // Great Bath + Bitumen Waterproofing Cutaway
+      addBox(12.0, 0.45, 9.2, -16, 2.85, -7.8, lightMat);
+      bathFrontWallMat = new THREE.MeshStandardMaterial({ map: brickTex, roughness: 0.85, transparent: true, opacity: 1.0 });
+      addBox(7.2, 0.85, 0.5, -16, 3.15, -5.2, bathFrontWallMat);
+      addBox(7.2, 0.85, 0.5, -16, 3.15, -10.4, brickMat);
+      addBox(0.5, 0.85, 5.2, -19.4, 3.15, -7.8, brickMat);
+      addBox(0.5, 0.85, 5.2, -12.6, 3.15, -7.8, brickMat);
+      addBox(6.4, 0.22, 4.6, -16, 2.95, -7.8, bitumenMat);
+      addBox(6.4, 0.72, 0.14, -16, 3.22, -5.52, bitumenMat);
+      addBox(2.8, 0.3, 0.4, -20.6, 2.9, -6.2, waterMat);
+      greatBathWaterMesh = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.28, 4.2), waterMat.clone());
+      greatBathWaterMesh.position.set(-16, 3.22, -7.8); scene.add(greatBathWaterMesh);
+      for (let s = 0; s < 3; s++) {
+        addBox(2.4, 0.16, 0.35, -16, 3.18 + s * 0.13, -9.8 - s * 0.28, brickMat);
+        addBox(2.4, 0.16, 0.35, -16, 3.18 + s * 0.13, -5.8 + s * 0.28, brickMat);
+      }
+      for (let px = -20.8; px <= -11.2; px += 1.9) {
+        addBox(0.32, 1.85, 0.32, px, 3.9, -11.8, lightMat);
+        addBox(0.32, 1.85, 0.32, px, 3.9, -3.8, lightMat);
+      }
+      addBox(10.6, 0.22, 1.1, -16, 4.9, -11.8, woodMat);
+      addBox(10.6, 0.22, 1.1, -16, 4.9, -3.8, woodMat);
+      addBox(1.7, 1.8, 8.2, -10.4, 3.9, -7.8, brickMat);
+      const bathWell = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.58, 0.9, 16), lightMat);
+      bathWell.position.set(-10.4, 3.3, -9.8); scene.add(bathWell);
+
+      // Great Granary (2x6) + Circular Threshing Platforms + Workmen's Barracks
+      addBox(13.2, 0.45, 8.0, -16, 2.85, 2.5, mudMat);
+      for (let r = 0; r < 2; r++) {
+        for (let c = 0; c < 6; c++) {
+          const gx = -21.2 + c * 2.08, gz = 0.6 + r * 3.8;
+          addBox(1.55, 0.42, 2.5, gx, 3.25, gz, bitumenMat);
+          addBox(1.7, 1.85, 2.6, gx, 4.35, gz, brickMat);
+          addBox(1.8, 0.18, 2.7, gx, 5.32, gz, woodMat);
+        }
+      }
+      for (let i = 0; i < 4; i++) {
+        const plat = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.2, 0.36, 20), lightMat);
+        plat.position.set(-20.4 + i * 2.9, 2.82, 8.8); plat.castShadow = true; scene.add(plat);
+        const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.39, 12), woodMat);
+        hole.position.set(-20.4 + i * 2.9, 2.84, 8.8); scene.add(hole);
+        addBox(3.1, 1.45, 2.2, -21 + i * 3.6, 0.72, 13.8, brickMat);
+      }
+
+      // Lower Town 90° Grid + Bullock Cart + Hero House + Houses + Artisan Quarter
+      addBox(24, 1.5, 0.7, 9, 0.75, 11.8, brickMat);
+      addBox(0.7, 1.5, 26, 21.2, 0.75, -1.0, brickMat);
+      streetPavementMat = new THREE.MeshStandardMaterial({ color: 0x3b312a, roughness: 0.95, transparent: true, opacity: 1.0 });
+      const mainRoad = new THREE.Mesh(new THREE.BoxGeometry(25, 0.16, 2.8), streetPavementMat);
+      mainRoad.position.set(9.2, 0.08, 0.2); mainRoad.receiveShadow = true; scene.add(mainRoad);
+      [-1.5, 7.2, 15.8].forEach(lx => {
+        const lane = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.15, 23.5), streetPavementMat);
+        lane.position.set(lx, 0.08, -0.5); scene.add(lane);
+      });
+      cartGroup = buildBullockCart(woodMat); cartGroup.position.set(6, 0.2, 0.2); scene.add(cartGroup);
+
+      buildHeroCutawayHouse(2.5, 5.8, brickMat, lightMat, woodMat, waterMat);
+      [[2.5, -5.8, 5.6, 5.2, 2.8], [2.5, -11.4, 5.6, 4.0, 2.1], [11.5, -5.8, 5.8, 5.2, 3.6], [11.5, -11.4, 5.8, 4.0, 2.3], [18.4, -5.8, 3.6, 5.2, 2.6], [18.4, 5.8, 3.6, 5.2, 3.2]]
+        .forEach(([hx, hz, hw, hd, hh]) => buildCourtyardHouseBlock(hx, hz, hw, hd, hh, brickMat, lightMat, woodMat));
+      buildArtisanWorkshop(11.6, 6.2, brickMat, lightMat, woodMat);
+      buildThreeTierDrainage(brickMat, stoneMat, woodMat, waterMat);
+      buildLothalDockyard(6, -15.2, brickMat, woodMat, waterMat);
+      buildFieldsAndGabarband(mudMat);
+      buildDholaviraReservoir(11, 21, stoneMat, mudMat, waterMat);
+      buildReligionAndCemetery(-7, 16.5, brickMat, lightMat, woodMat);
+
+      slumHutsGroup = new THREE.Group();
+      const slumMat = new THREE.MeshStandardMaterial({ color: 0x6b5344, roughness: 1.0 });
+      [[2, 0.2], [5.8, -0.3], [9.5, 0.4], [13.2, -0.2], [-3.8, 0.1]].forEach(([sx, sz], i) => {
+        const hut = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.2 + (i % 2) * 0.3, 1.5), slumMat);
+        hut.position.set(sx, 0.65, sz); hut.rotation.y = (i - 2) * 0.24; slumHutsGroup.add(hut);
+      });
+      slumHutsGroup.visible = false; scene.add(slumHutsGroup);
+
+      buildProjectedPins(); buildMasterIndex(); bindWorldPointerControls(); goToStep(0); animateWorld();
+    }
+
+    function buildCourtyardHouseBlock(x, z, w, d, h, brickMat, lightMat, woodMat) {
+      const g = new THREE.Group(); const t = 0.35;
+      const nW = new THREE.Mesh(new THREE.BoxGeometry(w, h, t), brickMat); nW.position.set(0, h / 2, -d / 2 + t / 2);
+      const sW = new THREE.Mesh(new THREE.BoxGeometry(w, h, t), brickMat); sW.position.set(0, h / 2, d / 2 - t / 2);
+      const wW = new THREE.Mesh(new THREE.BoxGeometry(t, h, d), lightMat); wW.position.set(-w / 2 + t / 2, h / 2, 0);
+      const eW = new THREE.Mesh(new THREE.BoxGeometry(t, h, d), lightMat); eW.position.set(w / 2 - t / 2, h / 2, 0);
+      const cy = new THREE.Mesh(new THREE.BoxGeometry(w - 0.6, 0.12, d - 0.6), new THREE.MeshStandardMaterial({ color: 0x5c4230 })); cy.position.set(0, 0.06, 0);
+      const rN = new THREE.Mesh(new THREE.BoxGeometry(w, 0.18, d * 0.28), woodMat); rN.position.set(0, h, -d * 0.36);
+      const rS = new THREE.Mesh(new THREE.BoxGeometry(w, 0.18, d * 0.28), woodMat); rS.position.set(0, h, d * 0.36);
+      [nW, sW, wW, eW, rN, rS].forEach(m => { m.castShadow = true; m.receiveShadow = true; g.add(m); });
+      g.add(cy); g.position.set(x, 0, z); scene.add(g);
+    }
+
+    function buildHeroCutawayHouse(x, z, brickMat, lightMat, woodMat, waterMat) {
+      const g = new THREE.Group(); const w = 6.2, d = 6.2, h = 2.4;
+      const fl = new THREE.Mesh(new THREE.BoxGeometry(w, 0.2, d), new THREE.MeshStandardMaterial({ color: 0x6b4c35 }));
+      fl.position.set(0, 0.1, 0); fl.receiveShadow = true; g.add(fl);
+      const nSolid = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.35), brickMat); nSolid.position.set(0, h / 2, -d / 2 + 0.17); nSolid.castShadow = true; g.add(nSolid);
+      const sW = new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.72, 0.32), brickMat); sW.position.set(0, h * 0.36, d / 2 - 0.16); g.add(sW);
+      const wW = new THREE.Mesh(new THREE.BoxGeometry(0.32, h * 0.72, d), lightMat); wW.position.set(-w / 2 + 0.16, h * 0.36, 0); g.add(wW);
+      const e1 = new THREE.Mesh(new THREE.BoxGeometry(0.32, h * 0.72, 2.2), lightMat); e1.position.set(w / 2 - 0.16, h * 0.36, -2.0);
+      const e2 = new THREE.Mesh(new THREE.BoxGeometry(0.32, h * 0.72, 2.2), lightMat); e2.position.set(w / 2 - 0.16, h * 0.36, 2.0);
+      g.add(e1, e2);
+      const cy = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.08, 2.6), new THREE.MeshStandardMaterial({ color: 0x92623a })); cy.position.set(0, 0.22, 0); g.add(cy);
+      const well = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.65, 0.95, 18), brickMat); well.position.set(-0.95, 0.55, -0.85); g.add(well);
+      const wellW = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.12, 16), waterMat); wellW.position.set(-0.95, 0.98, -0.85); g.add(wellW);
+      const bath = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.3, 1.9), lightMat); bath.position.set(-1.9, 0.3, 1.7); g.add(bath);
+      const bathW = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 1.5), waterMat); bathW.position.set(-1.9, 0.46, 1.7); g.add(bathW);
+      const toilet = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.55, 0.85), new THREE.MeshStandardMaterial({ color: 0xd97706 })); toilet.position.set(-2.2, 0.45, -1.8); g.add(toilet);
+      const hearth = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.45, 1.1), brickMat); hearth.position.set(1.8, 0.38, -2.0); g.add(hearth);
+      const potMat = new THREE.MeshStandardMaterial({ color: 0xb91c1c, roughness: 0.4 });
+      [1.3, 2.1].forEach(px => { const jar = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 12), potMat); jar.position.set(px, 0.72, -2.0); g.add(jar); });
+      for (let s = 0; s < 5; s++) { const st = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.32, 0.42), lightMat); st.position.set(2.1, 0.25 + s * 0.32, 0.5 + s * 0.42); g.add(st); }
+      houseRoofMeshGroup = new THREE.Group();
+      const rfMat = new THREE.MeshStandardMaterial({ color: 0x9333ea, transparent: true, opacity: 0.48, roughness: 0.5 });
+      const rf1 = new THREE.Mesh(new THREE.BoxGeometry(w, 0.24, 1.8), rfMat); rf1.position.set(0, h + 0.12, -2.2);
+      const rf2 = new THREE.Mesh(new THREE.BoxGeometry(w, 0.24, 1.8), rfMat); rf2.position.set(0, h + 0.12, 2.2);
+      const rf3 = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.24, 2.8), rfMat); rf3.position.set(-2.2, h + 0.12, 0);
+      houseRoofMeshGroup.add(rf1, rf2, rf3); g.add(houseRoofMeshGroup);
+      g.position.set(x, 0, z); scene.add(g);
+    }
+
+    function buildThreeTierDrainage(brickMat, stoneMat, woodMat, waterMat) {
+      const g = new THREE.Group();
+      const houseChute = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.28, 0.38), waterMat); houseChute.position.set(5.9, -0.14, 5.8); g.add(houseChute);
+      const laneChannel = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.34, 5.2), brickMat); laneChannel.position.set(7.2, -0.26, 3.6); g.add(laneChannel);
+      const laneWater = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.16, 5.0), waterMat); laneWater.position.set(7.2, -0.14, 3.6); g.add(laneWater);
+      const ch = new THREE.Group(); ch.rotation.z = -0.025;
+      const bottom = new THREE.Mesh(new THREE.BoxGeometry(24, 0.2, 1.2), brickMat); bottom.position.set(10, -0.58, 1.2);
+      const side1 = new THREE.Mesh(new THREE.BoxGeometry(24, 0.65, 0.18), brickMat); side1.position.set(10, -0.25, 1.75);
+      const side2 = new THREE.Mesh(new THREE.BoxGeometry(24, 0.65, 0.18), brickMat); side2.position.set(10, -0.25, 0.65);
+      const waterCh = new THREE.Mesh(new THREE.BoxGeometry(23.8, 0.22, 0.85), waterMat); waterCh.position.set(10, -0.38, 1.2);
+      ch.add(bottom, side1, side2, waterCh);
+      [2.5, 7.2, 15.8].forEach(mx => { const sump = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.92, 1.3), new THREE.MeshStandardMaterial({ color: 0x7c3aed })); sump.position.set(mx, -0.60, 1.2); ch.add(sump); });
+      for (let i = 0; i < 12; i++) { const slab = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.14, 1.35), stoneMat); slab.position.set(-1 + i * 2.0, 0.12, 1.2); slab.visible = false; ch.add(slab); drainCoverMeshes.push(slab); }
+      for (let b = -2; b <= 2; b++) { const bar = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.78, 0.08), woodMat); bar.position.set(21.6, -0.20, 1.2 + b * 0.19); ch.add(bar); }
+      g.add(ch);
+      const pit = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.6, 1.2, 20), new THREE.MeshStandardMaterial({ color: 0x4c1d95, transparent: true, opacity: 0.84 })); pit.position.set(24.0, -0.45, 1.2);
+      const pitW = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.15, 20), waterMat); pitW.position.set(24.0, -0.15, 1.2);
+      g.add(pit, pitW);
+      const pGeo = new THREE.SphereGeometry(0.15, 8, 8), pMat = new THREE.MeshBasicMaterial({ color: 0x67e8f9 });
+      for (let i = 0; i < 28; i++) { const p = new THREE.Mesh(pGeo, pMat); p.userData.off = i / 28; p.userData.tier = (i < 6) ? 'lane' : 'main'; g.add(p); drainWaterParticles.push(p); }
+      scene.add(g);
+    }
+
+    function buildLothalDockyard(x, z, brickMat, woodMat, waterMat) {
+      const g = new THREE.Group();
+      const addW = (w, h, d, lx, ly, lz) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), brickMat); m.position.set(lx, ly, lz); m.castShadow = true; g.add(m); };
+      addW(0.8, 1.6, 8.2, -5.2, 0.6, 0); addW(0.8, 1.6, 8.2, 5.2, 0.6, 0); addW(11.2, 1.6, 0.8, 0, 0.6, 4.1);
+      addW(4.0, 1.6, 0.8, -3.4, 0.6, -4.1); addW(4.0, 1.6, 0.8, 3.4, 0.6, -4.1);
+      sluiceGateMesh = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.4, 0.25), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 })); sluiceGateMesh.position.set(0, 1.9, -4.1); g.add(sluiceGateMesh);
+      dockWaterMesh = new THREE.Mesh(new THREE.BoxGeometry(9.6, 1.1, 7.4), waterMat.clone()); dockWaterMesh.position.set(0, 0.45, 0); g.add(dockWaterMesh);
+      dockShipGroup = buildSailboat(woodMat); dockShipGroup.scale.set(0.85, 0.85, 0.85); dockShipGroup.position.set(-0.5, 1.0, 0.4); g.add(dockShipGroup);
+      const baleMat = new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.9 });
+      [[-6.6, -1.5], [-6.6, 0.2], [-6.6, 1.8]].forEach(([bx, bz]) => { const b = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.9, 1.1), baleMat); b.position.set(bx, 0.5, bz); g.add(b); });
+      g.position.set(x, 0, z); scene.add(g);
+    }
+
+    function buildArtisanWorkshop(x, z, brickMat, lightMat, woodMat) {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.2, 5.2), lightMat); base.position.set(0, 0.1, 0); g.add(base);
+      const kiln = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.2, 1.8, 16), brickMat); kiln.position.set(-1.3, 1.0, -1.0); g.add(kiln);
+      const glow = new THREE.Mesh(new THREE.SphereGeometry(0.55, 12, 12), new THREE.MeshBasicMaterial({ color: 0xff6b00 })); glow.position.set(-1.3, 1.9, -1.0); g.add(glow);
+      furnaceLight = new THREE.PointLight(0xff7700, 1.4, 9); furnaceLight.position.set(x - 1.3, 2.2, z - 1.0); scene.add(furnaceLight);
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.55, 0.9), woodMat); bench.position.set(1.2, 0.4, 0.8); g.add(bench);
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.18, 16), new THREE.MeshStandardMaterial({ color: 0x78716c })); wheel.position.set(1.3, 0.3, -1.2); g.add(wheel);
+      g.position.set(x, 0, z); scene.add(g);
+    }
+
+    function buildFieldsAndGabarband(mudMat) {
+      const fMat = new THREE.MeshStandardMaterial({ color: 0x2f6b2f, roughness: 0.95 });
+      for (let i = 0; i < 5; i++) { const strip = new THREE.Mesh(new THREE.BoxGeometry(10, 0.16, 0.95), fMat.clone()); strip.position.set(-19, 0.08, 19.2 + i * 1.45); scene.add(strip); fieldMeshes.push(strip); }
+      const gabar = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.1, 8.2), mudMat); gabar.position.set(-25.2, 0.55, 22); gabar.castShadow = true; scene.add(gabar);
+    }
+
+    function buildDholaviraReservoir(x, z, stoneMat, mudMat, waterMat) {
+      const g = new THREE.Group();
+      const checkDam = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.0, 2.4), mudMat); checkDam.position.set(-8.2, 0.5, 0); g.add(checkDam);
+      const inletCh = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.35, 1.2), waterMat); inletCh.position.set(-6.6, 0.25, 0); g.add(inletCh);
+      const addS = (w, h, d, sx, sy, sz) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), stoneMat); m.position.set(sx, sy, sz); g.add(m); };
+      addS(11, 1.4, 0.6, 0, 0.6, -3.5); addS(11, 1.4, 0.6, 0, 0.6, 3.5);
+      addS(0.6, 1.4, 2.8, -5.2, 0.6, -2.2); addS(0.6, 1.4, 2.8, -5.2, 0.6, 2.2);
+      addS(0.6, 1.4, 2.8, 5.2, 0.6, -2.2); addS(0.6, 1.4, 2.8, 5.2, 0.6, 2.2);
+      for (let s = 0; s < 3; s++) addS(3.5, 0.22, 0.45, 0, 0.9 - s * 0.25, -2.8 + s * 0.45);
+      reservoirWaterMesh = new THREE.Mesh(new THREE.BoxGeometry(9.8, 0.95, 6.4), waterMat.clone()); reservoirWaterMesh.position.set(0, 0.42, 0); g.add(reservoirWaterMesh);
+      reservoirOutletWater = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.3, 1.2), waterMat.clone()); reservoirOutletWater.position.set(6.9, 0.22, 0); g.add(reservoirOutletWater);
+      g.position.set(x, 0, z); scene.add(g);
+    }
+
+    function buildReligionAndCemetery(x, z, brickMat, lightMat, woodMat) {
+      const g = new THREE.Group();
+      // Kalibangan/Lothal Fire Altars
+      for (let i = 0; i < 3; i++) {
+        const a = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.42, 0.95), lightMat); a.position.set(-3.2 + i * 1.4, 0.21, -2.4); g.add(a);
+        const f = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.5, 8), new THREE.MeshBasicMaterial({ color: 0xf97316 })); f.position.set(-3.2 + i * 1.4, 0.65, -2.4); g.add(f);
+      }
+      // R-37 / Lothal Brick Graves + Wooden Coffin
+      for (let i = 0; i < 3; i++) { const gr = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.25, 2.2), brickMat); gr.position.set(-3.2 + i * 1.7, 0.12, 1.2); g.add(gr); }
+      const coffin = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.35, 1.7), woodMat); coffin.position.set(-3.2, 0.35, 1.2); g.add(coffin);
+      // H-shaped Cemetery H burial layout (from PDF 2 Page 10!)
+      const hMat = new THREE.MeshStandardMaterial({ color: 0x9333ea });
+      const hLeft = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.22, 2.6), hMat); hLeft.position.set(2.4, 0.11, 1.2);
+      const hRight = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.22, 2.6), hMat); hRight.position.set(4.2, 0.11, 1.2);
+      const hMid = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.22, 0.45), hMat); hMid.position.set(3.3, 0.11, 1.2);
+      g.add(hLeft, hRight, hMid);
+      g.position.set(x, 0, z); scene.add(g);
+    }
+
+    function buildSailboat(woodMat) {
+      const g = new THREE.Group();
+      const hull = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.55, 1.4), woodMat); hull.position.set(0, 0.25, 0);
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 2.8, 8), woodMat); mast.position.set(0, 1.6, 0);
+      const sail = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.9), new THREE.MeshStandardMaterial({ color: 0xfef3c7, side: THREE.DoubleSide }));
+      sail.position.set(0.35, 1.85, 0); sail.rotation.y = 0.25; g.add(hull, mast, sail); return g;
+    }
+
+    function buildBullockCart(woodMat) {
+      const g = new THREE.Group();
+      const bed = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.22, 1.1), woodMat); bed.position.set(0, 0.55, 0);
+      const wGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.14, 18);
+      const w1 = new THREE.Mesh(wGeo, woodMat); w1.rotation.x = Math.PI / 2; w1.position.set(0, 0.42, 0.62);
+      const w2 = new THREE.Mesh(wGeo, woodMat); w2.rotation.x = Math.PI / 2; w2.position.set(0, 0.42, -0.62);
+      const yoke = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 0.1), woodMat); yoke.position.set(1.3, 0.58, 0);
+      g.add(bed, w1, w2, yoke); return g;
+    }
+
+    /* =========================================================================
+       PINS, MASTER INDEX & 14-STEP STORY CONTROLLER
+       ========================================================================= */
+    const pinEls = [];
+    function buildProjectedPins() {
+      const layer = document.getElementById('pins-layer'); layer.innerHTML = ''; pinEls.length = 0;
+      JOURNEY_STEPS.forEach((step, idx) => {
+        if (idx === 0 || idx === 13) return;
+        const el = document.createElement('button');
+        el.className = `pin-3d px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg flex items-center gap-1 ${step.scope === 'common' ? 'pin-common' : 'pin-specific'}`;
+        el.innerHTML = `<span>${step.scope === 'common' ? '🟣' : '🔵'}</span><span>${step.pinLabel}</span>`;
+        el.addEventListener('click', () => goToStep(idx));
+        layer.appendChild(el);
+        pinEls.push({ el, idx, vec: new THREE.Vector3(...step.pinPos) });
+      });
+    }
+
+    function updateProjectedPins() {
+      const layer = document.getElementById('pins-layer');
+      layer.style.display = state.showPins ? 'block' : 'none';
+      if (!state.showPins || !camera) return;
+      const w = window.innerWidth, h = window.innerHeight;
+      pinEls.forEach(p => {
+        const v = p.vec.clone().project(camera);
+        if (v.z > 1 || v.x < -1.08 || v.x > 1.08 || v.y < -1.08 || v.y > 1.08) p.el.style.display = 'none';
+        else {
+          p.el.style.display = 'flex';
+          p.el.style.left = `${(v.x * 0.5 + 0.5) * w}px`;
+          p.el.style.top = `${(-v.y * 0.5 + 0.5) * h}px`;
+          p.el.classList.toggle('active-pin', p.idx === state.stepIdx);
+        }
+      });
+    }
+
+    function buildMasterIndex() {
+      const body = document.getElementById('index-list-body');
+      body.innerHTML = JOURNEY_STEPS.map((s, i) => `
+        <button data-mi="${i}" class="mi-btn w-full text-left px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
+          i === state.stepIdx ? 'bg-purple-800/70 border-amber-300 text-white' : 'bg-zinc-950/90 border-purple-900/40 text-gray-200 hover:border-purple-500'
+        }"><span class="truncate">${s.scope === 'common' ? '🟣' : '🔵'} ${s.short}</span><span class="text-[11px] font-bold ${state.visited.has(i) ? 'text-emerald-400' : 'text-gray-600'}">${state.visited.has(i) ? '✓' : '○'}</span></button>
+      `).join('');
+      body.querySelectorAll('.mi-btn').forEach(b => b.addEventListener('click', () => goToStep(Number(b.dataset.mi))));
+      document.getElementById('visited-count').textContent = state.visited.size;
+    }
+
+    function goToStep(idx) {
+      state.stepIdx = Math.max(0, Math.min(JOURNEY_STEPS.length - 1, idx));
+      state.visited.add(state.stepIdx);
+      const s = JOURNEY_STEPS[state.stepIdx];
+      cam.tTheta = s.cam.theta; cam.tPhi = s.cam.phi; cam.tRadius = s.cam.radius; cam.tLook.set(...s.cam.lookAt);
+      state.drainXray = (s.id === 'drainage');
+      state.houseRoofLift = (s.id === 'heroHouse') ? 82 : 0;
+      state.bathCutaway = (s.id === 'greatBath');
+      if (s.id !== 'declineLegacy') state.declineFactor = 0;
+
+      document.getElementById('step-badge').textContent = `પગલું ${state.stepIdx + 1} / ${JOURNEY_STEPS.length}`;
+      const sb = document.getElementById('step-scope-badge');
+      sb.textContent = s.scope === 'common' ? '🟣 સર્વવ્યાપી' : '🔵 સ્થળ-વિશિષ્ટ';
+      sb.className = s.scope === 'common'
+        ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-200 border border-purple-500/60'
+        : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-950 text-sky-200 border border-sky-400/60';
+      document.getElementById('step-title').textContent = s.title;
+      const sr = document.getElementById('step-scope-reason');
+      sr.innerHTML = s.scopeReason;
+      sr.className = s.scope === 'common'
+        ? 'p-2.5 rounded-xl text-[11px] leading-relaxed bg-purple-950/35 border border-purple-700/50 text-purple-100'
+        : 'p-2.5 rounded-xl text-[11px] leading-relaxed bg-sky-950/40 border border-sky-600/50 text-sky-100';
+      document.getElementById('step-metrics').innerHTML = s.metrics.map(m =>
+        `<div class="p-2 rounded-xl bg-zinc-950/90 border border-purple-900/50"><div class="text-[10px] text-gray-400">${m[0]}</div><div class="text-xs font-bold text-amber-300">${m[1]}</div></div>`
+      ).join('');
+      document.getElementById('step-bullets').innerHTML = s.bullets.map(b => `<li class="${b.ncert ? 'ncert-item' : 'non-ncert-item'}">${b.txt}</li>`).join('');
+      document.getElementById('step-deep-note').innerHTML = `<b>ઊંડાણપૂર્વક સમજ:</b> ${s.deep}`;
+      renderStepLiveControls(s.liveControl);
+      renderStepMicroQuiz(s.quiz);
+      renderBottomStepsBar();
+      buildMasterIndex();
+      document.getElementById('story-body').scrollTop = 0;
+    }
+
+    function renderStepLiveControls(type) {
+      const box = document.getElementById('step-live-controls');
+      if (!type) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+      box.classList.remove('hidden');
+      if (type === 'greatBathCutaway') {
+        box.innerHTML = `<div class="flex items-center justify-between"><span class="font-bold text-cyan-300 text-xs">3D જળરોધક બિટ્યુમેન કટઅવે</span><button id="ctrl-bath-cut" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-600 text-black">${state.bathCutaway ? 'બિટ્યુમેન: દેખાય છે' : 'બિટ્યુમેન બતાવો'}</button></div>`;
+        document.getElementById('ctrl-bath-cut').addEventListener('click', () => { state.bathCutaway = !state.bathCutaway; document.getElementById('ctrl-bath-cut').textContent = state.bathCutaway ? 'બિટ્યુમેન: દેખાય છે' : 'બિટ્યુમેન બતાવો'; });
+      } else if (type === 'houseCutaway') {
+        box.innerHTML = `<div class="flex justify-between text-xs font-bold text-amber-300"><span>3D મકાન છત કટઅવે</span><span id="lbl-roof">${state.houseRoofLift}%</span></div><input id="ctrl-roof" type="range" min="0" max="100" value="${state.houseRoofLift}" class="w-full" />`;
+        document.getElementById('ctrl-roof').addEventListener('input', e => { state.houseRoofLift = Number(e.target.value); document.getElementById('lbl-roof').textContent = `${state.houseRoofLift}%`; });
+      } else if (type === 'drainageXray') {
+        box.innerHTML = `<div class="flex flex-wrap gap-3 text-xs font-bold text-cyan-200"><label class="inline-flex items-center gap-1.5 cursor-pointer"><input id="ctrl-xray" type="checkbox" ${state.drainXray ? 'checked' : ''} class="accent-cyan-400" /><span>રસ્તો X-Ray</span></label><label class="inline-flex items-center gap-1.5 cursor-pointer"><input id="ctrl-covers" type="checkbox" ${state.drainCovers ? 'checked' : ''} class="accent-amber-400" /><span>પથ્થરનાં ઢાંકણાં</span></label></div>`;
+        document.getElementById('ctrl-xray').addEventListener('change', e => { state.drainXray = e.target.checked; });
+        document.getElementById('ctrl-covers').addEventListener('change', e => { state.drainCovers = e.target.checked; });
+      } else if (type === 'dockTide') {
+        box.innerHTML = `<div class="flex items-center justify-between"><span class="font-bold text-cyan-300 text-xs">3D લોથલ ભરતી અને સ્લુઇસ ગેટ</span><button id="ctrl-sluice" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-600 text-black">${state.sluiceClosed ? 'ગેટ: બંધ' : 'ગેટ: ખુલ્લો'}</button></div><input id="ctrl-tide" type="range" min="15" max="100" value="${state.dockTide}" class="w-full" />`;
+        document.getElementById('ctrl-tide').addEventListener('input', e => { state.dockTide = Number(e.target.value); });
+        document.getElementById('ctrl-sluice').addEventListener('click', () => { state.sluiceClosed = !state.sluiceClosed; document.getElementById('ctrl-sluice').textContent = state.sluiceClosed ? 'ગેટ: બંધ' : 'ગેટ: ખુલ્લો'; });
+      } else if (type === 'monsoon') {
+        box.innerHTML = `<div class="flex justify-between text-xs font-bold text-cyan-300"><span>3D ધોળાવીરા વરસાદ (પ્રવેશ+નિકાસ)</span><span id="lbl-monsoon">${state.monsoonLevel}%</span></div><input id="ctrl-monsoon" type="range" min="10" max="100" value="${state.monsoonLevel}" class="w-full" />`;
+        document.getElementById('ctrl-monsoon').addEventListener('input', e => { state.monsoonLevel = Number(e.target.value); document.getElementById('lbl-monsoon').textContent = `${state.monsoonLevel}%`; });
+      } else if (type === 'boustrophedon') {
+        box.innerHTML = `<div class="flex items-center justify-between"><span class="font-bold text-amber-300 text-xs">બૌસ્ટ્રોફેડોન વાંચન</span><button id="ctrl-boustro-play" class="px-2.5 py-1 rounded-lg bg-purple-700 text-white text-[11px] font-bold">ચલાવો ▶</button></div><div class="grid grid-cols-5 gap-1 text-center text-sm font-bold"><div id="bm-1-0" class="py-1 rounded bg-zinc-900 border border-purple-800">⚶</div><div id="bm-1-1" class="py-1 rounded bg-zinc-900 border border-purple-800">ᨀ</div><div id="bm-1-2" class="py-1 rounded bg-zinc-900 border border-purple-800">☥</div><div id="bm-1-3" class="py-1 rounded bg-zinc-900 border border-purple-800">⧖</div><div id="bm-1-4" class="py-1 rounded bg-zinc-900 border border-purple-800">⋔</div><div id="bm-2-0" class="py-1 rounded bg-zinc-900 border border-cyan-800">⧓</div><div id="bm-2-1" class="py-1 rounded bg-zinc-900 border border-cyan-800">ᨅ</div><div id="bm-2-2" class="py-1 rounded bg-zinc-900 border border-cyan-800">⚷</div><div id="bm-2-3" class="py-1 rounded bg-zinc-900 border border-cyan-800">⋕</div><div id="bm-2-4" class="py-1 rounded bg-zinc-900 border border-cyan-800">☤</div></div>`;
+        document.getElementById('ctrl-boustro-play').addEventListener('click', () => {
+          if (state.boustroTimer) clearInterval(state.boustroTimer);
+          const seq = ['bm-1-4','bm-1-3','bm-1-2','bm-1-1','bm-1-0','bm-2-0','bm-2-1','bm-2-2','bm-2-3','bm-2-4'];
+          let i = 0;
+          state.boustroTimer = setInterval(() => {
+            seq.forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('boustro-lit'); });
+            if (i >= seq.length) { clearInterval(state.boustroTimer); return; }
+            const el = document.getElementById(seq[i]); if (el) el.classList.add('boustro-lit'); i++;
+          }, 340);
+        });
+      } else if (type === 'declineSlider') {
+        box.innerHTML = `<div class="flex justify-between text-xs font-bold text-red-300"><span>3D પતન સમય-પરિવર્તન</span><span id="lbl-era">${Math.round(2600 - state.declineFactor * 7)} BCE</span></div><input id="ctrl-decline" type="range" min="0" max="100" value="${state.declineFactor}" class="w-full" />`;
+        document.getElementById('ctrl-decline').addEventListener('input', e => { state.declineFactor = Number(e.target.value); document.getElementById('lbl-era').textContent = `${Math.round(2600 - state.declineFactor * 7)} BCE`; });
+      }
+    }
+
+    function renderStepMicroQuiz(qObj) {
+      const box = document.getElementById('step-micro-quiz');
+      box.innerHTML = `<div class="text-[10px] font-bold text-cyan-300">ઝડપી સક્રિય પુનરાવર્તન</div><div class="font-bold text-white text-xs">${qObj.q}</div><div class="grid grid-cols-1 gap-1.5">${qObj.opts.map((o, i) => `<button data-mq="${i}" class="mq-btn text-left px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-purple-800/50 hover:border-purple-400 text-[11px] text-gray-200">${o}</button>`).join('')}</div><div id="mq-res" class="text-[11px] font-bold hidden"></div>`;
+      box.querySelectorAll('.mq-btn').forEach(btn => btn.addEventListener('click', () => {
+        const ok = Number(btn.dataset.mq) === qObj.ans;
+        const res = document.getElementById('mq-res'); res.classList.remove('hidden');
+        btn.className = ok ? 'mq-btn text-left px-2.5 py-1.5 rounded-lg bg-emerald-950 border border-emerald-500 text-[11px] text-emerald-200 font-bold' : 'mq-btn text-left px-2.5 py-1.5 rounded-lg bg-red-950 border border-red-500 text-[11px] text-red-200';
+        res.textContent = ok ? '✓ સાચો જવાબ!' : `✗ સાચો જવાબ: ${qObj.opts[qObj.ans]}`;
+        res.className = `text-[11px] font-bold ${ok ? 'text-emerald-300' : 'text-red-300'}`;
+      }));
+    }
+
+    function renderBottomStepsBar() {
+      const bar = document.getElementById('step-dots-bar');
+      bar.innerHTML = JOURNEY_STEPS.map((s, i) => `
+        <button data-si="${i}" class="step-pill px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap ${
+          i === state.stepIdx ? 'bg-purple-700 text-white border border-amber-300 shadow' : (s.scope === 'common' ? 'bg-purple-950/50 text-purple-200 border border-purple-800/60' : 'bg-sky-950/50 text-sky-200 border border-sky-800/60')
+        }">${s.short}</button>
+      `).join('');
+      bar.querySelectorAll('.step-pill').forEach(b => b.addEventListener('click', () => goToStep(Number(b.dataset.si))));
+    }
+
+    /* =========================================================================
+       INTERACTIVE PDF-DERIVED D3 MAPS & DIAGRAMS ATLAS (ALL 12 PDF VISUALS!)
+       ========================================================================= */
+    function loadWorldAtlas(cb) {
+      if (state.worldTopo) { cb(state.worldTopo); return; }
+      try {
+        d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
+          .then(w => { state.worldTopo = w; cb(w); })
+          .catch(() => cb(null));
+      } catch (e) { cb(null); }
+    }
+
+    function drawD3Base(containerEl, center, scaleVal, onReady) {
+      const w = containerEl.clientWidth || 640, h = containerEl.clientHeight || 360;
+      containerEl.innerHTML = '';
+      const svg = d3.select(containerEl).append('svg').attr('viewBox', `0 0 ${w} ${h}`).attr('class', 'w-full h-full');
+      const proj = d3.geoMercator().center(center).scale(scaleVal).translate([w / 2, h / 2]);
+      const path = d3.geoPath().projection(proj);
+      const baseG = svg.append('g');
+      baseG.append('path').datum(d3.geoGraticule10()).attr('d', path).attr('fill', 'none').attr('stroke', 'rgba(147,51,234,0.14)').attr('stroke-width', 0.7);
+      loadWorldAtlas(world => {
+        if (world && typeof topojson !== 'undefined') {
+          const land = topojson.feature(world, world.objects.countries);
+          baseG.selectAll('path.c').data(land.features).enter().append('path').attr('d', path).attr('fill', '#121220').attr('stroke', '#4c1d95').attr('stroke-width', 0.8);
+        }
+        onReady(svg, proj);
+      });
+    }
+
+    function renderAtlas(tab) {
+      state.atlasTab = tab;
+      document.querySelectorAll('.atlas-tab').forEach(b => b.classList.toggle('active', b.dataset.at === tab));
+      const body = document.getElementById('atlas-body');
+
+      if (tab === 'geo') {
+        body.innerHTML = `
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div class="lg:col-span-8 space-y-2">
+              <div class="text-xs font-extrabold text-cyan-300">PDF 1 (પૃ. ૧–૨): સિંધુ-સરસ્વતી (ઘગ્ગર-હકરા), મેલુહા અને ૫ ભૌગોલિક સીમાડા</div>
+              <div id="atlas-map-geo" class="w-full h-[360px] rounded-xl bg-[#05070e] border border-purple-900/50 overflow-hidden"></div>
+            </div>
+            <div class="lg:col-span-4 p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-2">
+              <div class="text-[11px] font-bold text-amber-300">પસંદ કરેલ સ્થળની વિગત (નકશા પર ક્લિક કરો)</div>
+              <div id="geo-info-title" class="text-sm font-extrabold text-white">શોર્તુગાઈ (સંપૂર્ણ ઉત્તરતમ સીમા)</div>
+              <div id="geo-info-body" class="text-xs text-gray-200 leading-relaxed">ઉત્તર અફઘાનિસ્તાનમાં IVC નું વેપારી થાણું — ઈરાન, અફઘાનિસ્તાન અને મધ્ય એશિયાથી <b>ટીન અને લાપિસ લાઝુલી ("આકાશનો પથ્થર")</b> મેળવવા સ્થાપિત.</div>
+              <div class="pt-2 border-t border-purple-900/40 text-[11px] text-purple-200">
+                <b>નદી તંત્ર (PDF p.1):</b> સિંધુ (Indus) ઉપરાંત સૂકી <b>ઘગ્ગર-હકરા (સરસ્વતી / સિંધુ પુત્રી)</b> કિનારે ગીચ વસાહતો; પશ્ચિમે સમકાલીન નામ <b>મેલુહા</b> (~2300/2350 BCE) ${N}.
+              </div>
+            </div>
+          </div>`;
+        const pts = [
+          { n: 'શોર્તુગાઈ', c: [69.53, 37.33], col: '#38bdf8', d: 'સંપૂર્ણ ઉત્તરતમ સીમા (ઉ. અફઘાનિસ્તાન) — ટીન અને લાપિસ લાઝુલી ("આકાશનો પથ્થર") માટે વેપારી થાણું; નહેર સિંચાઈ.' },
+          { n: 'માંડા', c: [74.73, 32.90], col: '#a855f7', d: 'ભારતની ઉત્તરતમ સીમા (જમ્મુ, ચિનાબ નદી).' },
+          { n: 'આલમગીરપુર', c: [77.57, 29.43], col: '#a855f7', d: 'પૂર્વતમ સીમા (મેરઠ, UP, હિંડન નદી / ગંગા-યમુના દોઆબ); કપાસ કાપડની છાપ.' },
+          { n: 'સુત્કાગેન-દોર', c: [61.95, 25.50], col: '#a855f7', d: 'પશ્ચિમતમ સીમા (બલુચિસ્તાન-ઈરાન સરહદ, મકરાન કાંઠો, દશ્ત નદી); દરિયાઈ બંદર.' },
+          { n: 'દાયમાબાદ', c: [74.66, 19.51], col: '#a855f7', d: 'દક્ષિણતમ સીમા (અહમદનગર, મહારાષ્ટ્ર, પ્રવરા/ગોદાવરી); અગાઉ નર્મદા મુખ ભગતરાવ (#NCERT).' },
+          { n: 'હડપ્પા', c: [72.87, 30.63], col: '#f59e0b', d: 'પ્રથમ ઉત્ખનિત સ્થળ (૧૯૨૦–૨૧); ~૫ km પરિઘ; ૧૨ અન્નાગાર; સેમેટરી R-37 અને H.' },
+          { n: 'મોહેંજો-દડો', c: [68.13, 27.33], col: '#f59e0b', d: '"મૃતકોનો ટીંબો"; ~૨૦૦ ha; હડપ્પાથી ૪૮૩ km દૂર; મહાસ્નાનાગાર, અન્નાગાર, કાંસ્ય નર્તકી.' },
+          { n: 'રાખીગઢી', c: [76.11, 29.29], col: '#f59e0b', d: 'સૌથી મોટું સ્થળ (~૫૫૦ ha); ત્રણેય તબક્કા; ૨૦૧૯ DNA અભ્યાસ.' },
+          { n: 'ધોળાવીરા', c: [70.21, 23.89], col: '#38bdf8', d: 'કચ્છ (UNESCO ૨૦૨૧); ત્રિ-સ્તરીય નગર; ૧૬+ જળાશયો; ૧૦ ચિહ્નોનું સાઈનબોર્ડ.' },
+          { n: 'લોથલ', c: [72.25, 22.52], col: '#38bdf8', d: 'ખંભાતનો અખાત; વિશ્વની પ્રાચીનતમ ભરતી ગોદી; ચોખા (1800 BCE).' }
+        ];
+        setTimeout(() => drawD3Base(document.getElementById('atlas-map-geo'), [70.5, 27.5], 950, (svg, proj) => {
+          // IVC Frontier Polygon
+          const polyPts = [[61.95,25.50],[69.53,37.33],[74.73,32.90],[77.57,29.43],[74.66,19.51],[70.21,23.89]].map(c => proj(c));
+          svg.append('polygon').attr('points', polyPts.map(p => p.join(',')).join(' ')).attr('fill', 'rgba(147,51,234,0.18)').attr('stroke', '#a855f7').attr('stroke-width', 1.8).attr('stroke-dasharray', '5 4');
+          // Ghaggar-Hakra paleochannel line
+          const gh = [[77.2, 30.6], [76.1, 29.3], [74.1, 29.4], [71.5, 28.0], [69.5, 25.0]].map(c => proj(c));
+          svg.append('path').attr('d', d3.line()(gh)).attr('fill', 'none').attr('stroke', '#38bdf8').attr('stroke-width', 2.2).attr('stroke-dasharray', '4 3');
+          // Nodes
+          const g = svg.append('g').selectAll('g').data(pts).enter().append('g').attr('transform', d => `translate(${proj(d.c)})`).style('cursor', 'pointer')
+            .on('click', (e, d) => { document.getElementById('geo-info-title').textContent = d.n; document.getElementById('geo-info-body').textContent = d.d; });
+          g.append('circle').attr('r', 6).attr('fill', d => d.col).attr('stroke', '#fff').attr('stroke-width', 1.5);
+          g.append('text').attr('y', -9).attr('text-anchor', 'middle').attr('fill', '#fff').attr('font-size', '10px').attr('font-weight', '700').text(d => d.n);
+        }), 40);
+
+      } else if (tab === 'cultures') {
+        body.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="text-xs font-extrabold text-amber-300">PDF 1 (પૃ. ૪) અને PDF 2 (પૃ. ૧૩–૧૪): પ્રાદેશિક સંસ્કૃતિઓનો કાલક્રમ નકશો</div>
+              <div class="flex flex-wrap gap-1.5">
+                <button id="ce-pre" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${state.cultureEra==='pre'?'bg-purple-700 text-white border-purple-400':'bg-zinc-900 text-gray-300 border-purple-800'}">૧. ૪ પ્રારંભિક હડપ્પન (3300–2600 BCE)</button>
+                <button id="ce-3m" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${state.cultureEra==='3m'?'bg-purple-700 text-white border-purple-400':'bg-zinc-900 text-gray-300 border-purple-800'}">૨. ૩જી સહસ્રાબ્દી (પરિપક્વ સમકાલીન)</button>
+                <button id="ce-2m" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${state.cultureEra==='2m'?'bg-purple-700 text-white border-purple-400':'bg-zinc-900 text-gray-300 border-purple-800'}">૩. ૨જી સહસ્રાબ્દી (ઉત્તર-હડપ્પન)</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div id="atlas-map-cult" class="lg:col-span-8 h-[350px] rounded-xl bg-[#05070e] border border-purple-900/50 overflow-hidden"></div>
+              <div id="cult-side-list" class="lg:col-span-4 space-y-2"></div>
+            </div>
+          </div>`;
+        document.getElementById('ce-pre').addEventListener('click', () => { state.cultureEra = 'pre'; renderAtlas('cultures'); });
+        document.getElementById('ce-3m').addEventListener('click', () => { state.cultureEra = '3m'; renderAtlas('cultures'); });
+        document.getElementById('ce-2m').addEventListener('click', () => { state.cultureEra = '2m'; renderAtlas('cultures'); });
+
+        const sets = {
+          pre: [
+            { n: 'દમ્બ સાદાત', c: [67.0, 30.1], col: '#f59e0b', d: 'બલુચિસ્તાન પ્રદેશ (મેહરગઢ મુખ્ય).' },
+            { n: 'કોટ દીજી', c: [68.7, 27.3], col: '#a855f7', d: 'મોહેંજો-દડોની ઉત્તરે; ગ્રામીણથી નગર સંક્રમણ (#NCERT).' },
+            { n: 'આમરી-નાલ', c: [67.9, 26.1], col: '#38bdf8', d: 'દક્ષિણ સિંધ-બલુચિસ્તાન; "આમરીના ૭ ફેબ્રિક્સ" (૭ પ્રકારના માટીકામ).' },
+            { n: 'સોથી-સિસવાલ', c: [75.4, 29.2], col: '#10b981', d: 'પૂર્વીય ક્ષેત્ર (હરિયાણા / ઉત્તર રાજસ્થાન).' }
+          ],
+          '3m': [
+            { n: 'ગણેશ્વર (OCP)', c: [75.8, 27.6], col: '#f59e0b', d: 'ઉત્તર રાજસ્થાન (અલવર-સીકર) — કોપર હોર્ડ; IVC ને તાંબું પુરવઠો.' },
+            { n: 'આહડ-બનાસ', c: [73.7, 24.6], col: '#a855f7', d: 'દક્ષિણ રાજસ્થાન (આહડ, બાલાથલ, ગિલુંદ) — તાંબું અને પથ્થર; ગિલુંદમાં ઈંટ (~2000–1500 BCE).' },
+            { n: 'કાયથા', c: [76.0, 23.2], col: '#38bdf8', d: 'ઉજ્જૈન નજીક (ક્ષિપ્રા નદી ખીણ).' },
+            { n: 'સાવલદા', c: [74.5, 21.4], col: '#10b981', d: 'નર્મદા અને તાપી નદી વચ્ચે.' }
+          ],
+          '2m': [
+            { n: 'OCP (કોપર હોર્ડ)', c: [77.6, 28.8], col: '#f59e0b', d: 'ઉપર ગંગા મેદાન; લાલ કિલ્લા (બુલંદશહર) માં છૂટી પકવેલી ઈંટો.' },
+            { n: 'પ્રભાસ અને રંગપુર', c: [71.5, 21.8], col: '#38bdf8', d: 'ગુજરાત (સોમનાથ-સૌરાષ્ટ્ર) — હડપ્પન સભ્યતાના સીધા વંશજો (#NCERT).' },
+            { n: 'માળવા (નવદાટોલી)', c: [75.6, 22.3], col: '#a855f7', d: '1700–1200 BCE; નર્મદાની ઉત્તરે; ન્યૂનતમ હડપ્પન તત્ત્વો.' },
+            { n: 'જોર્વે (દાયમાબાદ)', c: [74.7, 19.5], col: '#10b981', d: 'મહારાષ્ટ્ર; દાયમાબાદ 22 ha (~4,000 વસ્તી, આદ્ય-નગરીય).' }
+          ]
+        };
+        const cur = sets[state.cultureEra];
+        document.getElementById('cult-side-list').innerHTML = cur.map(x => `<div class="p-3 rounded-xl bg-zinc-950 border border-purple-900/50"><div class="font-extrabold text-amber-300">${x.n}</div><p class="text-gray-300 mt-0.5">${x.d}</p></div>`).join('');
+        setTimeout(() => drawD3Base(document.getElementById('atlas-map-cult'), [73, 25.5], 1150, (svg, proj) => {
+          const g = svg.append('g').selectAll('g').data(cur).enter().append('g').attr('transform', d => `translate(${proj(d.c)})`);
+          g.append('circle').attr('r', 16).attr('fill', d => d.col).attr('opacity', 0.25).attr('stroke', d => d.col).attr('stroke-width', 2);
+          g.append('circle').attr('r', 5).attr('fill', d => d.col);
+          g.append('text').attr('y', -18).attr('text-anchor', 'middle').attr('fill', '#fff').attr('font-size', '10px').attr('font-weight', '700').text(d => d.n);
+        }), 40);
+
+      } else if (tab === 'trade') {
+        body.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="text-xs font-extrabold text-cyan-300">PDF 1 (પૃ. ૧૪) / PDF 2 (પૃ. ૧): આયાત-નિકાસ વેપાર જાળું (મેસોપોટેમિયા થી કોલાર)</div>
+              <div class="flex gap-1.5">
+                <button id="td-all" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${state.tradeDir==='all'?'bg-purple-700 text-white':'bg-zinc-900 text-gray-300 border-purple-800'}">બધા માર્ગ</button>
+                <button id="td-sea" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${state.tradeDir==='maritime'?'bg-cyan-700 text-white':'bg-zinc-900 text-cyan-300 border-cyan-800'}">દરિયાઈ</button>
+                <button id="td-land" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${state.tradeDir==='overland'?'bg-amber-700 text-black':'bg-zinc-900 text-amber-300 border-amber-800'}">ભૂમિ માર્ગ</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div id="atlas-map-trade" class="lg:col-span-8 h-[350px] rounded-xl bg-[#05070e] border border-purple-900/50 overflow-hidden"></div>
+              <div class="lg:col-span-4 p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-2">
+                <div id="tr-title" class="text-sm font-extrabold text-amber-300">ફૈલાકા હોર્ડ અને મેસોપોટેમિયા</div>
+                <div id="tr-desc" class="text-xs text-gray-200 leading-relaxed">પર્સિયન ગલ્ફના ફૈલાકા ટાપુ પરથી હડપ્પન ચીજોનો જથ્થો; બહેરીન (દિલમુન) થી વાસણો; ઓમાન (મકાન) થી તાંબું; IVC નિકાસ: કપાસ કાપડ, કાર્નેલિયન-લાપિસ મણકા, શંખ, હાથીદાંત, સ્ટીએટાઇટ, મુદ્રા.</div>
+              </div>
+            </div>
+          </div>`;
+        document.getElementById('td-all').addEventListener('click', () => { state.tradeDir = 'all'; renderAtlas('trade'); });
+        document.getElementById('td-sea').addEventListener('click', () => { state.tradeDir = 'maritime'; renderAtlas('trade'); });
+        document.getElementById('td-land').addEventListener('click', () => { state.tradeDir = 'overland'; renderAtlas('trade'); });
+
+        const tNodes = [
+          { id: 'ivc', n: 'IVC કેન્દ્ર', c: [69.5, 25.5], col: '#a855f7', d: 'મોહેંજો-દડો, હડપ્પા, લોથલ, ધોળાવીરા — વિનિમય પ્રથા (કોઈ સિક્કા નહીં).' },
+          { id: 'ur', n: 'મેસોપોટેમિયા', c: [47.4, 31.0], col: '#38bdf8', d: 'નિકાસ: કપાસ કાપડ, કાર્નેલિયન-લાપિસ મણકા, શંખ, મુદ્રા, અનાજ.' },
+          { id: 'failaka', n: 'ફૈલાકા-બહેરીન', c: [48.8, 28.5], col: '#38bdf8', d: 'ફૈલાકા હોર્ડ (પર્સિયન ગલ્ફ); દિલમુન (બહેરીન) થી વાસણો.' },
+          { id: 'oman', n: 'ઓમાન (મકાન)', c: [57.0, 24.0], col: '#38bdf8', d: 'આયાત: તાંબું | નિકાસ: હાથીદાંત, સ્ટીએટાઇટ.' },
+          { id: 'iran', n: 'ઈરાન', c: [55.0, 31.5], col: '#f59e0b', d: 'આયાત: ફિરોઝા (Turquoise) અને લાપિસ લાઝુલી.' },
+          { id: 'afg', n: 'અફઘાનિસ્તાન-મધ્ય એશિયા', c: [69.5, 37.3], col: '#f59e0b', d: 'આયાત: ટીન, લાપિસ લાઝુલી અને જેડ (Jade).' },
+          { id: 'burz', n: 'બુર્ઝાહોમ (કાશ્મીર)', c: [74.9, 34.2], col: '#f59e0b', d: 'આયાત: લાકડું અને ઇમારતી કાષ્ઠ.' },
+          { id: 'ganesh', n: 'ગણેશ્વર-ખેતડી-આહડ', c: [75.8, 27.6], col: '#f59e0b', d: 'આયાત: તાંબું (ખેતડી, ગણેશ્વર OCP, આહડ), કાર્નેલિયન, સ્ટીએટાઇટ.' },
+          { id: 'kolar', n: 'કોલાર (કર્ણાટક)', c: [78.3, 13.0], col: '#f59e0b', d: 'આયાત: સોનું અને દક્ષિણ ભારતીય કીમતી પથ્થર.' }
+        ];
+        const tLinks = [
+          ['ivc','oman','maritime'], ['oman','failaka','maritime'], ['failaka','ur','maritime'],
+          ['iran','ivc','overland'], ['afg','ivc','overland'], ['burz','ivc','overland'], ['ganesh','ivc','overland'], ['kolar','ivc','overland']
+        ];
+        setTimeout(() => drawD3Base(document.getElementById('atlas-map-trade'), [63, 25.5], 680, (svg, proj) => {
+          tLinks.filter(l => state.tradeDir === 'all' || l[2] === state.tradeDir).forEach(([a, b, tp]) => {
+            const p1 = proj(tNodes.find(x => x.id === a).c), p2 = proj(tNodes.find(x => x.id === b).c);
+            const mx = (p1[0] + p2[0]) / 2, my = (p1[1] + p2[1]) / 2 + (tp === 'maritime' ? 22 : -18);
+            svg.append('path').attr('d', `M${p1[0]},${p1[1]} Q${mx},${my} ${p2[0]},${p2[1]}`).attr('fill', 'none').attr('stroke', tp === 'maritime' ? '#38bdf8' : '#f59e0b').attr('stroke-width', 2).attr('stroke-dasharray', tp === 'maritime' ? '6 4' : 'none');
+          });
+          const g = svg.append('g').selectAll('g').data(tNodes).enter().append('g').attr('transform', d => `translate(${proj(d.c)})`).style('cursor', 'pointer')
+            .on('click', (e, d) => { document.getElementById('tr-title').textContent = d.n; document.getElementById('tr-desc').textContent = d.d; });
+          g.append('circle').attr('r', 6).attr('fill', d => d.col).attr('stroke', '#fff').attr('stroke-width', 1.4);
+          g.append('text').attr('y', -9).attr('text-anchor', 'middle').attr('fill', '#fff').attr('font-size', '9.5px').attr('font-weight', '700').text(d => d.n);
+        }), 40);
+
+      } else if (tab === 'irrigation') {
+        body.innerHTML = `
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-2">
+              <div class="font-extrabold text-amber-300">PDF 1 (પૃ. ૧૨): ૪ સિંચાઈ પદ્ધતિઓ અને ગબરબંધ ક્રોસ-સેક્શન</div>
+              <svg viewBox="0 0 460 220" class="w-full h-auto rounded-xl bg-[#05080f] border border-purple-900/40">
+                <rect x="0" y="0" width="460" height="220" fill="#05080f"/>
+                <!-- 4 Methods Boxes -->
+                <rect x="14" y="16" width="205" height="42" rx="6" fill="#1e1b4b" stroke="#a855f7"/><text x="24" y="34" fill="#e9d5ff" font-size="11" font-weight="bold">૧. પૂર સિંચાઈ (મુખ્ય સિંધુ મેદાન)</text><text x="24" y="50" fill="#9ca3af" font-size="9.5">વાર્ષિક પૂર ઓસર્યા પછી નવેમ્બર વાવણી</text>
+                <rect x="14" y="66" width="205" height="42" rx="6" fill="#172554" stroke="#38bdf8"/><text x="24" y="84" fill="#bae6fd" font-size="11" font-weight="bold">૨. નહેર સિંચાઈ (શોર્તુગાઈ)</text><text x="24" y="100" fill="#9ca3af" font-size="9.5">R.S. Sharma: મુખ્ય ક્ષેત્રમાં અભાવ (#NCERT)</text>
+                <rect x="14" y="116" width="205" height="42" rx="6" fill="#164e63" stroke="#22d3ee"/><text x="24" y="134" fill="#a5f3fc" font-size="11" font-weight="bold">૩. તળાવ / કુંડ સિંચાઈ (ગુજરાત)</text><text x="24" y="150" fill="#9ca3af" font-size="9.5">અર્ધ-શુષ્ક સીમાવર્તી ક્ષેત્રોમાં</text>
+                <rect x="14" y="166" width="205" height="42" rx="6" fill="#451a03" stroke="#f59e0b"/><text x="24" y="184" fill="#fde68a" font-size="11" font-weight="bold">૪. ગબરબંધ (બલુચિસ્તાન)</text><text x="24" y="200" fill="#d1d5db" font-size="9.5">માટી-પથ્થરના પાળા (પાણી + કાંપ સંગ્રહ)</text>
+                <!-- Right: PDF p.12 Gabarband Bund Diagram -->
+                <rect x="236" y="16" width="210" height="192" rx="8" fill="#0b0f19" stroke="#f59e0b"/>
+                <text x="341" y="36" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="bold">ગબરબંધ આકૃતિ (PDF p.12)</text>
+                <path d="M256,80 Q290,110 324,80" fill="#0891b2" opacity="0.7" stroke="#f59e0b" stroke-width="3"/>
+                <path d="M346,80 Q380,110 414,80" fill="#0891b2" opacity="0.7" stroke="#f59e0b" stroke-width="3"/>
+                <path d="M295,140 Q340,175 385,140" fill="#0891b2" opacity="0.7" stroke="#f59e0b" stroke-width="3"/>
+                <text x="290" y="72" text-anchor="middle" fill="#67e8f9" font-size="9">પાણી સંગ્રહ</text>
+                <text x="380" y="72" text-anchor="middle" fill="#4ade80" font-size="9">વનીકરણ-ખેતી</text>
+                <text x="341" y="194" text-anchor="middle" fill="#fcd34d" font-size="9.5">અર્ધવર્તુળાકાર પાળા (Bunds) વહેણ રોકે</text>
+              </svg>
+            </div>
+            <div class="p-3.5 rounded-xl bg-zinc-950 border border-cyan-900/50 space-y-2">
+              <div class="font-extrabold text-cyan-300">PDF 1 (પૃ. ૧૩ PYQ): ધોળાવીરા ત્રિ-સ્તરીય નગર અને જળાશય પ્લાન</div>
+              <svg viewBox="0 0 460 220" class="w-full h-auto rounded-xl bg-[#05080f] border border-cyan-900/40">
+                <path d="M12,30 Q180,18 448,26" fill="none" stroke="#22d3ee" stroke-width="5"/>
+                <text x="20" y="18" fill="#67e8f9" font-size="10" font-weight="bold">મનસર (ઉત્તર મોસમી પ્રવાહ — મુખ્ય નદી નહીં)</text>
+                <path d="M12,192 Q210,204 448,190" fill="none" stroke="#22d3ee" stroke-width="5"/>
+                <text x="20" y="212" fill="#67e8f9" font-size="10" font-weight="bold">મનહર (દક્ષિણ મોસમી પ્રવાહ)</text>
+                <rect x="60" y="22" width="12" height="22" fill="#f59e0b"/><text x="78" y="42" fill="#fde68a" font-size="9">ચેક-ડેમ</text>
+                <rect x="44" y="64" width="52" height="96" rx="4" fill="#0891b2" opacity="0.8" stroke="#67e8f9"/><text x="70" y="115" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="bold">જળાશય</text>
+                <rect x="108" y="64" width="82" height="96" rx="4" fill="#4c1d95" stroke="#c084fc"/><text x="149" y="115" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">સિટાડેલ</text>
+                <rect x="202" y="64" width="90" height="96" rx="4" fill="#1e1b4b" stroke="#818cf8"/><text x="247" y="115" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">મધ્ય નગર</text>
+                <rect x="304" y="64" width="84" height="96" rx="4" fill="#172554" stroke="#60a5fa"/><text x="346" y="115" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">નીચલું નગર</text>
+                <rect x="398" y="64" width="46" height="96" rx="4" fill="#0891b2" opacity="0.8" stroke="#67e8f9"/><text x="421" y="115" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">જળાશય</text>
+                <rect x="115" y="168" width="260" height="18" rx="3" fill="#0e7490" stroke="#67e8f9"/><text x="245" y="180" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">દક્ષિણ આંતરસંબંધિત જળાશય શ્રેણી (૧૬+)</text>
+              </svg>
+            </div>
+          </div>`;
+
+      } else {
+        body.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-2">
+              <div class="font-extrabold text-amber-300">PDF 1 (પૃ. ૭): માનક ૧:૨:૪ પકવેલી ઈંટ</div>
+              <div class="flex items-center justify-between text-xs"><span>એકમ જાડાઈ: <b id="at-bh">7</b> સે.મી.</span><span class="font-mono text-amber-300" id="at-bdim">7 × 14 × 28 સે.મી.</span></div>
+              <input id="at-brick-sl" type="range" min="5" max="10" step="0.5" value="7" class="w-full"/>
+              <p class="text-gray-300">જાડાઈ (1) : પહોળાઈ (2) : લંબાઈ (4) — સમગ્ર સભ્યતામાં એકસમાન.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-2">
+              <div class="font-extrabold text-cyan-300">PDF 1 (પૃ. ૧૧): નક્કર પૈડું (✓) વિ. આરાવાળું પૈડું (✗)</div>
+              <div class="flex items-center justify-around py-2">
+                <div class="text-center"><svg viewBox="0 0 80 80" class="w-16 h-16 mx-auto"><circle cx="40" cy="40" r="32" fill="#92400e" stroke="#f59e0b" stroke-width="3"/><circle cx="40" cy="40" r="6" fill="#000"/></svg><div class="text-emerald-400 font-bold mt-1">નક્કર પૈડું ✓</div></div>
+                <div class="text-center opacity-70"><svg viewBox="0 0 80 80" class="w-16 h-16 mx-auto"><circle cx="40" cy="40" r="32" fill="none" stroke="#ef4444" stroke-width="3"/><line x1="8" y1="40" x2="72" y2="40" stroke="#ef4444" stroke-width="2"/><line x1="40" y1="8" x2="40" y2="72" stroke="#ef4444" stroke-width="2"/><line x1="17" y1="17" x2="63" y2="63" stroke="#ef4444" stroke-width="2"/><line x1="63" y1="17" x2="17" y2="63" stroke="#ef4444" stroke-width="2"/></svg><div class="text-red-400 font-bold mt-1">આરાવાળું ✗ (અભાવ)</div></div>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-2">
+              <div class="font-extrabold text-purple-300">PDF 2 (પૃ. ૧૦): સેમેટરી-H કબ્રસ્તાન આકૃતિ (હડપ્પા)</div>
+              <svg viewBox="0 0 260 95" class="w-full h-24 rounded-lg bg-[#05080f] border border-purple-900/40">
+                <rect x="75" y="14" width="14" height="68" rx="3" fill="#a855f7"/><rect x="170" y="14" width="14" height="68" rx="3" fill="#a855f7"/><rect x="89" y="42" width="81" height="14" rx="3" fill="#c084fc"/>
+                <text x="130" y="90" text-anchor="middle" fill="#e9d5ff" font-size="9.5">H-આકારમાં મૃતદેહોની ગોઠવણી (ઉત્તર-હડપ્પન)</text>
+              </svg>
+            </div>
+            <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-2">
+              <div class="font-extrabold text-amber-300">PDF 2 (પૃ. ૨): પ્રાદેશિક રાજ્યોનો સંઘ (હડપ્પા-મોહેંજો-લોથલ)</div>
+              <p class="text-gray-200 leading-relaxed">PDF 2 પૃ. ૨ માં દર્શાવ્યા મુજબ હડપ્પા, મોહેંજો-દડો અને લોથલ જેવાં મુખ્ય શહેરો આસપાસના ગામડાં પર શાસન કરતા નાના રાજ્યોની રાજધાની હતાં — અને ઝડપી આંતર-પ્રાદેશિક વેપારથી એકરૂપતા આવી.</p>
+            </div>
+          </div>`;
+        document.getElementById('at-brick-sl').addEventListener('input', e => {
+          const u = Number(e.target.value);
+          document.getElementById('at-bh').textContent = u;
+          document.getElementById('at-bdim').textContent = `${u} × ${u * 2} × ${u * 4} સે.મી.`;
+        });
+      }
+    }
+
+    /* =========================================================================
+       FULL-DEPTH KNOWLEDGE HUB RENDERER (100% MARKDOWN NOTES + #NCERT)
+       ========================================================================= */
+    function renderHubModal(tab) {
+      state.hubTab = tab;
+      document.querySelectorAll('.ht-btn').forEach(b => {
+        const active = b.dataset.ht === tab;
+        b.className = active ? 'ht-btn px-2.5 py-1.5 rounded-lg bg-purple-700 text-white font-bold' : 'ht-btn px-2.5 py-1.5 rounded-lg bg-zinc-900 text-gray-300 border border-purple-800/50 font-bold';
+      });
+      const body = document.getElementById('hub-modal-body');
+
+      if (tab === 'foundations') {
+        body.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-1.5"><h3 class="font-extrabold text-amber-300 text-sm">સંસ્કૃતિ વિ. સભ્યતા અને ૫ પ્રાગૈતિહાસિક યુગ</h3><ul class="tele-list text-gray-200">
+            <li class="non-ncert-item"><b>સંસ્કૃતિ:</b> મૂલ્ય-આધારિત (લોટો વિ. ગ્લાસ), રાજ્ય અમલ નહીં, એકાંતમાં અસ્તિત્વ, તટસ્થ (અન્ય સંસ્કૃતિને પોતાની કસોટીએ તોળવી એ લઘુતાગ્રંથિ).</li>
+            <li class="non-ncert-item"><b>સભ્યતા:</b> વસ્તી વધારો → સંઘર્ષ નિવારણ માટે કાયદા અને રાજ્ય અમલ; ઉપયોગિતા-આધારિત અને તુલનીય. દિલ્હીની વસ્તી ૧,૦૦૦ થાય તો ફરી સંસ્કૃતિ.</li>
+            <li class="ncert-item"><b>IVC = તામ્રપાષાણ યુગ:</b> પથ્થર + તાંબું/કાંસું (<b>લોખંડનો સંપૂર્ણ અભાવ</b>); સમકાલીન ગ્રામીણ તામ્રપાષાણ સંસ્કૃતિઓ (માળવા, જોર્વે, આહડ) કરતાં ઘણી આગળ ${N}. પુરાપાષાણ → મધ્યપાષાણ (Microliths) → નવપાષાણ (Celts) → તામ્રપાષાણ → લોહયુગ.</li>
+          </ul></div>
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-1.5"><h3 class="font-extrabold text-cyan-300 text-sm">૪ નામો, કાલક્રમ અને ઉદ્ભવ</h3><ul class="tele-list text-gray-200">
+            <li class="ncert-item"><b>નામો:</b> હડપ્પન (૧૯૨૦–૨૧ દયારામ સાહની, ૧૯૨૧ અહેવાલ, ૧૯૨૪ માર્શલ), સિંધુ ખીણ/સિંધુ ${N}, સિંધુ-સરસ્વતી (ઘગ્ગર-હકરા), મેલુહા (સાર્ગોન ~2300/2350 BCE; દિલમુન-બહેરીન, મકાન-ઓમાન ${N}; મ્લેચ્છ અસ્વીકૃત; ડી.કે. ચક્રવર્તી).</li>
+            <li class="ncert-item"><b>કાલક્રમ:</b> માર્શલ 3250–2750 | ફેરસર્વિસ 2000–1500 | ડી.પી. અગ્રવાલ 2300–1750 | R.S. Sharma: <b>2550–1900 BCE</b> (પરિપક્વ) & <b>1900–1200 BCE</b> (ઉત્તર) ${N} | New NCERT: 2600–1900 BCE.</li>
+            <li class="ncert-item"><b>ઉદ્ભવ:</b> મેસોપોટેમિયા/ઈરાન મત (માર્શલ-મેકે-વ્હીલર) <b>અસ્વીકૃત</b>; <b>સ્વદેશી ક્રમિક ઉત્ક્રાંતિ</b> સર્વમાન્ય ("ભારતીયતા" નિર્વિવાદ) ${N}.</li>
+          </ul></div></div>
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-purple-300 text-sm mb-1.5">૪ તબક્કા, ૧૦ આદ્ય-નગરીકરણ અને ૭ પરિપક્વ લક્ષણો</h3><ul class="tele-list text-gray-200">
+            <li class="ncert-item"><b>૧. અન્ન-ઉત્પાદક (૮મી–૪થી સહસ્રાબ્દી):</b> મેહરગઢ (પૂર્વ બલુચિસ્તાન, ~૧૫૦ માઈલ ઉ-પ) → સ્થાયી કૃષિ અને અધિશેષ ${N}.</li>
+            <li class="ncert-item"><b>૨. પ્રાદેશિકીકરણ (3300–2600 BCE):</b> ૪ સંસ્કૃતિઓ (દમ્બ સાદાત, કોટ દીજી, આમરી-નાલ "૭ ફેબ્રિક્સ", સોથી-સિસવાલ) ${N}. <b>૧૦ આદ્ય-નગરીકરણ લક્ષણો:</b> કિલ્લેબંધી, સિટાડેલ+નીચલું નગર, 90° ગ્રીડ, 1:2:4 ઈંટ (~30% પાકું), મણકા, લિપિ, મુદ્રા, ધર્મ-વિધિ, હળ-ચાસ કૃષિ, તાંબાના ઓજાર.</li>
+            <li class="ncert-item"><b>૩. એકીકરણ (2600/2550–1900 BCE):</b> <b>૭ પરિપક્વ લક્ષણો:</b> એકસમાન હડપ્પન વેર, વ્યાપક તાંબું-કાંસું, ૧૦૦% પાકી ઈંટ, સર્વત્ર મણકા, સર્વત્ર લિપિ, હજારોની વસ્તી, ૧૦+ લાખ ચો.કિ.મી.માં માનકીકરણ ${N}.</li>
+            <li class="ncert-item"><b>૪. સ્થાનીયકરણ (1900–1200 BCE):</b> વિનગરીકરણ; લોથલ વેપારી બંદર તરીકે ચાલુ ${N}.</li>
+          </ul></div>`;
+      } else if (tab === 'geography') {
+        body.innerHTML = `<div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-amber-300 text-sm mb-1.5">૫ સીમાડા અને ૧૬+ મુખ્ય સ્થળો (હડપ્પા–મોહેંજો અંતર: ૪૮૩ km ${N})</h3><ul class="tele-list text-gray-200">
+          <li class="ncert-item"><b>સીમાડા:</b> પશ્ચિમ: સુત્કાગેન-દોર | ભારત ઉત્તર: માંડા | સંપૂર્ણ ઉત્તર: શોર્તુગાઈ (ટીન-લાપિસ) | પૂર્વ: આલમગીરપુર | દક્ષિણ: દાયમાબાદ (અગાઉ ભગતરાવ ${N}).</li>
+          <li class="ncert-item"><b>શહેરો:</b> મોહેંજો-દડો (~200 ha), હડપ્પા (~5 km પરિઘ, R-37/H), ચન્હુદડો (~130 km દક્ષિણ, સિટાડેલ નહીં), કાલીબંગા ("કાળી બંગડી", ચાસ, અગ્નિકુંડ), બનાવાલી (જવ), લોથલ (ગોદી, ચોખા 1800 BCE), ધોળાવીરા (UNESCO 2021, ૩ સ્તર, ૧૬+ જળાશય), રાખીગઢી (~550 ha સૌથી મોટું, ત્રણેય તબક્કા), સુરકોટડા (શંકાસ્પદ ઘોડો ~2000 BCE), રંગપુર-રોજડી (ઉત્તર), ભગવાનપુરા (PGW), મેહરગઢ, રહેમાન ઢેરી, કિલે ગુલ મોહમ્મદ, રોપડ ${N}.</li>
+          <li class="ncert-item"><b>સમકાલીન તામ્રપાષાણ:</b> ૩જી સહસ્રાબ્દી — આહડ-બનાસ (ગિલુંદ ઈંટ ~2000–1500 BCE ${N}), ગણેશ્વર/OCP (તાંબું), કાયથા, સાવલદા. ૨જી સહસ્રાબ્દી — પ્રભાસ-રંગપુર (સીધા વંશજ ${N}), માળવા (1700–1200 BCE, નવદાટોલી ${N}), જોર્વે (દાયમાબાદ 22 ha, ~4,000 વસ્તી ${N}), લાલ કિલ્લા (W. UP છૂટી ઈંટ ${N}).</li>
+        </ul></div>`;
+      } else if (tab === 'economy') {
+        body.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-amber-300 text-sm mb-1.5">આયાત કોષ્ટક</h3><ul class="tele-list text-gray-200">
+            <li class="non-ncert-item"><b>શંખ:</b> કચ્છ | <b>ફિરોઝા:</b> ઈરાન | <b>કાર્નેલિયન-સ્ટીએટાઇટ:</b> દ. રાજસ્થાન | <b>સીસું-જેસ્પર:</b> બલુચિસ્તાન | <b>લાકડું:</b> બુર્ઝાહોમ | <b>વાસણો:</b> બહેરીન.</li>
+            <li class="ncert-item"><b>ટીન-લાપિસ:</b> ઉ. અફઘાનિસ્તાન, મધ્ય એશિયા (જેડ પણ); જૂની ટીન ખાણો હઝારીબાગ-બસ્તર ${N}.</li>
+            <li class="ncert-item"><b>તાંબું:</b> ખેતડી (અશુદ્ધિ પરીક્ષણ ${N}), ગણેશ્વર (OCP), આહડ, બલુચિસ્તાન, ઓમાન. <b>સોનું-ચાંદી-રત્નો:</b> કોલાર, દક્ષિણ ભારત, અફઘાનિસ્તાન ${N}.</li>
+          </ul></div>
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-cyan-300 text-sm mb-1.5">નિકાસ, વિનિમય, તોલમાપ</h3><ul class="tele-list text-gray-200">
+            <li class="ncert-item"><b>નિકાસ:</b> કપાસ કાપડ, ઘઉં-જવ-વટાણા-તેલીબિયાં ${N}, કાર્નેલિયન-લાપિસ મણકા, શંખ, ટેરાકોટા, હાથીદાંત (ઓમાન), સ્ટીએટાઇટ, તાંબાના ઓજાર, મોતી, મુદ્રા; મેસોપોટેમિયન સૌંદર્ય પ્રસાધનોની નકલ ${N}.</li>
+            <li class="ncert-item"><b>વિનિમય (Barter):</b> કોઈ સિક્કા નહીં ${N}. <b>તોલમાપ:</b> ૧૬-આધારિત (1/16 થી 640 → ૧૬ આના = ૧ રૂપિયો; કૌટિલ્ય) + દશાંશ (1/10–1/1000); કાંસ્ય સળિયો ${N}, લોથલ હાથીદાંત સ્કેલ (1.6 mm).</li>
+          </ul></div></div>`;
+      } else if (tab === 'politySociety') {
+        body.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-purple-300 text-sm mb-1.5">રાજકીય વ્યવસ્થા (૫ મોડેલ)</h3><ul class="tele-list text-gray-200">
+            <li class="ncert-item"><b>કેન્દ્રીય સત્તા:</b> ~૬૦૦ વર્ષ એકરૂપતા મજબૂત સત્તા સૂચવે — મૌર્ય સામ્રાજ્ય સુધી ફરી ન દેખાયું ${N}.</li>
+            <li class="non-ncert-item"><b>શસ્ત્રો:</b> મધ્ય-ધાર (Mid-rib) અભાવ → યુદ્ધ નહીં, કાયદો-શિકાર (TN SCERT યુદ્ધ શસ્ત્ર ગણે).</li>
+            <li class="ncert-item"><b>૫ મોડેલ:</b> ૧. કેન્દ્રિત સામ્રાજ્ય (અસ્વીકૃત), ૨. પ્રાદેશિક રાજ્યોનો સંઘ (PDF2 p.2), ૩. સ્વાયત્ત નગર-રાજ્યો, ૪. જટિલ સમૂહ, ૫. <b>નગરપાલિકા / વેપારી વર્ગ શાસન (સૌથી માન્ય — વિજય કરતાં વાણિજ્ય મુખ્ય; મંદિર અભાવથી પુરોહિત-શાસન નહીં)</b> ${N}.</li>
+          </ul></div>
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-amber-300 text-sm mb-1.5">સામાજિક જીવન અને કલાકૃતિઓ</h3><ul class="tele-list text-gray-200">
+            <li class="ncert-item"><b>પહેરવેશ-રમતો-વર્ગભેદ:</b> બે વસ્ત્રો, મણકા, દાગીના, સૌંદર્ય પ્રસાધનો; માટીની ગાડી, લખોટી, પાસા, માછીમારી, બળદ યુદ્ધ; ઉચ્ચ વર્ગ (મુદ્રા-શિલ્પ) વિ. સામાન્ય (ટેરાકોટા) ${N}.</li>
+            <li class="ncert-item"><b>શિલ્પ:</b> પુરોહિત-રાજા (સ્ટીએટાઇટ, ડાબા ખભે ત્રિ-પર્ણી શાલ — મથુરા પૂર્વગામી) ${N}; પુરુષ ધડ (લાલ રેતીયો, સોકેટ) ${N}; પુરુષ નર્તક (રાખોડી, સોકેટ); <b>કાંસ્ય નર્તકી</b> (ત્રિભંગ, ડાબા હાથે બંગડી) ${N}; ખૂંધ વગરનો વૃષભ; <b>દાયમાબાદ હોર્ડ</b> (આર્સેનિક ચેતવણી).</li>
+            <li class="ncert-item"><b>મુદ્રાઓ (~૨,૦૦૦):</b> ૫ આકાર, ૩ પાછળના પ્રકાર (ગાંઠ/બોસ, છિદ્ર, સપાટ), ૫ ઉપયોગો (ઓળખપત્ર, સીલિંગ, હિસાબ, તાવીજ, કબીલા ચિહ્ન) ${N}.</li>
+          </ul></div></div>`;
+      } else if (tab === 'religionScript') {
+        body.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-amber-300 text-sm mb-1.5">ધર્મ (૩ મતભેદો + ૭ તથ્યો + દફનવિધિ)</h3><ul class="tele-list text-gray-200">
+            <li class="non-ncert-item"><b>૩ વિદ્વાન મત:</b> વ્હીલર (શિવ→રુદ્ર), બી.બી. લાલ (વૈદિક), ઇરાવતમ મહાદેવન (દ્રવિડ-બ્રાહુઈ); જોન માર્શલ (પશુપતિ મુદ્રા).</li>
+            <li class="ncert-item"><b>૭ તથ્યો:</b> મંદિર અભાવ + કાલીબંગા-લોથલ અગ્નિકુંડ ${N}; માતૃદેવી (ગર્ભમાંથી છોડ — Isis; દેવી પૂજા ઈ.સ. ૬ઠ્ઠી સદી પછી) ${N}; પશુપતિ (૩ મુખ, મૂળબંધ આસન, ૪ પ્રાણી + ૨ હરણ) + લિંગ-યોનિ ${N}; પીપળો; એકશૃંગી-વૃષભ; તાવીજ (અથર્વવેદ) ${N}; યોગ.</li>
+            <li class="ncert-item"><b>દફનવિધિ:</b> મોહેંજો (સંપૂર્ણ/અગ્નિદાહ પછી), હડપ્પા (લાકડાની શબપેટી, R-37/H), લોથલ (ઈંટ કબર, ઘડા દફન, યુગલ કંકાલ — સતી નહીં), કાલીબંગા, રોપડ ${N}.</li>
+          </ul></div>
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-cyan-300 text-sm mb-1.5">હડપ્પન લિપિ</h3><ul class="tele-list text-gray-200">
+            <li class="ncert-item">૧૮૫૩ શોધ, ૧૯૨૩ પૂર્ણ, ~૪,૦૦૦ નમૂના; ૨૫૦–૪૦૦ ચિત્રલિપિ ચિહ્નો (TN SCERT: ૪૦૦–૬૦૦); સ્વદેશી; લાંબા લેખો નહીં (સૌથી લાંબો ૨૬, ધોળાવીરા ૧૦); જમણે→ડાબે અને <b>બૌસ્ટ્રોફેડોન</b> ${N}.</li>
+            <li class="ncert-item"><b>સિદ્ધાંતો (અણઉકેલી):</b> વિટ્ઝેલ (બિન-ભાષાકીય ઈમોજી); પારપોલા અને સ્કેન્ડિનેવિયન-સોવિયેત વિદ્વાનો (આદ્ય-દ્રવિડ / બ્રાહુઈ) ${N}; સંસ્કૃત/સુમેરિયન/બ્રાહ્મી અસ્વીકૃત ${N}.</li>
+          </ul></div></div>`;
+      } else if (tab === 'declineLegacy') {
+        body.innerHTML = `<div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-900/50"><h3 class="font-extrabold text-red-300 text-sm mb-1.5">૮ પતન સિદ્ધાંતો અને ઉત્તર-હડપ્પન (1900–1200 BCE)</h3><ul class="tele-list text-gray-200">
+          <li class="ncert-item"><b>અસ્વીકૃત:</b> (૧) આર્ય આક્રમણ (વ્હીલર — મોટા સંઘર્ષનો પુરાવો નહીં ${N}), (૨) પૂર (1930–40), (૩) ટેક્ટોનિક પૂર (R.L. Raikes; સ્થાનિક ભૂકંપ સંભવિત ${N}), (૪) વેપાર પતન, (૫) માત્ર નદી માર્ગ બદલાવ.</li>
+          <li class="ncert-item"><b>સહાયક:</b> (૬) ચોમાસાનું પૂર્વ ખસવું, (૭) વધતી શુષ્કતા-ક્ષારતા (ફેરસર્વિસ / R.S. Sharma) ${N}. <b>સર્વમાન્ય:</b> (૮) <b>પર્યાવરણીય અવનતિ (ફેરસર્વિસ)</b>.</li>
+          <li class="ncert-item"><b>ઉત્તર-હડપ્પન:</b> માંડા, ચંદીગઢ, સંઘોલ, દૌલતપુર-હુલાસ (ચોખા), મિથ્થલ, આલમગીરપુર (કપાસ; રાગી અભાવ), સ્વાત ખીણ, ભગવાનપુરા (PGW સંમિશ્રણ ~1200 BCE), મોહેંજો અંતિમ સ્તરે અસુરક્ષા ${N}.</li>
+        </ul></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-emerald-800/50"><h3 class="font-extrabold text-emerald-300 text-sm mb-1">૧૬ જીવંત વારસા + રાખીગઢી DNA</h3><p class="text-gray-300">નગરીકરણ અંત ✗ | લોકો-સંસ્કૃતિ જીવંત ✓ (રાખીગઢી ૨૦૧૯ DNA: સ્ટેપી પૂર્વજોનો અભાવ). ૧૬ વારસા: ૧૬-આધારિત ગણતરી ${N}, ધોતી, પાઘડી, અંગણું, માતૃદેવી, શૈવ-લિંગ ${N}, સ્વસ્તિક, તિલક-બિંદી, બંગડી, અગ્નિકુંડ, પવિત્ર સ્નાન, પીપળો, વૃષભ, પ્રકૃતિ-તાવીજ ${N}, યોગ, ઢોકરા.</p></div>
+          <div class="p-3.5 rounded-xl bg-zinc-950 border border-amber-700/50"><h3 class="font-extrabold text-amber-300 text-sm mb-1">સમાધાન નોંધ (૫ તફાવતો)</h3><ul class="tele-list text-gray-200">
+            <li class="ncert-item">૧. નહેર સિંચાઈ: ક્લાસ (શોર્તુગાઈ) વિ. Old NCERT (મુખ્ય ક્ષેત્રમાં અભાવ) ${N}.</li>
+            <li class="ncert-item">૨. વિસ્તાર-સ્થળો: 10+ લાખ/1200+ વિ. Old NCERT 12,99,600/~1500 ${N}.</li>
+            <li class="ncert-item">૩. કાલક્રમ: New 2600–1900 | Old 2550–1900 ${N} | Agrawal 2300–1750.</li>
+            <li class="ncert-item">૪. પ્રાણી ક્રમ: ક્લાસ (વૃષભ→એકશૃંગી) વિ. Old NCERT (એકશૃંગી→વૃષભ) ${N}.</li>
+            <li class="ncert-item">૫. શસ્ત્રો: મધ્ય-ધાર અભાવ (ક્લાસ/Old NCERT ${N}) વિ. TN SCERT (યુદ્ધ શસ્ત્રો).</li>
+          </ul></div></div>`;
+      } else {
+        let score = 0; Object.keys(state.fullQuizAns).forEach(k => { if (state.fullQuizAns[k] === FULL_QUIZ[Number(k)].a) score++; });
+        body.innerHTML = `<div class="flex items-center justify-between mb-2"><div class="font-extrabold text-amber-300 text-sm">કુલ સ્કોર: ${score} / ${FULL_QUIZ.length}</div><button id="fq-reset" class="px-3 py-1 rounded-lg bg-purple-800 text-white font-bold text-xs">રીસેટ ↺</button></div>
+          <div class="space-y-2.5">${FULL_QUIZ.map((item, qi) => {
+            const ans = state.fullQuizAns[qi];
+            return `<div class="p-3 rounded-xl bg-zinc-950 border border-purple-900/50 space-y-1.5"><div class="font-bold text-white">${item.q}</div><div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">${item.o.map((opt, oi) => {
+              let cls = 'bg-zinc-900 border-zinc-800 text-gray-200 hover:border-purple-500';
+              if (ans !== undefined) { if (oi === item.a) cls = 'bg-emerald-950 border-emerald-500 text-emerald-200 font-bold'; else if (oi === ans) cls = 'bg-red-950 border-red-500 text-red-200'; }
+              return `<button data-qi="${qi}" data-oi="${oi}" class="fq-opt text-left px-2.5 py-1.5 rounded-lg border text-[11px] ${cls}">${opt}</button>`;
+            }).join('')}</div>${ans !== undefined ? `<div class="text-[11px] text-cyan-200"><b>સમજૂતી:</b> ${item.e}</div>` : ''}</div>`;
+          }).join('')}</div>`;
+        document.getElementById('fq-reset').addEventListener('click', () => { state.fullQuizAns = {}; renderHubModal('quiz'); });
+        body.querySelectorAll('.fq-opt').forEach(b => b.addEventListener('click', () => {
+          const qi = Number(b.dataset.qi); if (state.fullQuizAns[qi] !== undefined) return;
+          state.fullQuizAns[qi] = Number(b.dataset.oi); renderHubModal('quiz');
+        }));
+      }
+    }
+
+    /* =========================================================================
+       POINTER ORBIT & ANIMATION LOOP
+       ========================================================================= */
+    function bindWorldPointerControls() {
+      const dom = renderer.domElement;
+      const down = (x, y) => { cam.dragging = true; cam.px = x; cam.py = y; };
+      const move = (x, y) => { if (!cam.dragging) return; cam.tTheta -= (x - cam.px) * 0.007; cam.tPhi = Math.max(0.25, Math.min(1.42, cam.tPhi - (y - cam.py) * 0.006)); cam.px = x; cam.py = y; };
+      const up = () => { cam.dragging = false; };
+      dom.addEventListener('mousedown', e => down(e.clientX, e.clientY));
+      window.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+      window.addEventListener('mouseup', up);
+      dom.addEventListener('wheel', e => { e.preventDefault(); cam.tRadius = Math.max(9, Math.min(75, cam.tRadius + e.deltaY * 0.02)); }, { passive: false });
+      dom.addEventListener('touchstart', e => { if (e.touches[0]) down(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+      dom.addEventListener('touchmove', e => { if (e.touches[0]) move(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+      dom.addEventListener('touchend', up);
+      window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+    }
+
+    function animateWorld() {
+      requestAnimationFrame(animateWorld);
+      const t = performance.now() * 0.001;
+      cam.theta += (cam.tTheta - cam.theta) * 0.07; cam.phi += (cam.tPhi - cam.phi) * 0.07;
+      cam.radius += (cam.tRadius - cam.radius) * 0.07; cam.look.lerp(cam.tLook, 0.07);
+      camera.position.set(cam.look.x + cam.radius * Math.sin(cam.phi) * Math.sin(cam.theta), cam.look.y + cam.radius * Math.cos(cam.phi), cam.look.z + cam.radius * Math.sin(cam.phi) * Math.cos(cam.theta));
+      camera.lookAt(cam.look);
+
+      if (bathFrontWallMat) bathFrontWallMat.opacity += ((state.bathCutaway ? 0.18 : 1.0) - bathFrontWallMat.opacity) * 0.12;
+      if (houseRoofMeshGroup) { houseRoofMeshGroup.position.y += ((state.houseRoofLift / 100) * 4.2 - houseRoofMeshGroup.position.y) * 0.1; houseRoofMeshGroup.visible = state.houseRoofLift < 96; }
+      if (streetPavementMat) streetPavementMat.opacity += ((state.drainXray ? 0.2 : 1.0) - streetPavementMat.opacity) * 0.12;
+      drainCoverMeshes.forEach(m => { m.visible = state.drainCovers; });
+      drainWaterParticles.forEach(p => {
+        p.visible = state.drainXray;
+        if (p.visible) {
+          const prog = ((t * 0.2) + p.userData.off) % 1;
+          if (p.userData.tier === 'lane') p.position.set(7.2, -0.1, 5.8 - prog * 4.6);
+          else { const x = -1.5 + prog * 23.5; p.position.set(x, -0.34 - (x - 10) * 0.025, 1.2 + Math.sin(prog * 20) * 0.18); }
+        }
+      });
+      if (dockWaterMesh && sluiceGateMesh && dockShipGroup) {
+        const eff = state.sluiceClosed ? Math.max(state.dockTide, 80) : state.dockTide;
+        dockWaterMesh.position.y += ((0.08 + (eff / 100) * 0.65) - dockWaterMesh.position.y) * 0.1;
+        dockShipGroup.position.y = dockWaterMesh.position.y + 0.52 + Math.sin(t * 2.2) * 0.04;
+        sluiceGateMesh.position.y += ((state.sluiceClosed ? 0.65 : 2.1) - sluiceGateMesh.position.y) * 0.12;
+      }
+      if (reservoirWaterMesh && reservoirOutletWater) {
+        reservoirWaterMesh.position.y += ((-0.05 + (state.monsoonLevel / 100) * 0.58) - reservoirWaterMesh.position.y) * 0.1;
+        reservoirOutletWater.visible = state.monsoonLevel >= 75;
+      }
+      if (riverBoatGroup) { riverBoatGroup.position.x = -18 + Math.sin(t * 0.25) * 8; riverBoatGroup.position.y = 0.22 + Math.sin(t * 2) * 0.04; }
+      if (cartGroup && state.declineFactor < 35) cartGroup.position.x = 4 + Math.sin(t * 0.35) * 4.5;
+      if (furnaceLight) furnaceLight.intensity = 1.3 + Math.sin(t * 9) * 0.35;
+
+      const df = state.declineFactor / 100;
+      const curBg = bgMature.clone().lerp(bgArid, df); scene.background.copy(curBg); scene.fog.color.copy(curBg);
+      if (riverMesh) { riverMesh.scale.z = 1.0 - df * 0.62; riverMesh.position.y = -0.1 - df * 0.22; }
+      if (greatBathWaterMesh) greatBathWaterMesh.visible = df < 0.72;
+      fieldMeshes.forEach(fm => fm.material.color.setRGB(0.18 + df * 0.42, 0.42 - df * 0.14, 0.18 - df * 0.08));
+      if (slumHutsGroup) { slumHutsGroup.visible = df > 0.35; slumHutsGroup.position.y = (1 - Math.min(1, (df - 0.35) / 0.3)) * -1.4; }
+
+      renderer.render(scene, camera);
+      updateProjectedPins();
+    }
+
+    /* =========================================================================
+       DOM EVENTS
+       ========================================================================= */
+    document.addEventListener('DOMContentLoaded', () => {
+      init3DWorld();
+      document.getElementById('btn-prev-step').addEventListener('click', () => goToStep(state.stepIdx - 1));
+      document.getElementById('btn-next-step').addEventListener('click', () => goToStep(state.stepIdx + 1));
+      document.getElementById('btn-cam-in').addEventListener('click', () => { cam.tRadius = Math.max(9, cam.tRadius - 5); });
+      document.getElementById('btn-cam-out').addEventListener('click', () => { cam.tRadius = Math.min(75, cam.tRadius + 5); });
+      document.getElementById('btn-cam-overview').addEventListener('click', () => goToStep(0));
+      document.getElementById('btn-toggle-pins').addEventListener('click', e => { state.showPins = !state.showPins; e.target.textContent = state.showPins ? 'પિન: ચાલુ' : 'પિન: બંધ'; });
+      document.getElementById('btn-toggle-card').addEventListener('click', e => { state.cardOpen = !state.cardOpen; document.getElementById('story-card').classList.toggle('hidden', !state.cardOpen); e.target.textContent = state.cardOpen ? 'વિગત ✕' : 'વિગત ☰'; });
+      document.getElementById('btn-toggle-index').addEventListener('click', () => { state.indexOpen = !state.indexOpen; document.getElementById('index-drawer').classList.toggle('hidden', !state.indexOpen); });
+      document.getElementById('btn-close-index').addEventListener('click', () => { state.indexOpen = false; document.getElementById('index-drawer').classList.add('hidden'); });
+      document.getElementById('card-ncert-filter').addEventListener('change', e => document.getElementById('step-bullets').classList.toggle('ncert-only-mode', e.target.checked));
+      document.getElementById('hub-ncert-filter').addEventListener('change', e => document.getElementById('hub-modal-body').classList.toggle('ncert-only-mode', e.target.checked));
+
+      // Atlas Modal
+      document.getElementById('btn-open-atlas').addEventListener('click', () => { document.getElementById('atlas-modal').classList.remove('hidden'); renderAtlas(state.atlasTab); });
+      document.getElementById('btn-close-atlas').addEventListener('click', () => document.getElementById('atlas-modal').classList.add('hidden'));
+      document.querySelectorAll('.atlas-tab').forEach(b => b.addEventListener('click', () => renderAtlas(b.dataset.at)));
+
+      // Knowledge Hub Modal
+      document.getElementById('btn-open-hub').addEventListener('click', () => { document.getElementById('hub-modal').classList.remove('hidden'); renderHubModal(state.hubTab); });
+      document.getElementById('btn-close-hub').addEventListener('click', () => document.getElementById('hub-modal').classList.add('hidden'));
+      document.querySelectorAll('.ht-btn').forEach(b => b.addEventListener('click', () => renderHubModal(b.dataset.ht)));
+    });
+  </script>
+</body>
+</html>
