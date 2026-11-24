@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Rana Atlas — AMOLED Universal Study Map</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg-amoled: #000000;
+      --bg-surface: #07040e;
+      --bg-card: #0e081c;
+      --purple: #9333ea;
+      --purple-glow: #a855f7;
+      --green: #10b981;
+      --green-glow: #34d399;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #000000;
+      color: #f3f0ff;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    /* Map fills the entire viewport beneath top bar; overlays never distort map geometry */
+    #map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      background: #000000;
+      z-index: 1;
+    }
+    .amoled-tiles .leaflet-tile-pane {
+      filter: brightness(1.32) contrast(1.18) saturate(0.88);
+      will-change: transform;
+    }
+    .leaflet-container {
+      background: #000000 !important;
+      font-family: inherit;
+    }
+    .leaflet-control-attribution {
+      background: rgba(5, 3, 10, 0.72) !important;
+      color: #6b5e8a !important;
+      font-size: 10px !important;
+    }
+    .leaflet-control-attribution a { color: #34d399 !important; }
+    .leaflet-control-zoom {
+      border: none !important;
+      margin-top: 12px !important;
+      margin-left: 12px !important;
+    }
+    .leaflet-control-zoom a {
+      background: rgba(11, 6, 22, 0.92) !important;
+      color: #e9d5ff !important;
+      border: 1px solid rgba(147, 51, 234, 0.35) !important;
+      backdrop-filter: blur(8px);
+      width: 34px !important;
+      height: 34px !important;
+      line-height: 32px !important;
+      font-size: 16px !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: #3b0764 !important;
+      color: #34d399 !important;
+    }
+
+    /* Custom Lightweight SVG Pin Icons */
+    .custom-pin-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: transform;
+    }
+    .pin-svg-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 0 6px var(--pin-color));
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .pin-svg-box:hover { transform: scale(1.22); }
+    .pin-svg-box.active-pin {
+      transform: scale(1.38);
+      filter: drop-shadow(0 0 12px var(--pin-color)) drop-shadow(0 0 22px #a855f7);
+      animation: pinBeacon 1.7s infinite;
+    }
+    @keyframes pinBeacon {
+      0%, 100% { transform: scale(1.32); }
+      50% { transform: scale(1.52); }
+    }
+
+    /* Tooltips */
+    .site-label-tooltip {
+      background: rgba(7, 4, 15, 0.92) !important;
+      border: 1px solid rgba(168, 85, 247, 0.55) !important;
+      color: #f5f3ff !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      padding: 2px 8px !important;
+      border-radius: 6px !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85) !important;
+      white-space: nowrap;
+    }
+    .site-label-tooltip::before { display: none !important; }
+
+    /* Smooth thin scrollbars */
+    .smooth-scroll {
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #040208; }
+    ::-webkit-scrollbar-thumb { background: #3b1768; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+
+    /* Active Recall Blur */
+    .recall-active .recall-item {
+      filter: blur(5.5px);
+      cursor: pointer;
+      transition: filter 0.18s ease;
+      user-select: none;
+    }
+    .recall-active .recall-item:hover,
+    .recall-active .recall-item.revealed {
+      filter: blur(0px);
+      user-select: text;
+    }
+
+    /* Slide transitions */
+    .drawer-transition {
+      transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+      will-change: transform;
+    }
+  </style>
+</head>
+<body class="bg-black text-purple-50 flex flex-col h-screen w-screen overflow-hidden">
+
+  <!-- TOP HEADER BAR -->
+  <header class="h-14 shrink-0 bg-[#06030d]/95 backdrop-blur-md border-b border-purple-900/50 px-2.5 sm:px-4 flex items-center justify-between gap-2 z-40">
+    <div class="flex items-center gap-2 min-w-0">
+      <button id="toggleSidebarBtn" title="Toggle Layers & Controls" class="p-2 rounded-lg bg-[#110922] hover:bg-purple-950 border border-purple-800/50 text-purple-200 transition">
+        <i data-lucide="layers" class="w-4 h-4"></i>
+      </button>
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-emerald-500 flex items-center justify-center shadow-[0_0_12px_rgba(147,51,234,0.5)] shrink-0">
+          <i data-lucide="compass" class="w-4 h-4 text-white"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-sm sm:text-base font-bold tracking-tight text-white truncate">Rana Atlas</h1>
+            <span id="totalSitesBadge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shrink-0">0 sites</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <!-- Add Layer (KML/CSV) -->
+      <label for="fileInput" class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-[0_0_14px_rgba(147,51,234,0.45)] transition">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+        <span>Add KML/CSV</span>
+      </label>
+      <input id="fileInput" type="file" accept=".kml,.csv,.txt" multiple class="hidden" />
+
+      <!-- Study Mode Quick Launch -->
+      <button id="headerStudyBtn" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-950/75 hover:bg-emerald-900/80 border border-emerald-500/50 text-emerald-300 text-xs font-semibold transition">
+        <i data-lucide="play" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">Study Mode</span>
+      </button>
+
+      <!-- Fit Map -->
+      <button id="fitBoundsBtn" title="Fit All Visible Pins" class="p-2 rounded-lg bg-[#110922] hover:bg-purple-950 border border-purple-800/40 text-purple-200 transition">
+        <i data-lucide="scan" class="w-4 h-4"></i>
+      </button>
+
+      <!-- True Fullscreen Toggle -->
+      <button id="fullscreenBtn" title="Toggle Fullscreen" class="p-2 rounded-lg bg-[#110922] hover:bg-purple-950 border border-purple-800/40 text-purple-200 transition">
+        <i data-lucide="maximize-2" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT -->
+  <div class="relative flex-1 w-full overflow-hidden">
+
+    <!-- FULL-BLEED MAP CANVAS -->
+    <div id="map" class="amoled-tiles"></div>
+
+    <!-- EMPTY STATE / QUICK IMPORT CARD (Shown only when 0 layers loaded) -->
+    <div id="emptyStateCard" class="absolute inset-0 z-20 flex items-center justify-center p-4 pointer-events-none">
+      <div class="pointer-events-auto w-full max-w-md rounded-2xl bg-[#090514]/92 backdrop-blur-xl border border-purple-500/45 p-6 text-center shadow-[0_0_50px_rgba(147,51,234,0.28)]">
+        <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-600/30 to-emerald-500/25 border border-purple-500/40 flex items-center justify-center">
+          <i data-lucide="map-pin-plus" class="w-7 h-7 text-emerald-400"></i>
+        </div>
+        <h2 class="text-lg font-bold text-white">Import Your Study Layers</h2>
+        <p class="text-xs sm:text-sm text-purple-300/85 mt-1.5 leading-relaxed">
+          Drop one or more <span class="text-emerald-300 font-semibold">.KML</span> or <span class="text-purple-300 font-semibold">.CSV</span> files anywhere on this AMOLED blank map. Folders and categories are auto-detected for custom icons and Guided Study Mode.
+        </p>
+        <div class="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+          <label for="fileInput" class="w-full sm:w-auto cursor-pointer px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-emerald-600 hover:from-purple-500 hover:to-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+            <span>Choose KML / CSV Files</span>
+          </label>
+          <button id="dismissEmptyBtn" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#130b26] hover:bg-purple-950 border border-purple-800/50 text-purple-200 text-xs font-semibold transition">
+            Explore Blank Map
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEFT FLOATING SIDEBAR (Overlays cleanly, toggles completely out of the way) -->
+    <aside id="sidebar" class="drawer-transition -translate-x-full absolute top-0 bottom-0 left-0 w-[86vw] max-w-[320px] bg-[#07040f]/95 backdrop-blur-xl border-r border-purple-900/50 flex flex-col z-30 shadow-2xl">
+      <!-- Sidebar Top Controls -->
+      <div class="p-3 border-b border-purple-900/40 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-300">Map & Layers</span>
+          <button id="closeSidebarBtn" class="p-1.5 rounded-lg bg-[#140b29] hover:bg-purple-900 text-purple-300 transition">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- Search -->
+        <div class="relative">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-purple-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input id="searchInput" type="text" placeholder="Search places..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#110a20] border border-purple-800/50 text-xs text-purple-100 placeholder-purple-400/60 focus:outline-none focus:border-emerald-400" />
+        </div>
+
+        <!-- Basemap Selector (AMOLED Default) -->
+        <div class="grid grid-cols-3 gap-1">
+          <button data-basemap="dark" class="basemap-btn px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-600 text-white border border-purple-400 transition">AMOLED</button>
+          <button data-basemap="satellite" class="basemap-btn px-2 py-1 rounded-md text-[11px] font-medium bg-[#120b22] text-purple-300 border border-purple-900/50 hover:border-purple-500 transition">Satellite</button>
+          <button data-basemap="light" class="basemap-btn px-2 py-1 rounded-md text-[11px] font-medium bg-[#120b22] text-purple-300 border border-purple-900/50 hover:border-purple-500 transition">Blank</button>
+        </div>
+
+        <!-- Quick Toggles -->
+        <div class="flex items-center justify-between gap-2 pt-0.5 text-[11px] text-purple-200">
+          <label class="flex items-center gap-1.5 cursor-pointer select-none">
+            <input id="pinNamesToggle" type="checkbox" class="accent-emerald-500 rounded" />
+            <span>Pin Names</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none">
+            <input id="modernLabelsToggle" type="checkbox" class="accent-purple-500 rounded" />
+            <span>Map Labels</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none" title="Blur bullet points (Shortcut: R)">
+            <input id="recallToggle" type="checkbox" class="accent-emerald-400 rounded" />
+            <span>Blur Recall</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Layers Manager (Multi-File, Rename, Color, Icon, Visibility, Delete) -->
+      <div class="p-3 border-b border-purple-900/40">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Layers</span>
+          <div class="flex items-center gap-2 text-[11px]">
+            <button id="showAllLayersBtn" class="text-purple-300 hover:text-white underline">All</button>
+            <button id="clearAllLayersBtn" class="text-rose-400 hover:text-rose-300 underline">Clear</button>
+          </div>
+        </div>
+        <div id="layerList" class="space-y-1.5 max-h-48 overflow-y-auto smooth-scroll pr-1"></div>
+      </div>
+
+      <!-- Study Mode Setup -->
+      <div class="p-3 border-b border-purple-900/40 bg-[#0c061a]">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1">
+            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-emerald-400"></i> Study Mode Setup
+          </span>
+        </div>
+        <select id="studyLayerSelect" class="w-full mb-2 px-2.5 py-1.5 rounded-lg bg-[#140b29] border border-purple-800/50 text-xs text-purple-100 focus:outline-none focus:border-emerald-400"></select>
+
+        <!-- Display Mode & Options -->
+        <div class="grid grid-cols-2 gap-1.5 mb-2 text-[11px]">
+          <button id="modeCompactBtn" class="info-mode-btn px-2 py-1.5 rounded-lg border font-semibold transition">Map Only (5%)</button>
+          <button id="modeSplitBtn" class="info-mode-btn px-2 py-1.5 rounded-lg border font-semibold transition">Split Study</button>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 mb-2.5 text-[11px] text-purple-300">
+          <label class="flex items-center gap-1.5 cursor-pointer select-none">
+            <input id="shuffleToggle" type="checkbox" class="accent-emerald-500 rounded" />
+            <span>Shuffle Order</span>
+          </label>
+          <div class="flex items-center gap-1">
+            <span class="text-[10px] text-purple-400">Zoom:</span>
+            <select id="studyZoomSelect" class="bg-[#140b29] border border-purple-800/50 rounded px-1.5 py-0.5 text-[11px] text-emerald-300 focus:outline-none">
+              <option value="6">Regional (6x)</option>
+              <option value="7" selected>Standard (7x)</option>
+              <option value="9">Close (9x)</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="startStudyBtn" class="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-emerald-600 hover:from-purple-500 hover:to-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-[0_0_16px_rgba(147,51,234,0.4)] transition">
+          <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          <span>Start Study Tour</span>
+        </button>
+      </div>
+
+      <!-- Places Quick Index -->
+      <div id="siteList" class="flex-1 overflow-y-auto smooth-scroll p-2 space-y-1"></div>
+    </aside>
+
+    <!-- RIGHT SPLIT-SCREEN DETAIL DRAWER (Only opens in Split Mode or on explicit expand) -->
+    <section id="detailDrawer" class="drawer-transition translate-x-full absolute top-0 bottom-0 right-0 w-full sm:w-[390px] lg:w-[430px] bg-[#070410]/96 backdrop-blur-xl border-l border-purple-900/50 flex flex-col z-30 shadow-2xl">
+      <div class="p-3.5 sm:p-4 border-b border-purple-900/40 flex items-start justify-between gap-2 bg-[#0d071d]">
+        <div class="min-w-0">
+          <div id="detailCategoryBadge" class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-950 text-emerald-300 border border-purple-600/50 mb-1.5">Layer</div>
+          <h2 id="detailName" class="text-base sm:text-lg font-bold text-white leading-tight truncate">Place Name</h2>
+          <p id="detailLocation" class="text-xs text-purple-300/80 mt-0.5 truncate"></p>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="expandReaderBtn" title="Full-Screen Reader (F)" class="p-2 rounded-lg bg-emerald-950/70 hover:bg-emerald-800 border border-emerald-500/50 text-emerald-300 transition">
+            <i data-lucide="maximize" class="w-4 h-4"></i>
+          </button>
+          <button id="closeDetailBtn" title="Minimize to Compact Bar" class="p-2 rounded-lg bg-[#150c2b] hover:bg-purple-900 border border-purple-800/40 text-purple-300 transition">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="px-4 py-2 border-b border-purple-900/30 bg-[#05030b] flex items-center justify-between text-[11px]">
+        <span id="detailCoords" class="font-mono text-purple-400"></span>
+        <button id="drawerRecallBtn" class="px-2 py-0.5 rounded-md bg-purple-950/70 hover:bg-purple-900 border border-purple-600/40 text-emerald-300 font-medium transition">
+          Blur Recall: OFF
+        </button>
+      </div>
+
+      <div id="detailBody" class="flex-1 overflow-y-auto smooth-scroll p-4 space-y-4"></div>
+    </section>
+
+    <!-- ULTRA-COMPACT BOTTOM BAR (5% Height — Map-Only Mode + Study Mode Controller) -->
+    <div id="bottomBar" class="hidden absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-[500] bg-[#090516]/94 backdrop-blur-xl border border-purple-500/50 rounded-2xl px-2.5 sm:px-3.5 py-2 shadow-[0_0_28px_rgba(147,51,234,0.42)] flex items-center gap-2 sm:gap-2.5 max-w-[96vw]">
+      <!-- Study Prev -->
+      <button id="studyPrevBtn" class="hidden p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-purple-950/85 hover:bg-purple-800 border border-purple-700/50 text-purple-100 text-xs font-semibold flex items-center gap-1 transition">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Prev</span>
+      </button>
+
+      <!-- Active Place Compact Pill -->
+      <div class="min-w-[105px] max-w-[175px] sm:max-w-[230px] px-1">
+        <div class="flex items-center gap-1.5">
+          <span id="bottomPinDot" class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+          <div id="bottomSiteTitle" class="text-xs sm:text-sm font-bold text-white truncate">Place</div>
+        </div>
+        <div id="bottomSiteMeta" class="text-[10px] font-medium text-purple-300 truncate">Layer</div>
+      </div>
+
+      <!-- Read Info (Full-Screen Zoom Button right beside!) -->
+      <button id="bottomReadBtn" title="Open Full-Screen Notes (F)" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 shadow-[0_0_12px_rgba(16,185,129,0.45)] transition shrink-0">
+        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+        <span>Read</span>
+      </button>
+
+      <!-- Toggle Split Drawer -->
+      <button id="bottomSplitBtn" title="Toggle Side Info Panel" class="hidden sm:inline-flex p-1.5 rounded-xl bg-[#150c2b] hover:bg-purple-900 border border-purple-800/50 text-purple-200 transition">
+        <i data-lucide="panel-right" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Study Next -->
+      <button id="studyNextBtn" class="hidden px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1 shadow-[0_0_12px_rgba(147,51,234,0.5)] transition shrink-0">
+        <span>Next</span>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Overview & Exit Study -->
+      <button id="studyOverviewBtn" title="Zoom Out Overview" class="hidden p-1.5 rounded-xl bg-[#150c2b] hover:bg-purple-900 border border-purple-800/50 text-purple-200 transition">
+        <i data-lucide="globe" class="w-4 h-4"></i>
+      </button>
+      <button id="exitBottomBtn" title="Close / Exit Study Mode" class="p-1.5 rounded-xl bg-rose-950/65 hover:bg-rose-900 border border-rose-700/40 text-rose-200 transition">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- LAYER CUSTOMIZER MODAL (Rename, Color, Custom Pin Icon, Delete) -->
+  <div id="layerEditModal" class="hidden fixed inset-0 z-[1050] bg-black/82 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-2xl bg-[#0a0518] border border-purple-600/50 p-5 shadow-[0_0_40px_rgba(147,51,234,0.4)] space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="sliders-horizontal" class="w-4 h-4 text-emerald-400"></i> Customize Layer
+        </h3>
+        <button id="closeLayerEditBtn" class="p-1 rounded-lg bg-[#160c2d] text-purple-300 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-semibold text-purple-300 mb-1">Layer Name</label>
+        <input id="editLayerNameInput" type="text" class="w-full px-3 py-2 rounded-lg bg-[#130a26] border border-purple-700/50 text-xs text-white focus:outline-none focus:border-emerald-400" />
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-semibold text-purple-300 mb-1.5">Pin Color</label>
+        <div id="colorPickerGrid" class="grid grid-cols-8 gap-2"></div>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-semibold text-purple-300 mb-1.5">Pin Icon Shape</label>
+        <div id="iconPickerGrid" class="grid grid-cols-4 gap-2"></div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-purple-900/40">
+        <button id="deleteLayerBtn" class="px-3 py-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-800 border border-rose-700/50 text-rose-200 text-xs font-semibold transition">Delete Layer</button>
+        <button id="saveLayerEditBtn" class="px-4 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-emerald-600 hover:from-purple-500 hover:to-emerald-500 text-white text-xs font-bold transition">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL-SCREEN LARGE READING MODAL ("Detail Bada Mode") -->
+  <div id="readerModal" class="hidden fixed inset-0 z-[1000] bg-black/94 backdrop-blur-lg flex items-center justify-center p-2.5 sm:p-6">
+    <div class="w-full max-w-3xl max-h-[93vh] bg-[#080414] border border-purple-500/50 rounded-2xl shadow-[0_0_55px_rgba(147,51,234,0.38)] flex flex-col overflow-hidden">
+      <div class="p-4 sm:p-5 border-b border-purple-900/50 flex items-start justify-between gap-3 bg-[#100824]">
+        <div class="min-w-0">
+          <div id="modalCategoryBadge" class="inline-flex text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-950 text-emerald-300 border border-purple-500/50 mb-1.5"></div>
+          <h2 id="modalName" class="text-lg sm:text-2xl font-extrabold text-white leading-snug"></h2>
+          <p id="modalLocation" class="text-xs sm:text-sm text-purple-300 mt-0.5"></p>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="modalRecallBtn" class="px-2.5 py-1.5 rounded-lg bg-purple-950 hover:bg-purple-800 border border-purple-600/50 text-[11px] font-semibold text-emerald-300">Blur: OFF</button>
+          <button id="modalPrevBtn" class="hidden px-2.5 py-1.5 rounded-lg bg-purple-950 hover:bg-purple-800 border border-purple-700/50 text-xs font-semibold text-purple-100">← Prev</button>
+          <button id="modalNextBtn" class="hidden px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white">Next →</button>
+          <button id="closeModalBtn" title="Close Large Reader (Esc)" class="p-2 rounded-lg bg-[#170c2e] hover:bg-purple-800 border border-purple-700/50 text-purple-200">
+            <i data-lucide="minimize-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+      <div id="modalBody" class="flex-1 overflow-y-auto smooth-scroll p-4 sm:p-7 space-y-5 text-sm sm:text-[15px] leading-relaxed"></div>
+    </div>
+  </div>
+
+  <!-- DRAG & DROP OVERLAY -->
+  <div id="dropOverlay" class="hidden fixed inset-0 z-[1100] bg-black/88 backdrop-blur-md border-2 border-dashed border-emerald-400 flex items-center justify-center p-4">
+    <div class="text-center p-8 rounded-2xl bg-[#0e0720] border border-purple-500/60 shadow-[0_0_45px_rgba(16,185,129,0.35)]">
+      <i data-lucide="file-plus-2" class="w-12 h-12 text-emerald-400 mx-auto mb-3"></i>
+      <p class="text-lg font-bold text-white">Drop .KML or .CSV to Add Layer(s)</p>
+      <p class="text-xs text-purple-300 mt-1">Adds smoothly to your map without removing existing layers</p>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="hidden fixed top-16 right-3 sm:right-4 z-[1200] px-4 py-2.5 rounded-xl bg-[#120826]/95 border border-emerald-500/50 text-xs font-semibold text-emerald-200 shadow-[0_0_24px_rgba(147,51,234,0.45)] max-w-[90vw]"></div>
+
+  <script>
+    // =========================================================================
+    // 1. CONSTANTS — COLORS & CUSTOM SVG PIN ICONS
+    // =========================================================================
+    const LAYER_COLORS = [
+      "#a855f7", // Vivid Purple
+      "#10b981", // Emerald Green
+      "#ef4444", // Crimson Red
+      "#38bdf8", // Sky Blue
+      "#f59e0b", // Amber Gold
+      "#ec4899", // Neon Pink
+      "#14b8a6", // Teal
+      "#fb923c"  // Warm Orange
+    ];
+
+    const PIN_ICONS = [
+      { id: "dot",      label: "Circle",   svg: (c) => `<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="${c}" stroke="#fff" stroke-width="2.5"/></svg>` },
+      { id: "star",     label: "Star",     svg: (c) => `<svg width="22" height="22" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9.5 16.5,14 18.2,21 12,17.2 5.8,21 7.5,14 2,9.5 9,9" fill="${c}" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>` },
+      { id: "diamond",  label: "Diamond",  svg: (c) => `<svg width="20" height="20" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill="${c}" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>` },
+      { id: "pin",      label: "Pin",      svg: (c) => `<svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z" fill="${c}" stroke="#fff" stroke-width="2"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg>` },
+      { id: "square",   label: "Square",   svg: (c) => `<svg width="18" height="18" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="${c}" stroke="#fff" stroke-width="2.4"/></svg>` },
+      { id: "triangle", label: "Triangle", svg: (c) => `<svg width="20" height="20" viewBox="0 0 24 24"><polygon points="12,3 22,20 2,20" fill="${c}" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>` },
+      { id: "flag",     label: "Flag",     svg: (c) => `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 3v18M5 4h13l-2.5 4.5L18 13H5" fill="${c}" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>` },
+      { id: "hex",      label: "Hex",      svg: (c) => `<svg width="20" height="20" viewBox="0 0 24 24"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="${c}" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>` }
+    ];
+
+    function getIconSvg(iconId, color) {
+      const found = PIN_ICONS.find(i => i.id === iconId) || PIN_ICONS[0];
+      return found.svg(color);
+    }
+
+    // =========================================================================
+    // 2. APPLICATION STATE (ZERO PRE-LOADED IVC DATA — 100% UNIVERSAL)
+    // =========================================================================
+    const state = {
+      layers: [],             // [{ id, name, color, icon, visible }]
+      sites: [],              // [{ id, layerId, name, lat, lon, location, description }]
+      searchQuery: "",
+      selectedSiteId: null,
+      sidebarOpen: false,
+      detailOpen: false,
+      infoMode: "compact",    // "compact" (5% bottom bar) | "split" (full-screen split with side info)
+      showPinNames: false,
+      showModernLabels: false,
+      activeBasemap: "dark",
+      recallBlur: false,
+      studyMode: false,
+      studyQueue: [],
+      studyIndex: 0,
+      studyZoom: 7,
+      shuffleStudy: false,
+      modalOpen: false,
+      editingLayerId: null,
+      editDraftColor: LAYER_COLORS[0],
+      editDraftIcon: "dot",
+      nextId: 1
+    };
+
+    // =========================================================================
+    // 3. LEAFLET MAP WITH SMOOTH ZOOM & KEYLESS ARCGIS BLANK TILES
+    // =========================================================================
+    const map = L.map("map", {
+      center: [23.5, 78.5],
+      zoom: 5,
+      zoomControl: true,
+      zoomSnap: 0.25,
+      zoomDelta: 0.5,
+      wheelPxPerZoomLevel: 90,
+      inertia: true,
+      inertiaDeceleration: 2400
+    });
+
+    const basemaps = {
+      dark: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 16,
+        attribution: "Tiles &copy; Esri"
+      }),
+      satellite: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 18,
+        attribution: "Imagery &copy; Esri"
+      }),
+      light: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 16,
+        attribution: "Tiles &copy; Esri"
+      })
+    };
+
+    const labelsOverlay = L.tileLayer("https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places_Alternate/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 16,
+      opacity: 0.72,
+      attribution: ""
+    });
+
+    basemaps.dark.addTo(map);
+    const markersLayer = L.layerGroup().addTo(map);
+
+    // =========================================================================
+    // 4. TRUE VISIBLE-VIEWPORT FLY-TO (FIXES PANEL CENTERING BUG!)
+    // =========================================================================
+    function getVisibleInsets() {
+      const isDesktop = window.innerWidth >= 640;
+      const left = (state.sidebarOpen && isDesktop) ? Math.min(320, window.innerWidth * 0.86) : 0;
+      const right = (state.detailOpen && isDesktop) ? (window.innerWidth >= 1024 ? 430 : 390) : 0;
+      const bottom = !document.getElementById("bottomBar").classList.contains("hidden") ? 76 : 0;
+      return { left, right, bottom };
+    }
+
+    function flyToVisibleCenter(lat, lon, targetZoom) {
+      const { left, right, bottom } = getVisibleInsets();
+      const targetPoint = map.project([lat, lon], targetZoom);
+      // Shift map center so the pin lands dead-center in the UNOBSTRUCTED map area
+      const offsetX = (right - left) / 2;
+      const offsetY = bottom / 2;
+      const adjustedPoint = L.point(targetPoint.x + offsetX, targetPoint.y + offsetY);
+      const adjustedLatLng = map.unproject(adjustedPoint, targetZoom);
+
+      map.flyTo(adjustedLatLng, targetZoom, {
+        duration: 1.35,
+        easeLinearity: 0.22,
+        animate: true
+      });
+    }
+
+    function fitVisibleBounds(sitesList) {
+      if (!sitesList || sitesList.length === 0) return;
+      const { left, right, bottom } = getVisibleInsets();
+      const bounds = L.latLngBounds(sitesList.map(s => [s.lat, s.lon]));
+      map.flyToBounds(bounds, {
+        paddingTopLeft: [left + 48, 48],
+        paddingBottomRight: [right + 48, bottom + 48],
+        maxZoom: 8,
+        duration: 1.15
+      });
+    }
+
+    // =========================================================================
+    // 5. UTILITIES & STRUCTURED NOTE RENDERER
+    // =========================================================================
+    function showToast(msg, ms = 2800) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.add("hidden"), ms);
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function getLayer(layerId) {
+      return state.layers.find(l => l.id === layerId);
+    }
+
+    function getVisibleSites() {
+      const visIds = new Set(state.layers.filter(l => l.visible).map(l => l.id));
+      const q = state.searchQuery.trim().toLowerCase();
+      return state.sites.filter(s => {
+        if (!visIds.has(s.layerId)) return false;
+        if (q && !s.name.toLowerCase().includes(q) && !(s.location || "").toLowerCase().includes(q)) return false;
+        return true;
+      });
+    }
+
+    function renderStructuredDescription(rawDesc) {
+      if (!rawDesc || !rawDesc.trim()) {
+        return '<p class="text-xs text-purple-400 italic">No description notes attached to this place.</p>';
+      }
+
+      let text = rawDesc
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/?(b|strong|div|p)>/gi, "")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .trim();
+
+      text = text.replace(/^PRIORITY:.*$/gim, "").replace(/^LOCATION:.*$/gim, "").trim();
+
+      const sectionMeta = [
+        { key: "NCERT:", title: "NCERT", badge: "bg-purple-950/90 text-purple-200 border-purple-500/50", card: "border-purple-700/45 bg-[#110824]" },
+        { key: "My Notes:", title: "My Notes", badge: "bg-emerald-950/90 text-emerald-200 border-emerald-500/50", card: "border-emerald-700/40 bg-[#061813]" },
+        { key: "External Info:", title: "External Info", badge: "bg-cyan-950/90 text-cyan-200 border-cyan-500/50", card: "border-cyan-700/40 bg-[#071520]" },
+        { key: "Conceptual / Analytical Note:", title: "Conceptual / Analytical Note", badge: "bg-amber-950/90 text-amber-200 border-amber-500/50", card: "border-amber-700/45 bg-[#1a1207]" },
+        { key: "Factual Audit / Correction:", title: "Factual Audit / Correction", badge: "bg-rose-950/90 text-rose-200 border-rose-500/50", card: "border-rose-700/50 bg-[#1c0810]" }
+      ];
+
+      const hasKnown = sectionMeta.some(m => text.includes(m.key));
+      if (!hasKnown) {
+        const lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
+        const listHtml = lines.map(line => {
+          const clean = line.replace(/^[•\-*]\s*/, "");
+          const colonIdx = clean.indexOf(":");
+          if (colonIdx > 0 && colonIdx < 36) {
+            return `<div class="recall-item pl-3 border-l-2 border-emerald-500/50 leading-relaxed"><span class="font-semibold text-white">${escapeHtml(clean.slice(0, colonIdx + 1))}</span> <span class="text-purple-100/90">${escapeHtml(clean.slice(colonIdx + 1).trim())}</span></div>`;
+          }
+          return `<div class="recall-item pl-3 border-l-2 border-purple-500/45 text-purple-100/90 leading-relaxed">${escapeHtml(clean)}</div>`;
+        }).join("");
+        return `
+          <div class="rounded-xl border border-purple-800/45 bg-[#110824] p-4">
+            <div class="inline-flex text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-950 text-emerald-300 border border-purple-600/50 mb-3">Notes</div>
+            <div class="space-y-3 text-[13px] sm:text-sm">${listHtml}</div>
+          </div>`;
+      }
+
+      const chunks = text.split(/━{3,}/g).map(c => c.trim()).filter(Boolean);
+      const cardsHtml = [];
+      for (const chunk of chunks) {
+        const matched = sectionMeta.find(m => chunk.startsWith(m.key));
+        if (matched) {
+          const body = chunk.slice(matched.key.length).trim();
+          const lines = body.split(/\n+/).map(l => l.trim()).filter(Boolean);
+          const listHtml = lines.map(line => {
+            const clean = line.replace(/^[•⚠️\-*]\s*/, "");
+            const colonIdx = clean.indexOf(":");
+            if (colonIdx > 0 && colonIdx < 42) {
+              return `<div class="recall-item pl-3 border-l-2 border-purple-500/45 leading-relaxed"><span class="font-semibold text-white">${escapeHtml(clean.slice(0, colonIdx + 1))}</span> <span class="text-purple-100/90">${escapeHtml(clean.slice(colonIdx + 1).trim())}</span></div>`;
+            }
+            return `<div class="recall-item pl-3 border-l-2 border-purple-500/45 text-purple-100/90 leading-relaxed">${escapeHtml(clean)}</div>`;
+          }).join("");
+
+          cardsHtml.push(`
+            <div class="rounded-xl border ${matched.card} p-4 shadow-lg">
+              <div class="inline-flex items-center text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${matched.badge} mb-3.5">${matched.title}</div>
+              <div class="space-y-3.5 text-[13px] sm:text-sm">${listHtml}</div>
+            </div>
+          `);
+        } else if (chunk.length > 0) {
+          const lines = chunk.split(/\n+/).map(l => l.trim()).filter(Boolean);
+          cardsHtml.push(`<div class="rounded-xl border border-purple-800/40 bg-[#110824] p-4 space-y-2.5 text-[13px]">${lines.map(l => `<div class="recall-item text-purple-100/90 leading-relaxed">${escapeHtml(l)}</div>`).join("")}</div>`);
+        }
+      }
+      return cardsHtml.join("");
+    }
+
+    // =========================================================================
+    // 6. UI STATE SYNC (SIDEBAR, DETAIL DRAWER, INFO MODES)
+    // =========================================================================
+    function setSidebarOpen(open) {
+      state.sidebarOpen = open;
+      const el = document.getElementById("sidebar");
+      el.classList.toggle("-translate-x-full", !open);
+      el.classList.toggle("translate-x-0", open);
+    }
+
+    function setDetailOpen(open) {
+      state.detailOpen = open;
+      const el = document.getElementById("detailDrawer");
+      el.classList.toggle("translate-x-full", !open);
+      el.classList.toggle("translate-x-0", open);
+    }
+
+    function setInfoMode(mode) {
+      state.infoMode = mode;
+      const compactBtn = document.getElementById("modeCompactBtn");
+      const splitBtn = document.getElementById("modeSplitBtn");
+      const activeCls = "bg-emerald-600/25 border-emerald-400 text-emerald-300";
+      const idleCls = "bg-[#120b22] border-purple-900/50 text-purple-300 hover:border-purple-500";
+
+      compactBtn.className = `info-mode-btn px-2 py-1.5 rounded-lg border font-semibold transition ${mode === "compact" ? activeCls : idleCls}`;
+      splitBtn.className = `info-mode-btn px-2 py-1.5 rounded-lg border font-semibold transition ${mode === "split" ? activeCls : idleCls}`;
+
+      if (state.selectedSiteId) {
+        setDetailOpen(mode === "split");
+        const s = state.sites.find(x => x.id === state.selectedSiteId);
+        if (s) flyToVisibleCenter(s.lat, s.lon, map.getZoom());
+      }
+    }
+
+    function updateEmptyState() {
+      const hasData = state.sites.length > 0;
+      document.getElementById("emptyStateCard").classList.toggle("hidden", hasData);
+      document.getElementById("totalSitesBadge").textContent = `${state.sites.length} site${state.sites.length === 1 ? "" : "s"}`;
+    }
+
+    // =========================================================================
+    // 7. RENDER LAYERS, STUDY DROPDOWN, SIDEBAR LIST & MAP PINS
+    // =========================================================================
+    function renderLayers() {
+      const container = document.getElementById("layerList");
+      if (state.layers.length === 0) {
+        container.innerHTML = '<div class="text-[11px] text-purple-400/80 py-2 text-center">No layers yet. Click <b>+ Add KML/CSV</b>.</div>';
+      } else {
+        container.innerHTML = state.layers.map(layer => {
+          const count = state.sites.filter(s => s.layerId === layer.id).length;
+          return `
+            <div class="flex items-center justify-between gap-1.5 px-2 py-1.5 rounded-lg bg-[#110a20] border ${layer.visible ? "border-purple-700/55" : "border-purple-950/50 opacity-50"} transition">
+              <label class="flex items-center gap-2 min-w-0 cursor-pointer flex-1">
+                <input type="checkbox" data-layer-vis="${layer.id}" ${layer.visible ? "checked" : ""} class="layer-vis-cb accent-emerald-500 rounded shrink-0" />
+                <span class="shrink-0 flex items-center" style="transform:scale(0.8);">${getIconSvg(layer.icon, layer.color)}</span>
+                <span class="text-xs text-purple-100 truncate" title="${escapeHtml(layer.name)}">${escapeHtml(layer.name)}</span>
+              </label>
+              <div class="flex items-center gap-1 shrink-0">
+                <span class="text-[10px] font-mono text-purple-400">${count}</span>
+                <button data-layer-only="${layer.id}" title="Show Only This Layer" class="layer-only-btn text-[10px] px-1.5 py-0.5 rounded bg-purple-950 hover:bg-emerald-700 text-purple-300 hover:text-white transition">Only</button>
+                <button data-layer-edit="${layer.id}" title="Edit Layer Icon, Color & Name" class="layer-edit-btn p-1 rounded bg-purple-950/70 hover:bg-purple-700 text-purple-300 hover:text-white transition">
+                  <i data-lucide="pencil" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        container.querySelectorAll(".layer-vis-cb").forEach(cb => {
+          cb.addEventListener("change", (e) => {
+            const l = getLayer(e.target.dataset.layerVis);
+            if (l) l.visible = e.target.checked;
+            renderLayers();
+            renderMapAndList(false);
+          });
+        });
+
+        container.querySelectorAll(".layer-only-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.dataset.layerOnly;
+            state.layers.forEach(l => { l.visible = (l.id === id); });
+            document.getElementById("studyLayerSelect").value = id;
+            renderLayers();
+            renderMapAndList(true);
+          });
+        });
+
+        container.querySelectorAll(".layer-edit-btn").forEach(btn => {
+          btn.addEventListener("click", () => openLayerEditor(btn.dataset.layerEdit));
+        });
+      }
+
+      // Update Study Mode layer selector
+      const sel = document.getElementById("studyLayerSelect");
+      const prevVal = sel.value;
+      const opts = [
+        `<option value="__ALL__">All Visible Layers (${state.sites.length})</option>`,
+        ...state.layers.map(l => {
+          const c = state.sites.filter(s => s.layerId === l.id).length;
+          return `<option value="${l.id}">${escapeHtml(l.name)} (${c})</option>`;
+        })
+      ];
+      sel.innerHTML = opts.join("");
+      if (state.layers.some(l => l.id === prevVal)) sel.value = prevVal;
+      lucide.createIcons();
+    }
+
+    function renderMapAndList(shouldFit = false) {
+      markersLayer.clearLayers();
+      const visible = getVisibleSites();
+
+      visible.forEach(site => {
+        const layer = getLayer(site.layerId);
+        const color = layer ? layer.color : "#a855f7";
+        const iconId = layer ? layer.icon : "dot";
+        const isActive = site.id === state.selectedSiteId;
+
+        const icon = L.divIcon({
+          className: "custom-pin-wrap",
+          html: `<div class="pin-svg-box ${isActive ? "active-pin" : ""}" style="--pin-color:${color};">${getIconSvg(iconId, color)}</div>`,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13]
+        });
+
+        const marker = L.marker([site.lat, site.lon], { icon });
+        marker.bindTooltip(escapeHtml(site.name), {
+          permanent: state.showPinNames || isActive,
+          direction: "top",
+          offset: [0, -12],
+          className: "site-label-tooltip"
+        });
+        marker.on("click", () => selectSite(site.id, true));
+        marker.addTo(markersLayer);
+      });
+
+      const listEl = document.getElementById("siteList");
+      if (visible.length === 0) {
+        listEl.innerHTML = '<div class="p-4 text-center text-xs text-purple-400/75">No places visible.</div>';
+      } else {
+        listEl.innerHTML = visible.map(site => {
+          const layer = getLayer(site.layerId);
+          const color = layer ? layer.color : "#a855f7";
+          const activeCls = site.id === state.selectedSiteId
+            ? "bg-purple-900/50 border-emerald-400/70 text-white"
+            : "bg-transparent border-transparent hover:bg-[#130b26] text-purple-200";
+          return `
+            <button data-site-id="${site.id}" class="site-row w-full text-left px-2.5 py-2 rounded-lg border ${activeCls} flex items-center gap-2 transition">
+              <span class="w-2 h-2 rounded-full shrink-0" style="background:${color}; box-shadow:0 0 6px ${color};"></span>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold truncate">${escapeHtml(site.name)}</div>
+                <div class="text-[10px] text-purple-400 truncate">${escapeHtml(site.location || (layer ? layer.name : ""))}</div>
+              </div>
+            </button>
+          `;
+        }).join("");
+
+        listEl.querySelectorAll(".site-row").forEach(btn => {
+          btn.addEventListener("click", () => {
+            if (window.innerWidth < 640) setSidebarOpen(false);
+            selectSite(btn.dataset.siteId, true);
+          });
+        });
+      }
+
+      updateEmptyState();
+      if (shouldFit && visible.length > 0) fitVisibleBounds(visible);
+    }
+
+    // =========================================================================
+    // 8. SITE SELECTION, COMPACT BOTTOM BAR, SPLIT DRAWER & LARGE READER
+    // =========================================================================
+    function selectSite(siteId, doFly = true) {
+      const site = state.sites.find(s => s.id === siteId);
+      if (!site) return;
+
+      state.selectedSiteId = siteId;
+      const layer = getLayer(site.layerId);
+      const color = layer ? layer.color : "#a855f7";
+      const layerName = layer ? layer.name : "Layer";
+
+      // Update Compact Bottom Bar (always visible when a place is selected!)
+      const bottomBar = document.getElementById("bottomBar");
+      bottomBar.classList.remove("hidden");
+      document.getElementById("bottomPinDot").style.background = color;
+      document.getElementById("bottomSiteTitle").textContent = site.name;
+      if (state.studyMode && state.studyQueue.length > 0) {
+        document.getElementById("bottomSiteMeta").textContent = `${state.studyIndex + 1} / ${state.studyQueue.length} • ${layerName}`;
+      } else {
+        document.getElementById("bottomSiteMeta").textContent = site.location || layerName;
+      }
+
+      // Populate Detail Drawer content
+      const badge = document.getElementById("detailCategoryBadge");
+      badge.textContent = layerName;
+      badge.style.borderColor = color;
+      document.getElementById("detailName").textContent = site.name;
+      document.getElementById("detailLocation").textContent = site.location || "";
+      document.getElementById("detailCoords").textContent = `${site.lat.toFixed(4)}°N, ${site.lon.toFixed(4)}°E`;
+
+      const bodyHtml = renderStructuredDescription(site.description);
+      const drawerBody = document.getElementById("detailBody");
+      drawerBody.innerHTML = bodyHtml;
+      drawerBody.classList.toggle("recall-active", state.recallBlur);
+      drawerBody.querySelectorAll(".recall-item").forEach(el => {
+        el.addEventListener("click", () => el.classList.toggle("revealed"));
+      });
+
+      // Open right drawer ONLY if user chose Split Study mode! (In Compact Map-Only mode, keep 95% map open!)
+      if (state.infoMode === "split") {
+        setDetailOpen(true);
+      } else {
+        setDetailOpen(false);
+      }
+
+      if (state.modalOpen) {
+        populateModal(site, bodyHtml, color, layerName);
+      }
+
+      renderMapAndList(false);
+
+      if (doFly) {
+        const z = state.studyMode ? state.studyZoom : Math.max(map.getZoom(), 7);
+        flyToVisibleCenter(site.lat, site.lon, z);
+      }
+    }
+
+    function populateModal(site, bodyHtml, color, layerName) {
+      const mBadge = document.getElementById("modalCategoryBadge");
+      mBadge.textContent = layerName;
+      mBadge.style.borderColor = color;
+      document.getElementById("modalName").textContent = site.name;
+      document.getElementById("modalLocation").textContent = site.location || `${site.lat.toFixed(4)}°N, ${site.lon.toFixed(4)}°E`;
+      const mBody = document.getElementById("modalBody");
+      mBody.innerHTML = bodyHtml;
+      mBody.classList.toggle("recall-active", state.recallBlur);
+      mBody.querySelectorAll(".recall-item").forEach(el => {
+        el.addEventListener("click", () => el.classList.toggle("revealed"));
+      });
+      document.getElementById("modalPrevBtn").classList.toggle("hidden", !state.studyMode);
+      document.getElementById("modalNextBtn").classList.toggle("hidden", !state.studyMode);
+    }
+
+    function openLargeReader() {
+      const site = state.sites.find(s => s.id === state.selectedSiteId);
+      if (!site) return;
+      const layer = getLayer(site.layerId);
+      state.modalOpen = true;
+      populateModal(site, renderStructuredDescription(site.description), layer ? layer.color : "#a855f7", layer ? layer.name : "Layer");
+      document.getElementById("readerModal").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeLargeReader() {
+      state.modalOpen = false;
+      document.getElementById("readerModal").classList.add("hidden");
+    }
+
+    // =========================================================================
+    // 9. GUIDED STUDY MODE (MULTI-LAYER, SHUFFLE, SMOOTH VIEWPORT-CENTERED FLY)
+    // =========================================================================
+    function startStudyMode() {
+      if (state.sites.length === 0) {
+        showToast("Please import a KML or CSV file first.");
+        return;
+      }
+      const selVal = document.getElementById("studyLayerSelect").value;
+      let queue = [];
+      if (selVal === "__ALL__") {
+        queue = [...getVisibleSites()];
+      } else {
+        state.layers.forEach(l => { l.visible = (l.id === selVal); });
+        renderLayers();
+        queue = state.sites.filter(s => s.layerId === selVal);
+      }
+
+      if (queue.length === 0) {
+        showToast("No visible places in the selected layer.");
+        return;
+      }
+
+      if (state.shuffleStudy) {
+        for (let i = queue.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [queue[i], queue[j]] = [queue[j], queue[i]];
+        }
+      }
+
+      state.studyMode = true;
+      state.studyQueue = queue;
+      state.studyIndex = 0;
+
+      // Hide left sidebar automatically so user gets clean unobstructed map
+      setSidebarOpen(false);
+
+      ["studyPrevBtn", "studyNextBtn", "studyOverviewBtn"].forEach(id => {
+        document.getElementById(id).classList.remove("hidden");
+      });
+
+      goToStudyStep(0);
+      showToast(`Study Mode: ${queue.length} places (${state.infoMode === "split" ? "Split View" : "Map-Only 5% Bar"})`);
+    }
+
+    function goToStudyStep(idx) {
+      if (!state.studyMode || state.studyQueue.length === 0) return;
+      const total = state.studyQueue.length;
+      state.studyIndex = (idx + total) % total;
+      selectSite(state.studyQueue[state.studyIndex].id, true);
+    }
+
+    function exitStudyOrBottom() {
+      if (state.studyMode) {
+        state.studyMode = false;
+        ["studyPrevBtn", "studyNextBtn", "studyOverviewBtn", "modalPrevBtn", "modalNextBtn"].forEach(id => {
+          document.getElementById(id).classList.add("hidden");
+        });
+        setDetailOpen(false);
+        document.getElementById("bottomBar").classList.add("hidden");
+        fitVisibleBounds(getVisibleSites());
+        showToast("Exited Study Mode.");
+      } else {
+        state.selectedSiteId = null;
+        setDetailOpen(false);
+        document.getElementById("bottomBar").classList.add("hidden");
+        renderMapAndList(false);
+      }
+    }
+
+    // =========================================================================
+    // 10. LAYER CUSTOMIZER MODAL (RENAME, COLOR, ICON, DELETE)
+    // =========================================================================
+    function openLayerEditor(layerId) {
+      const layer = getLayer(layerId);
+      if (!layer) return;
+      state.editingLayerId = layerId;
+      state.editDraftColor = layer.color;
+      state.editDraftIcon = layer.icon;
+      document.getElementById("editLayerNameInput").value = layer.name;
+      renderEditorPickers();
+      document.getElementById("layerEditModal").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function renderEditorPickers() {
+      const cGrid = document.getElementById("colorPickerGrid");
+      cGrid.innerHTML = LAYER_COLORS.map(col => `
+        <button data-pick-color="${col}" class="h-7 w-7 rounded-full border-2 ${state.editDraftColor === col ? "border-white scale-110" : "border-transparent opacity-75 hover:opacity-100"} transition" style="background:${col}; box-shadow:0 0 8px ${col};"></button>
+      `).join("");
+      cGrid.querySelectorAll("button").forEach(b => {
+        b.addEventListener("click", () => {
+          state.editDraftColor = b.dataset.pickColor;
+          renderEditorPickers();
+        });
+      });
+
+      const iGrid = document.getElementById("iconPickerGrid");
+      iGrid.innerHTML = PIN_ICONS.map(ic => `
+        <button data-pick-icon="${ic.id}" class="flex flex-col items-center justify-center gap-1 p-2 rounded-xl border ${state.editDraftIcon === ic.id ? "bg-purple-900/50 border-emerald-400 text-white" : "bg-[#130a26] border-purple-900/50 text-purple-300 hover:border-purple-500"} transition">
+          ${ic.svg(state.editDraftColor)}
+          <span class="text-[10px]">${ic.label}</span>
+        </button>
+      `).join("");
+      iGrid.querySelectorAll("button").forEach(b => {
+        b.addEventListener("click", () => {
+          state.editDraftIcon = b.dataset.pickIcon;
+          renderEditorPickers();
+        });
+      });
+    }
+
+    // =========================================================================
+    // 11. ADDITIVE UNIVERSAL KML & CSV PARSERS
+    // =========================================================================
+    function getOrCreateLayer(name) {
+      const existing = state.layers.find(l => l.name === name);
+      if (existing) return existing;
+      const idx = state.layers.length;
+      const layer = {
+        id: `layer_${state.nextId++}`,
+        name,
+        color: LAYER_COLORS[idx % LAYER_COLORS.length],
+        icon: PIN_ICONS[idx % PIN_ICONS.length].id,
+        visible: true
+      };
+      state.layers.push(layer);
+      return layer;
+    }
+
+    function importKML(xmlText, fileName) {
+      const doc = new DOMParser().parseFromString(xmlText, "text/xml");
+      if (doc.querySelector("parsererror")) {
+        showToast(`Invalid KML XML in ${fileName}`);
+        return 0;
+      }
+
+      const fallbackLayerName = fileName.replace(/\.kml$/i, "").replace(/[_-]+/g, " ");
+      const added = [];
+
+      function walk(node, folderName) {
+        const placemarks = Array.from(node.children).filter(el => el.localName === "Placemark");
+        for (const pm of placemarks) {
+          const nameNode = pm.getElementsByTagNameNS("*", "name")[0];
+          const descNode = pm.getElementsByTagNameNS("*", "description")[0];
+          const coordNode = pm.getElementsByTagNameNS("*", "coordinates")[0];
+          if (!coordNode || !coordNode.textContent.trim()) continue;
+
+          const parts = coordNode.textContent.trim().split(/\s+/)[0].split(",");
+          const lon = parseFloat(parts[0]);
+          const lat = parseFloat(parts[1]);
+          if (Number.isNaN(lat) || Number.isNaN(lon)) continue;
+
+          const ext = {};
+          for (const dn of pm.getElementsByTagNameNS("*", "Data")) {
+            const k = dn.getAttribute("name");
+            const vn = dn.getElementsByTagNameNS("*", "value")[0];
+            if (k && vn) ext[k] = vn.textContent.trim();
+          }
+
+          const layerName = folderName || ext.Priority || ext.Category || ext.Phase || fallbackLayerName;
+          const layer = getOrCreateLayer(layerName);
+
+          added.push({
+            id: `site_${state.nextId++}`,
+            layerId: layer.id,
+            name: nameNode ? nameNode.textContent.trim() : `Place ${state.nextId}`,
+            lat,
+            lon,
+            location: ext.Location || "",
+            description: descNode ? descNode.textContent.trim() : ""
+          });
+        }
+
+        const containers = Array.from(node.children).filter(el => el.localName === "Folder" || el.localName === "Document");
+        for (const c of containers) {
+          const fn = Array.from(c.children).find(el => el.localName === "name");
+          const nextName = (c.localName === "Folder" && fn) ? fn.textContent.trim() : folderName;
+          walk(c, nextName);
+        }
+      }
+
+      walk(doc.documentElement, null);
+      state.sites.push(...added);
+      return added.length;
+    }
+
+    function parseCSVRows(text) {
+      const rows = [];
+      let row = [], cell = "", inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i], next = text[i + 1];
+        if (inQuotes) {
+          if (ch === '"' && next === '"') { cell += '"'; i++; }
+          else if (ch === '"') inQuotes = false;
+          else cell += ch;
+        } else {
+          if (ch === '"') inQuotes = true;
+          else if (ch === ",") { row.push(cell); cell = ""; }
+          else if (ch === "\n" || (ch === "\r" && next === "\n")) {
+            if (ch === "\r") i++;
+            row.push(cell); rows.push(row); row = []; cell = "";
+          } else if (ch !== "\r") cell += ch;
+        }
+      }
+      if (cell.length || row.length) { row.push(cell); rows.push(row); }
+      return rows.filter(r => r.some(c => c.trim() !== ""));
+    }
+
+    function importCSV(csvText, fileName) {
+      const rows = parseCSVRows(csvText);
+      if (rows.length < 2) {
+        showToast(`${fileName}: needs header + data rows.`);
+        return 0;
+      }
+      const headers = rows[0].map(h => h.trim());
+      const lower = headers.map(h => h.toLowerCase());
+      const findCol = (pats) => lower.findIndex(h => pats.some(p => h === p || h.includes(p)));
+
+      const nameIdx = findCol(["name", "site", "place", "title", "city"]);
+      const latIdx  = findCol(["lat", "latitude"]);
+      const lonIdx  = findCol(["lon", "lng", "longitude"]);
+      const catIdx  = findCol(["category", "layer", "priority", "folder", "phase", "period", "type", "group", "tier"]);
+      const locIdx  = findCol(["location", "region", "state", "district", "river"]);
+      const descIdx = findCol(["description", "notes", "details", "facts", "info"]);
+
+      if (latIdx === -1 || lonIdx === -1) {
+        showToast(`${fileName}: missing Latitude/Longitude columns.`);
+        return 0;
+      }
+
+      const fallbackLayerName = fileName.replace(/\.(csv|txt)$/i, "").replace(/[_-]+/g, " ");
+      const added = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        const lat = parseFloat(r[latIdx]);
+        const lon = parseFloat(r[lonIdx]);
+        if (Number.isNaN(lat) || Number.isNaN(lon)) continue;
+
+        const layerName = (catIdx >= 0 && r[catIdx] && r[catIdx].trim()) ? r[catIdx].trim() : fallbackLayerName;
+        const layer = getOrCreateLayer(layerName);
+
+        let desc = (descIdx >= 0 && r[descIdx]) ? r[descIdx].trim() : "";
+        if (!desc) {
+          const extras = [];
+          headers.forEach((h, ci) => {
+            if ([nameIdx, latIdx, lonIdx, catIdx].includes(ci)) return;
+            const v = (r[ci] || "").trim();
+            if (v) extras.push(`• ${h}: ${v}`);
+          });
+          desc = extras.join("\n\n");
+        }
+
+        added.push({
+          id: `site_${state.nextId++}`,
+          layerId: layer.id,
+          name: (nameIdx >= 0 && r[nameIdx]) ? r[nameIdx].trim() : `Place ${i}`,
+          lat,
+          lon,
+          location: (locIdx >= 0 && r[locIdx]) ? r[locIdx].trim() : "",
+          description: desc
+        });
+      }
+
+      state.sites.push(...added);
+      return added.length;
+    }
+
+    function handleFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (files.length === 0) return;
+
+      let remaining = files.length;
+      let totalAdded = 0;
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target.result || "";
+          if (file.name.toLowerCase().endsWith(".kml") || text.trim().startsWith("<?xml") || text.includes("<kml")) {
+            totalAdded += importKML(text, file.name);
+          } else {
+            totalAdded += importCSV(text, file.name);
+          }
+          remaining--;
+          if (remaining === 0) {
+            renderLayers();
+            renderMapAndList(true);
+            if (totalAdded > 0) {
+              showToast(`Added ${totalAdded} places across ${state.layers.length} layer(s).`);
+              if (window.innerWidth >= 640) setSidebarOpen(true);
+            }
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    // =========================================================================
+    // 12. EVENT WIRING & KEYBOARD SHORTCUTS
+    // =========================================================================
+    document.getElementById("fileInput").addEventListener("change", (e) => {
+      handleFiles(e.target.files);
+      e.target.value = "";
+    });
+
+    document.getElementById("dismissEmptyBtn").addEventListener("click", () => {
+      document.getElementById("emptyStateCard").classList.add("hidden");
+    });
+
+    // Drag & Drop anywhere
+    let dragDepth = 0;
+    window.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      dragDepth++;
+      document.getElementById("dropOverlay").classList.remove("hidden");
+    });
+    window.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      dragDepth--;
+      if (dragDepth <= 0) { dragDepth = 0; document.getElementById("dropOverlay").classList.add("hidden"); }
+    });
+    window.addEventListener("dragover", (e) => e.preventDefault());
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dragDepth = 0;
+      document.getElementById("dropOverlay").classList.add("hidden");
+      handleFiles(e.dataTransfer.files);
+    });
+
+    // Sidebar & Header Controls
+    document.getElementById("toggleSidebarBtn").addEventListener("click", () => setSidebarOpen(!state.sidebarOpen));
+    document.getElementById("closeSidebarBtn").addEventListener("click", () => setSidebarOpen(false));
+    document.getElementById("fitBoundsBtn").addEventListener("click", () => fitVisibleBounds(getVisibleSites()));
+
+    document.getElementById("fullscreenBtn").addEventListener("click", () => {
+      try {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      } catch (_) {
+        showToast("Fullscreen is managed by your browser window.");
+      }
+    });
+
+    // Basemaps
+    document.querySelectorAll(".basemap-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const mode = btn.dataset.basemap;
+        Object.values(basemaps).forEach(l => map.removeLayer(l));
+        basemaps[mode].addTo(map);
+        state.activeBasemap = mode;
+        document.getElementById("map").classList.toggle("amoled-tiles", mode === "dark");
+        document.querySelectorAll(".basemap-btn").forEach(b => {
+          const active = b.dataset.basemap === mode;
+          b.className = active
+            ? "basemap-btn px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-600 text-white border border-purple-400 transition"
+            : "basemap-btn px-2 py-1 rounded-md text-[11px] font-medium bg-[#120b22] text-purple-300 border border-purple-900/50 hover:border-purple-500 transition";
+        });
+      });
+    });
+
+    // Toggles
+    document.getElementById("pinNamesToggle").addEventListener("change", (e) => {
+      state.showPinNames = e.target.checked;
+      renderMapAndList(false);
+    });
+
+    document.getElementById("modernLabelsToggle").addEventListener("change", (e) => {
+      state.showModernLabels = e.target.checked;
+      if (state.showModernLabels) labelsOverlay.addTo(map);
+      else map.removeLayer(labelsOverlay);
+    });
+
+    function setRecallBlur(val) {
+      state.recallBlur = val;
+      document.getElementById("recallToggle").checked = val;
+      document.getElementById("drawerRecallBtn").textContent = `Blur Recall: ${val ? "ON" : "OFF"}`;
+      document.getElementById("modalRecallBtn").textContent = `Blur: ${val ? "ON" : "OFF"}`;
+      document.getElementById("detailBody").classList.toggle("recall-active", val);
+      document.getElementById("modalBody").classList.toggle("recall-active", val);
+    }
+
+    document.getElementById("recallToggle").addEventListener("change", (e) => setRecallBlur(e.target.checked));
+    document.getElementById("drawerRecallBtn").addEventListener("click", () => setRecallBlur(!state.recallBlur));
+    document.getElementById("modalRecallBtn").addEventListener("click", () => setRecallBlur(!state.recallBlur));
+
+    // Search & Layer bulk actions
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      state.searchQuery = e.target.value;
+      renderMapAndList(false);
+    });
+
+    document.getElementById("showAllLayersBtn").addEventListener("click", () => {
+      state.layers.forEach(l => { l.visible = true; });
+      renderLayers();
+      renderMapAndList(true);
+    });
+
+    document.getElementById("clearAllLayersBtn").addEventListener("click", () => {
+      state.layers = [];
+      state.sites = [];
+      state.selectedSiteId = null;
+      state.studyMode = false;
+      setDetailOpen(false);
+      document.getElementById("bottomBar").classList.add("hidden");
+      renderLayers();
+      renderMapAndList(false);
+      showToast("Cleared all layers.");
+    });
+
+    // Info Mode & Study Mode controls
+    document.getElementById("modeCompactBtn").addEventListener("click", () => setInfoMode("compact"));
+    document.getElementById("modeSplitBtn").addEventListener("click", () => setInfoMode("split"));
+    document.getElementById("shuffleToggle").addEventListener("change", (e) => { state.shuffleStudy = e.target.checked; });
+    document.getElementById("studyZoomSelect").addEventListener("change", (e) => { state.studyZoom = Number(e.target.value); });
+
+    document.getElementById("startStudyBtn").addEventListener("click", startStudyMode);
+    document.getElementById("headerStudyBtn").addEventListener("click", startStudyMode);
+    document.getElementById("studyPrevBtn").addEventListener("click", () => goToStudyStep(state.studyIndex - 1));
+    document.getElementById("studyNextBtn").addEventListener("click", () => goToStudyStep(state.studyIndex + 1));
+    document.getElementById("studyOverviewBtn").addEventListener("click", () => fitVisibleBounds(state.studyQueue));
+    document.getElementById("exitBottomBtn").addEventListener("click", exitStudyOrBottom);
+
+    // Bottom bar Read & Split toggles
+    document.getElementById("bottomReadBtn").addEventListener("click", openLargeReader);
+    document.getElementById("bottomSplitBtn").addEventListener("click", () => {
+      setInfoMode(state.infoMode === "split" ? "compact" : "split");
+    });
+
+    // Detail Drawer & Modal buttons
+    document.getElementById("closeDetailBtn").addEventListener("click", () => {
+      setInfoMode("compact");
+    });
+    document.getElementById("expandReaderBtn").addEventListener("click", openLargeReader);
+    document.getElementById("closeModalBtn").addEventListener("click", closeLargeReader);
+    document.getElementById("modalPrevBtn").addEventListener("click", () => goToStudyStep(state.studyIndex - 1));
+    document.getElementById("modalNextBtn").addEventListener("click", () => goToStudyStep(state.studyIndex + 1));
+
+    // Layer Customizer Modal buttons
+    document.getElementById("closeLayerEditBtn").addEventListener("click", () => {
+      document.getElementById("layerEditModal").classList.add("hidden");
+    });
+    document.getElementById("saveLayerEditBtn").addEventListener("click", () => {
+      const layer = getLayer(state.editingLayerId);
+      if (layer) {
+        const newName = document.getElementById("editLayerNameInput").value.trim();
+        if (newName) layer.name = newName;
+        layer.color = state.editDraftColor;
+        layer.icon = state.editDraftIcon;
+      }
+      document.getElementById("layerEditModal").classList.add("hidden");
+      renderLayers();
+      renderMapAndList(false);
+      showToast("Layer updated.");
+    });
+    document.getElementById("deleteLayerBtn").addEventListener("click", () => {
+      const id = state.editingLayerId;
+      state.layers = state.layers.filter(l => l.id !== id);
+      state.sites = state.sites.filter(s => s.layerId !== id);
+      if (state.selectedSiteId && !state.sites.some(s => s.id === state.selectedSiteId)) {
+        state.selectedSiteId = null;
+        setDetailOpen(false);
+        document.getElementById("bottomBar").classList.add("hidden");
+      }
+      document.getElementById("layerEditModal").classList.add("hidden");
+      renderLayers();
+      renderMapAndList(false);
+      showToast("Layer deleted.");
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
+      if (e.key === "ArrowRight" || (e.key === " " && state.studyMode)) {
+        if (state.studyMode) { e.preventDefault(); goToStudyStep(state.studyIndex + 1); }
+      } else if (e.key === "ArrowLeft") {
+        if (state.studyMode) { e.preventDefault(); goToStudyStep(state.studyIndex - 1); }
+      } else if (e.key.toLowerCase() === "f" && state.selectedSiteId) {
+        e.preventDefault();
+        state.modalOpen ? closeLargeReader() : openLargeReader();
+      } else if (e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        setRecallBlur(!state.recallBlur);
+      } else if (e.key === "Escape") {
+        if (!document.getElementById("layerEditModal").classList.contains("hidden")) {
+          document.getElementById("layerEditModal").classList.add("hidden");
+        } else if (state.modalOpen) {
+          closeLargeReader();
+        } else if (state.studyMode) {
+          exitStudyOrBottom();
+        }
+      }
+    });
+
+    // Initial render
+    lucide.createIcons();
+    setInfoMode("compact");
+    renderLayers();
+    renderMapAndList(false);
+  </script>
+</body>
+</html>
